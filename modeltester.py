@@ -5,8 +5,8 @@ import sklearn.cross_validation as cv
 
 class ModelTester(RSObject):
     def __init__(self, classifier):
-        super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
         self.clf = classifier
+        super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
 
     def fit_transform(self, data, msg=''):
         '''
