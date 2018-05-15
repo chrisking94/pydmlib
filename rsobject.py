@@ -38,7 +38,7 @@ class RSObject(object):
     def msgtimecost(self, start=None, msg=''):
         if start == None:
             start = self.timestart
-        msg = '\033[%d;%d;%dm%s\033[0m[\033[1;35timecost\033[0m]: %fs' % (self.msgmode, self.msgforecolor + 30,
+        msg = '\033[%d;%d;%dm%s\033[0m[\033[1;35mtimecost\033[0m]: %fs' % (self.msgmode, self.msgforecolor + 30,
                                                                        self.msgbackcolor + 40, self.name,
                                                                        time.time() - start)
         print(msg)
