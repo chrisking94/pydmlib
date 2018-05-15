@@ -10,12 +10,12 @@ class ModelTester(RSObject):
 
     def fit_transform(self, data, msg=''):
         '''
-       开始测试
-       :param data: 测试数据，可以是：
+        开始测试
+        :param data: 测试数据，可以是：
            1、整个数据集
            2、tuple(trainset，testset)
-       :param clf: 分类器
-       '''
+        :param clf: 分类器
+        '''
         clf = self.clf
         self.msg('\033[1;31;47m%s\033[0m \t开始时间：' % ('↓' * 40))
         printtime()
@@ -50,3 +50,4 @@ class ModelTester(RSObject):
         self.msgtimecost()
 
         return trainscore, testscore, cm
+
