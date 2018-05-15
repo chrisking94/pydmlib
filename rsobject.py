@@ -42,7 +42,7 @@ class RSObject(object):
 
     def msgtime(self, msg=''):
         localtime = time.asctime(time.localtime(time.time()))
-        msg = '\033[%d;%d;%dm%s\033[0m[\033[1;36m%s\033[0m]: %s' % (self.msgmode, self.msgforecolor + 30,
+        msg = '\033[%d;%d;%dm%s\033[0m[\033[0;36m%s\033[0m]: %s' % (self.msgmode, self.msgforecolor + 30,
                                                                    self.msgbackcolor + 40, self.name,
                                                                    localtime, msg)
         print(msg)

@@ -41,7 +41,7 @@ class FeatureSelector(RSObject):
 
 class FSNone(FeatureSelector):
     def __init__(self):
-        super(FSNone, self).__init__('无特征选择')
+        super(FSNone, self).__init__('不做特征选择')
 
     def fit_transform(self, data, threshold=0.2):
         return data.copy()

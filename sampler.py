@@ -36,19 +36,19 @@ class SplUnder(Sampler):
         mc_samplecount = cnts.min()
         minorclass = lables[cnts == mc_samplecount][0]
         lables, cnts = lables[lables != minorclass], cnts[lables != minorclass]
-        data = data[data[label] == minorclass]
+        newdata = data[data[label] == minorclass]
         for lbl, cnt in zip(lables, cnts):
             dtmp = data[data[label] == lbl]
             if (feature_weights == None):
-                data = data.append(dtmp.sample(mc_samplecount))
+                newdata = newdata.append(dtmp.sample(mc_samplecount))
             elif (feature_weights == 1):
                 raise Exception('Not implemented!')
             elif (isinstance(feature_weights, dict)):
                 raise Exception('Not implemented!')
             else:
                 raise Exception('Invalid value for feature_weights!')
-        self.msg('采样后数据行数 %d' % data.shape[0])
-        return data
+        self.msg('采样后数据行数 %d' % newdata.shape[0])
+        return newdata
 
 
 class SplMiddle(Sampler):
