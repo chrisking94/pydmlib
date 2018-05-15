@@ -4,7 +4,7 @@ import sklearn.cross_validation as cv
 
 
 class ModelTester(RSObject):
-    def __index__(self, classifier):
+    def __init__(self, classifier):
         super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
         self.clf = classifier
 

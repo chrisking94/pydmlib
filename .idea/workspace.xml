@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9501bde3-92e8-4ba7-b542-eeeac253d76a" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/modeltester.py" beforeDir="false" afterPath="$PROJECT_DIR$/modeltester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rsobject.py" beforeDir="false" afterPath="$PROJECT_DIR$/rsobject.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -14,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="rsobject.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="rsobject.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/rsobject.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="31" column="18" lean-forward="true" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
+            <state relative-caret-position="270">
+              <caret line="9" column="30" lean-forward="true" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -88,11 +87,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="modeltester.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="modeltester.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/modeltester.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-90">
-              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+            <state relative-caret-position="240">
+              <caret line="8" column="29" lean-forward="true" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
               </folding>
@@ -137,8 +136,8 @@
         <option value="$PROJECT_DIR$/abnormalvaluehandler.py" />
         <option value="$PROJECT_DIR$/featureselector.py" />
         <option value="$PROJECT_DIR$/featureclassifier.py" />
-        <option value="$PROJECT_DIR$/modeltester.py" />
         <option value="$PROJECT_DIR$/rsobject.py" />
+        <option value="$PROJECT_DIR$/modeltester.py" />
       </list>
     </option>
   </component>
@@ -302,22 +301,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modeltester.py">
+    <entry file="file://$PROJECT_DIR$/rsobject.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-90">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        <state relative-caret-position="270">
+          <caret line="9" column="30" lean-forward="true" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
           <folding>
-            <element signature="e#0#22#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/rsobject.py">
+    <entry file="file://$PROJECT_DIR$/modeltester.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="31" column="18" lean-forward="true" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
+        <state relative-caret-position="240">
+          <caret line="8" column="29" lean-forward="true" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
