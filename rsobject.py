@@ -29,3 +29,13 @@ class RSObject(object):
             start = self.timestart
         self.msg('%s耗时: %f s' % (msg, time.time() - start))
 
+
+def printtime():
+    localtime = time.asctime( time.localtime(time.time()) )
+    print(localtime)
+
+
+def printcosttime(start, msg=''):
+    print('%s耗时: %f s' % (msg, time.time()-start))
+
+
