@@ -3,9 +3,9 @@ from misc import ConfusionMatrix
 import sklearn.cross_validation as cv
 
 
-class ModelTest(RSObject):
+class ModelTester(RSObject):
     def __index__(self, classifier):
-        super(ModelTest, self).__init__('ModelTester', 'red', 'default', 'highlight')
+        super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
         self.clf = classifier
 
     def fit_transform(self, data, msg=''):

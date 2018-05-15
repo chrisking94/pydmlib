@@ -21,6 +21,17 @@ class RSObject(object):
                                                self.msgbackcolor + 40, self.name, msg)
         print(msg)
 
+    def warning(self, msg):
+        msg = '\033[%d;%d;%dm%s\033[0m[\033[1;33mwarning\033[0m]: %s' % (self.msgmode, self.msgforecolor + 30,
+                                               self.msgbackcolor + 40, self.name, msg)
+        print(msg)
+
+    def error(self, msg):
+        msg = '\033[%d;%d;%dm%s\033[0m[\033[1;31merror\033[0m]: %s' % (self.msgmode, self.msgforecolor + 30,
+                                                                         self.msgbackcolor + 40, self.name, msg)
+        print(msg)
+        raise Exception(msg)
+
     def starttimer(self):
         self.timestart = time.time()
 
