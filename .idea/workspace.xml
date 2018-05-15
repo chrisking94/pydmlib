@@ -2,16 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9501bde3-92e8-4ba7-b542-eeeac253d76a" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/abnormalvaluehandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/discretevalueencoder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/discretor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/featureselector.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/misc.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nanhandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/normalizer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rsobject.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sampler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/transformer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abnormalvaluehandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/abnormalvaluehandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/featureselector.py" beforeDir="false" afterPath="$PROJECT_DIR$/featureselector.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -36,14 +28,7 @@
       </file>
       <file leaf-file-name="abnormalvaluehandler.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/abnormalvaluehandler.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="1" column="22" lean-forward="true" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file leaf-file-name="nanhandler.py" pinned="false" current-in-tab="false">
@@ -97,19 +82,16 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="featureselector.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="featureselector.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/featureselector.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-              <folding>
-                <element signature="e#0#49#0" expanded="true" />
-              </folding>
+            <state>
+              <caret column="22" selection-start-column="22" selection-end-column="22" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="misc.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="misc.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/misc.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="240">
@@ -145,22 +127,22 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/abnormalvaluehandler.py" />
         <option value="$PROJECT_DIR$/nanhandler.py" />
         <option value="$PROJECT_DIR$/normalizer.py" />
         <option value="$PROJECT_DIR$/discretevalueencoder.py" />
         <option value="$PROJECT_DIR$/sampler.py" />
         <option value="$PROJECT_DIR$/discretor.py" />
         <option value="$PROJECT_DIR$/transformer.py" />
-        <option value="$PROJECT_DIR$/featureselector.py" />
         <option value="$PROJECT_DIR$/rsobject.py" />
         <option value="$PROJECT_DIR$/misc.py" />
+        <option value="$PROJECT_DIR$/abnormalvaluehandler.py" />
+        <option value="$PROJECT_DIR$/featureselector.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="501" />
-    <option name="y" value="244" />
+    <option name="x" value="339" />
+    <option name="y" value="350" />
     <option name="width" value="1400" />
     <option name="height" value="721" />
   </component>
@@ -217,7 +199,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="419" y="239" width="1400" height="721" extended-state="0" />
+    <frame x="339" y="350" width="1400" height="721" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
@@ -247,23 +229,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="22" selection-start-column="22" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nanhandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="22" selection-start-column="22" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/abnormalvaluehandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="1" column="22" lean-forward="true" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -301,16 +266,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/featureselector.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/rsobject.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -328,6 +283,23 @@
           <folding>
             <element signature="e#0#22#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nanhandler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="22" selection-start-column="22" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/abnormalvaluehandler.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/featureselector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="22" selection-start-column="22" selection-end-column="22" />
         </state>
       </provider>
     </entry>

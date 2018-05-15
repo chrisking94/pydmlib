@@ -1,3 +1,4 @@
+from rsobject import *
 from sklearn.feature_selection import SelectKBest
 from scipy.stats import pearsonr
 from sklearn.feature_selection import chi2

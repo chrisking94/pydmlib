@@ -1,4 +1,3 @@
-import numpy as np
 from rsobject import *
 
 class AbnormalValueHandler(RSObject):
