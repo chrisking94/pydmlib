@@ -16,6 +16,7 @@ class ModelTester(RSObject):
            2、tuple(trainset，testset)
         :param clf: 分类器
         '''
+        clf = None
         clf = self.classifier
         self.msg('\033[1;31;47m%s\033[0m \t开始时间：' % ('↓' * 40))
         printtime()
