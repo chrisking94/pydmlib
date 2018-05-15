@@ -30,25 +30,25 @@ class SplUnder(Sampler):
 
     def fit_transform(self, data, label):
         feature_weights = self.feature_weights
-        self.msg('--sample count before undersampling: %d' % data.shape[0])
+        self.msg('采样前行数 %d' % data.shape[0])
         lables, cnts = np.unique(data[label], return_counts=True)
-        self.msg('--minor class count: %d' % cnts.min())
+        self.msg('minor class count: %d' % cnts.min())
         mc_samplecount = cnts.min()
         minorclass = lables[cnts == mc_samplecount][0]
         lables, cnts = lables[lables != minorclass], cnts[lables != minorclass]
-        sdata = data[data[label] == minorclass]
+        data = data[data[label] == minorclass]
         for lbl, cnt in zip(lables, cnts):
             dtmp = data[data[label] == lbl]
             if (feature_weights == None):
-                sdata.append(dtmp.sample(cnts.min()))
+                data = data.append(dtmp.sample(mc_samplecount))
             elif (feature_weights == 1):
                 raise Exception('Not implemented!')
             elif (isinstance(feature_weights, dict)):
                 raise Exception('Not implemented!')
             else:
                 raise Exception('Invalid value for feature_weights!')
-        self.msg('--sample count after undersampling: %d' % data.shape[0])
-        return sdata
+        self.msg('采样后数据行数 %d' % data.shape[0])
+        return data
 
 
 class SplMiddle(Sampler):

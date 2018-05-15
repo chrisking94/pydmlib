@@ -145,7 +145,7 @@ class DsctMonospace(Discretor):
         if bs == None:
             bs = (X.max() - X.min()) / 10
         bs[bs == 0] = 1  # 避免除数为0
-        X = ((X - X.min()) / bs).astype('int')
+        X = ((X - X.min()) / bs).round()
         self.msgtimecost()
         return X
 
@@ -155,8 +155,8 @@ class DsctNone(Discretor):
         '''
         不离散
         '''
-        super(DsctNone, self).__init__('Discretor-None')
+        super(DsctNone, self).__init__('不离散')
 
-    def fit_transform(self, X):
+    def fit_transform(self, X, y=None):
         return X
 

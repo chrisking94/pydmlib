@@ -40,13 +40,12 @@ class RSObject(object):
             start = self.timestart
         self.msg('%s耗时: %f s' % (msg, time.time() - start))
 
+    def msgtime(self, msg=''):
+        localtime = time.asctime(time.localtime(time.time()))
+        msg = '\033[%d;%d;%dm%s\033[0m[\033[1;36m%s\033[0m]: %s' % (self.msgmode, self.msgforecolor + 30,
+                                                                   self.msgbackcolor + 40, self.name,
+                                                                   localtime, msg)
+        print(msg)
 
-def printtime():
-    localtime = time.asctime( time.localtime(time.time()) )
-    print(localtime)
-
-
-def printcosttime(start, msg=''):
-    print('%s耗时: %f s' % (msg, time.time()-start))
 
 

@@ -17,8 +17,8 @@ class ModelTester(RSObject):
        :param clf: 分类器
        '''
         clf = self.clf
-        self.msg('\033[1;31;47m%s\033[0m \t开始时间：' % ('↓' * 40))
-        printtime()
+        self.msg('\033[1;31;47m%s\033[0m' % ('↓' * 40))
+        self.msgtime('测试开始')
         self.msg('附加说明：%s' % msg)
         self.msg('分类器信息：%s' % clf.__str__())
         self.starttimer()
