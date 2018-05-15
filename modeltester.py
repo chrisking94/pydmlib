@@ -5,7 +5,7 @@ import sklearn.cross_validation as cv
 
 class ModelTester(RSObject):
     def __init__(self, classifier):
-        self.clf = classifier
+        self.classifier = classifier
         super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
 
     def fit_transform(self, data, msg=''):
@@ -16,7 +16,7 @@ class ModelTester(RSObject):
            2、tuple(trainset，testset)
         :param clf: 分类器
         '''
-        clf = self.clf
+        clf = self.classifier
         self.msg('\033[1;31;47m%s\033[0m \t开始时间：' % ('↓' * 40))
         printtime()
         self.msg('附加说明：%s' % msg)
