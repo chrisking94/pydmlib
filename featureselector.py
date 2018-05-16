@@ -44,6 +44,7 @@ class FSNone(FeatureSelector):
         super(FSNone, self).__init__('不做特征选择')
 
     def fit_transform(self, data, threshold=0.2):
+        self.msgtime()
         return data.copy()
 
 
