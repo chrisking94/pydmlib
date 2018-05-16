@@ -46,7 +46,7 @@ class ModelTester(RSObject):
         cm.show(True)
         cm.draw()
 
-        self.msg('↑' * 40)
         self.msgtimecost()
+        self.msg('↑' * 40)
 
         return trainscore, testscore, cm

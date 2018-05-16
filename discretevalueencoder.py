@@ -17,9 +17,9 @@ class DVEOneHot(DiscreteValueEncoder):
         '''
         self.starttimer()
         data = data.copy()
-        data[columns].astype('str', inplace=True)
+        data[columns] = data[columns].astype('str')
         target = data[data.columns[-1]]
-        encdisc = pd.get_dummies(data[columns].astype('str'), dummy_na=True)
+        encdisc = pd.get_dummies(data[columns], dummy_na=False)
         encdisc = encdisc.astype('float')
         data.drop(columns=columns, inplace=True)
         data.drop(columns=[data.columns[-1]], inplace=True)
