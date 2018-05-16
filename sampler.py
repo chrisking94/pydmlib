@@ -29,6 +29,7 @@ class SplUnder(Sampler):
         self.feature_weights = feature_weights
 
     def fit_transform(self, data, label):
+        self.starttimer()
         feature_weights = self.feature_weights
         self.msg('采样前行数 %d' % data.shape[0])
         lables, cnts = np.unique(data[label], return_counts=True)
@@ -48,6 +49,7 @@ class SplUnder(Sampler):
             else:
                 raise Exception('Invalid value for feature_weights!')
         self.msg('采样后数据行数 %d' % newdata.shape[0])
+        self.msgtimecost()
         return newdata
 
 
@@ -56,6 +58,7 @@ class SplMiddle(Sampler):
         super(SplMiddle, self).__init__('中间采样')
 
     def fit_transform(self, data, label):
+        self.starttimer()
         self.msg('--sample count before undersampling: %d' % data.shape[0])
         lables, cnts = np.unique(data[label], return_counts=True)
         avg = int(cnts.mean())
@@ -72,5 +75,6 @@ class SplMiddle(Sampler):
                 sdata = sdata.append(data[data[label] == lbl].sample(avg - cnt, replace=True))
 
         self.msg('--sample count after undersampling: %d' % data.shape[0])
+        self.msgtimecost()
         return sdata
 

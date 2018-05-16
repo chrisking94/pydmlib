@@ -5,6 +5,10 @@ import sklearn.cross_validation as cv
 
 class ModelTester(RSObject):
     def __init__(self, classifier):
+        '''
+        测试器
+        :param classifier:分类器
+        '''
         self.clf = classifier
         super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
 
@@ -14,7 +18,6 @@ class ModelTester(RSObject):
        :param data: 测试数据，可以是：
            1、整个数据集
            2、tuple(trainset，testset)
-       :param clf: 分类器
        '''
         clf = self.clf
         self.msg('\033[1;31;47m%s\033[0m' % ('↓' * 40))
