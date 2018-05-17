@@ -1,7 +1,7 @@
-from rsobject import *
+from base import *
 
 
-class Discretor(RSObject):
+class Discretor(RSDataProcessor):
     def __init__(self, name='Discretor'):
         super(Discretor, self).__init__(name, 'red', 'white')
 
@@ -95,14 +95,14 @@ class DsctChi2(Discretor):
         res = np.asarray(res)
         return res
 
-    def fit_transform(self, X, y):
+    def fit_transform(self, data, features=None):
         '''
         监督离散
         :param X:pandas.DataFrame
         :param y:pandas.Series
         '''
         self.starttimer()
-        X = X.copy()
+        X, y = self._getXy(data, features)
         for col in X.columns:
             xs = X[col].values
             # preprocessing
@@ -136,11 +136,12 @@ class DsctMonospace(Discretor):
         super(DsctMonospace, self).__init__('等宽离散')
         self.bin_size = bin_size
 
-    def fit_transform(self, X, y=None):
+    def fit_transform(self, data, features=None):
         '''
         :param X: pandas.DataFrame([feature1, feature2, ...])
         '''
         self.starttimer()
+        X, y = self._getXy(data, features)
         bs = self.bin_size
         if bs == None:
             bs = (X.max() - X.min()) / 10

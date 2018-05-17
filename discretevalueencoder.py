@@ -1,6 +1,6 @@
-from rsobject import *
+from base import *
 
-class DiscreteValueEncoder(RSObject):
+class DiscreteValueEncoder(RSDataProcessor):
     def __init__(self, name='DiscreteValueEncoder'):
         super(DiscreteValueEncoder, self).__init__(name, 'white', 'black')
 

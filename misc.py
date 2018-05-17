@@ -1,7 +1,7 @@
-from rsobject import *
+from base import *
 from sklearn.metrics import confusion_matrix
 
-class ConfusionMatrix(RSObject):
+class ConfusionMatrix(RSDataProcessor):
     def __init__(self, y_test, y_pred):
         super(ConfusionMatrix, self).__init__('ConfusionMatrix', 'blue', 'default', 'bold')
         self.cm = confusion_matrix(y_test, y_pred)

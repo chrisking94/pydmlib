@@ -1,7 +1,7 @@
-from rsobject import *
+from base import *
 
 
-class Sampler(RSObject):
+class Sampler(RSDataProcessor):
     def __init__(self, name='Sampler'):
         super(Sampler, self).__init__(name, 'blue', 'yellow', 'highlight')
 

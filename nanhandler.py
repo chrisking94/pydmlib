@@ -1,7 +1,7 @@
-from rsobject import *
+from base import *
 
 
-class NanHandler(RSObject):
+class NanHandler(RSDataProcessor):
     def __init__(self, name='NanHandler'):
         super(NanHandler, self).__init__(name, 'yellow', 'black')
 

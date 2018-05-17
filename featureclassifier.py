@@ -1,7 +1,7 @@
-from rsobject import *
+from base import *
 
 
-class FeatureClassifier(RSObject):
+class FeatureClassifier(RSDataProcessor):
     def __init__(self, name='FeatureClassifier'):
         super(FeatureClassifier, self).__init__(name, 'blue', 'white')
 

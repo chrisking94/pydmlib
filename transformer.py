@@ -1,8 +1,8 @@
-from rsobject import *
+from base import *
 from sklearn.preprocessing import FunctionTransformer
 
 
-class Transformer(RSObject):
+class Transformer(RSDataProcessor):
     def __init__(self, transform, name='Transformer'):
         '''
         :param transform: lambda x:...

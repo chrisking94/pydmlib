@@ -1,8 +1,8 @@
-from rsobject import *
+from base import *
 from sklearn.preprocessing import MinMaxScaler
 
 
-class Normalizer(RSObject):
+class Normalizer(RSDataProcessor):
     def __init__(self, name='Normalizer'):
         super(Normalizer, self).__init__(name, 'black', 'pink', 'highlight')
 

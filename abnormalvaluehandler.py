@@ -1,6 +1,6 @@
-from rsobject import *
+from base import *
 
-class AbnormalValueHandler(RSObject):
+class AbnormalValueHandler(RSDataProcessor):
     def __init__(self, name='AbnormalValueHandler'):
         super(AbnormalValueHandler, self).__init__(name, 'black', 'cyan')
 

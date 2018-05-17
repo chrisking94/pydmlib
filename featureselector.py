@@ -1,4 +1,4 @@
-from rsobject import *
+from base import *
 from sklearn.feature_selection import SelectKBest
 from scipy.stats import pearsonr
 from sklearn.feature_selection import chi2
@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from skfeature.function.information_theoretical_based.MRMR import mrmr
 
 
-class FeatureSelector(RSObject):
+class FeatureSelector(RSDataProcessor):
     def __init__(self, name='FeatureSelector'):
         super(FeatureSelector, self).__init__(name, 'pink', 'white', 'highlight')
 

@@ -1,9 +1,9 @@
-from rsobject import *
+from base import *
 from misc import ConfusionMatrix
 import sklearn.cross_validation as cv
 
 
-class ModelTester(RSObject):
+class ModelTester(RSDataProcessor):
     def __init__(self, classifier):
         '''
         测试器
