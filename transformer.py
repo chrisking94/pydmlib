@@ -3,27 +3,24 @@ from sklearn.preprocessing import FunctionTransformer
 
 
 class Transformer(RSDataProcessor):
-    def __init__(self, transform, name='Transformer'):
+    def __init__(self, features2process, transform, breplace=True, name='Transformer'):
         '''
-        :param transform: lambda x:...
-        :param features:要转换的特征列表
+        对data[features2process]做transform函数变换
+        :param features2process:
+        :param transform:
+        :param breplace:是否用转换后的数据替换原数据，为False则把转换后数据追加到data中
+        :param name:
         '''
-        super(Transformer, self).__init__(name, 'black', 'cyan')
+        super(Transformer, self).__init__(features2process, name, 'black', 'green')
         self.transform = transform
+        self.breplace = breplace
 
-    def fit_transform(self, data, features, breplace=True):
-        '''
-        数据变换
-        :param data:数据总表
-        :param features: [featurename1,featurename2,...]
-        :param breplace: 是否用转换后特征替换原本特征
-                            如果False: 把转换后的追加到数据集
-        :return: transfered data
-        '''
+    def fit_transform(self, data):
         self.starttimer()
+        features, label = self._getFeaturesNLabel(data)
         nanindexs = data.isnull()
         data = data.fillna(0)
-        if (breplace):
+        if self.breplace:
             data[features] = FunctionTransformer(self.transform).fit_transform(data[features])
         else:
             ts = FunctionTransformer(self.transform).fit_transform(data[features])

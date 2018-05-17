@@ -3,23 +3,20 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 class Normalizer(RSDataProcessor):
-    def __init__(self, name='Normalizer'):
-        super(Normalizer, self).__init__(name, 'black', 'pink', 'highlight')
+    def __init__(self,features2process, name='Normalizer'):
+        super(Normalizer, self).__init__(features2process, name, 'black', 'pink', 'highlight')
 
 
 class NmlzMinMax(Normalizer):
-    def __init__(self):
+    def __init__(self, features):
         super(NmlzMinMax, self).__init__('MinMax归一化')
 
-    def fit_transform(self, data, featlist):
+    def fit_transform(self, data):
         self.starttimer()
         data = data.copy()
-        for feat in featlist:
-            scl = MinMaxScaler(feature_range=(0, 1))
-            xx = data[feat]
-            notnaIndexs = xx[xx.notna()].index
-            nn = scl.fit_transform(xx[notnaIndexs].reshape(-1, 1))
-            data.loc[notnaIndexs, [feat]] = scl.fit_transform(xx[notnaIndexs].reshape(-1, 1))
-            # print('normalize %s OK!\t\t 非空值个数:%d' % (feat, notnaIndexs.shape[0]))
+        features, label = self._getFeaturesNLabel(data)
+        X = data[features]
+        X = (X - X.min()) / (X.max() - X.min())
+        data[features] = X
         self.msgtimecost()
         return data

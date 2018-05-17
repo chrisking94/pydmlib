@@ -7,10 +7,11 @@ from skfeature.function.information_theoretical_based.MRMR import mrmr
 
 
 class FeatureSelector(RSDataProcessor):
-    def __init__(self, name='FeatureSelector'):
-        super(FeatureSelector, self).__init__(name, 'pink', 'white', 'highlight')
+    def __init__(self, features2process, threshold=0.2, name='FeatureSelector'):
+        super(FeatureSelector, self).__init__(features2process, name, 'pink', 'white', 'highlight')
+        self.threshold = threshold
 
-    def fit_transform(self, data, threshold=0.2):
+    def fit_transform(self, data):
         '''
         选择最佳特征
         :param encdata:输入数据
@@ -22,35 +23,37 @@ class FeatureSelector(RSDataProcessor):
         :param threshold:float, 0~1
         '''
         self.starttimer()
-        self.msg('--feature count before selection: %d' % data.shape[1])
-        sdata, starget = data[data.columns[:-1]], data['label']
-
+        self.msg('--feature count before selection %d' % data.shape[1])
+        features, label = self._getFeaturesNLabel(data)
+        sdata, starget = data[features], data[label]
         scores = self.score(sdata, starget)
 
         scores = pd.Series(scores)
         # normalization
         scores = (scores - scores.min()) / (scores.max() - scores.min())
         scores[scores.isnull()] = 0
-        fdata = sdata.drop(columns=sdata.columns[scores < threshold])
-        fdata = pd.concat([fdata, starget], axis=1)
+        fdata = data.drop(columns=sdata.columns[scores < self.threshold])
 
-        self.msg('--feature count after selection: %d' % fdata.shape[1])
+        self.msg('--feature count after selection %d' % fdata.shape[1])
         self.msgtimecost()
         return fdata
 
+    def score(self, data, target):
+        self.error('Not implemented!')
+
 
 class FSNone(FeatureSelector):
-    def __init__(self):
-        super(FSNone, self).__init__('不做特征选择')
+    def __init__(self, features2process):
+        super(FSNone, self).__init__(features2process, name='不做特征选择')
 
-    def fit_transform(self, data, threshold=0.2):
+    def fit_transform(self, data):
         self.msgtime()
         return data.copy()
 
 
 class FSChi2(FeatureSelector):
-    def __init__(self):
-        super(FSChi2, self).__init__('χ²特征选择')
+    def __init__(self, features2process):
+        super(FSChi2, self).__init__(features2process, name='χ²特征选择')
 
     def score(self, data, target):
         skb = SelectKBest(chi2, k='all')
@@ -59,8 +62,8 @@ class FSChi2(FeatureSelector):
 
 
 class FSRFC(FeatureSelector):
-    def __init__(self):
-        super(FSRFC, self).__init__('rfc特征选择')
+    def __init__(self, features2process):
+        super(FSRFC, self).__init__(features2process, name='rfc特征选择')
 
     def score(self, data, target):
         clf = RandomForestClassifier()
@@ -69,8 +72,8 @@ class FSRFC(FeatureSelector):
 
 
 class FSmRMR(FeatureSelector):
-    def __init__(self):
-        super(FSmRMR, self).__init__('mRMR特征选择')
+    def __init__(self, features2process):
+        super(FSmRMR, self).__init__(features2process, name='mRMR特征选择')
 
     def score(self, data, target):
         F = mrmr(data.values, target)

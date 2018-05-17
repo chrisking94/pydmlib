@@ -1,10 +1,11 @@
 from base import *
 from sklearn.metrics import confusion_matrix
 
-class ConfusionMatrix(RSDataProcessor):
-    def __init__(self, y_test, y_pred):
+
+class ConfusionMatrix(RSObject):
+    def __init__(self, y_test, y_pred, labels=None):
         super(ConfusionMatrix, self).__init__('ConfusionMatrix', 'blue', 'default', 'bold')
-        self.cm = confusion_matrix(y_test, y_pred)
+        self.cm = confusion_matrix(y_test, y_pred, labels)
 
     def normalize(self):
         return self.cm.astype('float') / self.cm.sum(axis=1)[:, np.newaxis]
@@ -19,6 +20,12 @@ class ConfusionMatrix(RSDataProcessor):
         plt.imshow(self.cm, interpolation='nearest', cmap=plt.cm.Blues)
         plt.title(self.name)
         plt.show()
+
+    def getclassscores(self):
+        scores = []
+        for i in range(self.cm.shape[0]):
+            scores.append(self.cm[i, i])
+        return scores
 
     def __getitem__(self, index):
         return self.normalize()[index]

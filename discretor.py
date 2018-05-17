@@ -2,19 +2,19 @@ from base import *
 
 
 class Discretor(RSDataProcessor):
-    def __init__(self, name='Discretor'):
-        super(Discretor, self).__init__(name, 'red', 'white')
+    def __init__(self, features2process, name='Discretor'):
+        super(Discretor, self).__init__(features2process, name, 'red', 'white')
 
     def fit_transform(X, y):
         raise Exception('error:Not implemented!')
 
 
 class DsctChi2(Discretor):
-    def __init__(self, min_interval=1):
+    def __init__(self, features2process, min_interval=1):
         '''
         chi^2离散
         '''
-        super(DsctChi2, self).__init__('χ²离散')
+        super(DsctChi2, self).__init__(features2process, 'χ²离散')
         self.min_interval = min_interval
         self.min_epos = 0.05
         self.final_bin = []
@@ -95,15 +95,17 @@ class DsctChi2(Discretor):
         res = np.asarray(res)
         return res
 
-    def fit_transform(self, data, features=None):
+    def fit_transform(self, data):
         '''
-        监督离散
-        :param X:pandas.DataFrame
-        :param y:pandas.Series
+        chi2离散
+        :param data:
+        :return:
         '''
         self.starttimer()
-        X, y = self._getXy(data, features)
-        for col in X.columns:
+        features, label = self._getFeaturesNLabel(data)
+        X = data[features]
+        y = data[label]
+        for col in features:
             xs = X[col].values
             # preprocessing
             if (xs.max() == xs.min()):
@@ -113,6 +115,7 @@ class DsctChi2(Discretor):
                 ys = y.values
                 self._fit(xs, ys, self.min_interval)
             X[col] = self._transform(xs)
+        data[features] = X
         self.msgtimecost()
         return X
 
@@ -128,27 +131,29 @@ class DsctChi2(Discretor):
 
 
 class DsctMonospace(Discretor):
-    def __init__(self, bin_size=None):
+    def __init__(self, features2process, bin_size=None):
         '''
         等宽离散
         :param bin_size:默认分10桶
         '''
-        super(DsctMonospace, self).__init__('等宽离散')
+        super(DsctMonospace, self).__init__(features2process, '等宽离散')
         self.bin_size = bin_size
 
-    def fit_transform(self, data, features=None):
+    def fit_transform(self, data):
         '''
         :param X: pandas.DataFrame([feature1, feature2, ...])
         '''
         self.starttimer()
-        X, y = self._getXy(data, features)
+        features, label = self._getFeaturesNLabel(data)
+        X, y = data[features], data[label]
         bs = self.bin_size
         if bs == None:
             bs = (X.max() - X.min()) / 10
         bs[bs == 0] = 1  # 避免除数为0
         X = ((X - X.min()) / bs).round()
+        data[features] = X
         self.msgtimecost()
-        return X
+        return data
 
 
 class DsctNone(Discretor):
@@ -158,6 +163,6 @@ class DsctNone(Discretor):
         '''
         super(DsctNone, self).__init__('不离散')
 
-    def fit_transform(self, X, y=None):
-        return X
+    def fit_transform(self, data):
+        return data
 

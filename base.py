@@ -3,27 +3,38 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import gc
 
 class RSObject(object):
     modedict = {'default': 0, 'highlight': 1, 'bold': 2, 'nobold': 22, 'underline': 4, 'nounderline': 24,
                 'blink': 5, 'noblink': 25, 'inverse': 7, 'noinverse': 27}
     colordict = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'pink': 5, 'cyan': 6, 'white': 7,
-                 'default': 8, 'random': 9}
+                 'default': 8, 'random': -1}
 
     def __init__(self, name='RS-Object', msgforecolor='default', msgbackcolor='default', msgmode='default'):
         self.name = name
-        self.msgforecolor = self._getcolor(msgforecolor)
-        self.msgbackcolor = self._getcolor(msgbackcolor)
+        self.msgforecolor = msgforecolor
+        self.msgbackcolor = msgbackcolor
         self.msgmode = RSObject.modedict[msgmode]
         self.timestart = time.time()
 
     def _getcolor(self, colorname):
-        color = RSObject.colordict[colorname]
-        if(color == 9):
+        '''
+        transfer color name into color num
+        :param colorname: str or int
+        :return:color num
+        '''
+        if isinstance(colorname, str):
+            color = RSObject.colordict[colorname]
+        else:
+            color = colorname
+        if color == -1:
             color = random.randint(0, 8)
         return color
 
     def _colorstr(self, s, mode, fcolor, bcolor):
+        fcolor = self._getcolor(fcolor)
+        bcolor = self._getcolor(bcolor)
         s = '\033[%d;%d;%dm%s\033[0m' % (mode, fcolor+30, bcolor+40, s)
         return s
 
@@ -60,23 +71,30 @@ class RSObject(object):
 
 
 class RSDataProcessor(RSObject):
-    def __init__(self):
-        super(RSDataProcessor, self).__init__('DataProcessor')
-
-    def _getXy(self, data, features=None):
-        if features==None:
-            features = data.columns[:-1]
-        X = data[features]
-        y = data[data.columns[-1]]
-        return X, y
-
-    def fit_transform(self, data, features=None):
+    def __init__(self, features2process=None, name='DataProcessor', msgforecolor='default',
+                 msgbackcolor='default', msgmode='default'):
         '''
-        处理数据的主要成员函数
-        :param data: [X y]
-        :param features:需要处理的特征，可以为None
+        :param features2process:需要处理的特征
                         如果None，则处理所有特征
-        :return:处理过后的[X' y]
+        '''
+        super(RSDataProcessor, self).__init__(name, msgforecolor, msgbackcolor, msgmode)
+        self.features2process = features2process
+
+    def _getFeaturesNLabel(self, data):
+        '''
+        :param data:
+        :param features2process:为None则设置为data所有features，否则不变
+        :return:features, label
+        '''
+        if self.features2process==None:
+            self.features2process = data.columns[:-1]
+        label = data.columns[-1]
+        return self.features2process, label
+
+    def fit_transform(self, data):
+        '''
+        :param data: [X y]
+        :return:[X' y]
         '''
         self.error('Not implemented!')
 
