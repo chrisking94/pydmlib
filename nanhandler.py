@@ -34,3 +34,23 @@ class NHToSpecial(NanHandler):
         data[features] = data[features].fillna(self.special)
         self.msg('data shape %s' % (data.shape.__str__()))
         return data
+
+
+class NHDropColumns(NanHandler):
+    def __init__(self, features2process, nullrate_threshold=0.5):
+        '''
+        以feature2process中的列为研究对象，如果某列的缺失率超过nullrate_threshhold，则丢弃该列
+        :param features2process:
+        :param nullrate_threshold:空值率阈值
+        '''
+        super(NanHandler, self).__init__(features2process, '丢弃缺失率超过%f的列' % nullrate_threshold)
+        self.nullrate_threshold = nullrate_threshold
+
+    def fit_transform(self, data):
+        features, label = self._getFeaturesNLabel(data)
+        X = data[features]
+        nullrates = X.isnull().sum() / X.shape[0]
+        data = data.drop(columns=X.columns[nullrates>self.nullrate_threshold])
+        return data
+
+
