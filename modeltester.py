@@ -71,6 +71,7 @@ class MTSingle(ModelTester):
         self._gettargetlabels(data)
         for processor in self.dataProcrSequence:
             data = processor.fit_transform(data)
+            gc.collect()
         self.data = data
         self.msgtimecost(msg='数据处理总耗时')
         return data
