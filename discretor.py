@@ -108,8 +108,8 @@ class DsctChi2(Discretor):
         for col in features:
             xs = X[col].values
             # preprocessing
-            if (xs.max() == xs.min()):
-                self.msg('%s-warning:column [%s] values are all [%f], all set to %d' % (self.name, col, xs.min(), 1))
+            if xs.max() == xs.min():
+                self.warning('column [%s] values are all [%f], all set to %d' % (col, xs.min(), 1))
                 xs = xs - xs.min() + 1
             else:
                 ys = y.values
@@ -147,7 +147,7 @@ class DsctMonospace(Discretor):
         features, label = self._getFeaturesNLabel(data)
         X, y = data[features], data[label]
         bs = self.bin_size
-        if bs == None:
+        if bs is None:
             bs = (X.max() - X.min()) / 10
         bs[bs == 0] = 1  # 避免除数为0
         X = ((X - X.min()) / bs).round()
@@ -155,7 +155,7 @@ class DsctMonospace(Discretor):
         self.msgtimecost()
         return data
 
-
+np.ndarray
 class DsctNone(Discretor):
     def __init__(self):
         """

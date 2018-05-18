@@ -2,9 +2,10 @@ from base import *
 from sklearn.metrics import confusion_matrix
 
 
-class ConfusionMatrix(RSObject):
+class ConfusionMatrix(pd.DataFrame, RSObject):
     def __init__(self, y_test, y_pred, labels=None):
-        super(ConfusionMatrix, self).__init__('ConfusionMatrix', 'blue', 'default', 'bold')
+        super(ConfusionMatrix, self).__init__()
+        RSObject.__init__(self, 'ConfusionMatrix', 'blue', 'default', 'bold')
         self.cm = confusion_matrix(y_test, y_pred, labels)
 
     def normalize(self):

@@ -33,9 +33,10 @@ class TsfmFunction(Transformer):
             data[features] = self.transform(data[features])
         else:
             ts = self.transform(data[features])
-            modified = data[features].columns[((ts - data[features]).max() != 0)]
+            modified = data[features].columns[(ts!=data[features]).sum()>0]
+            ts = ts[modified]
             if modified.shape[0] != 0:
-                ts = pd.DataFrame(ts, columns=(modified + '_' + self.name))
+                ts = ts.rename(dict(zip(modified, modified + '_' + self.name)), axis=1)
                 data = pd.concat([data[data.columns[:-1]], ts, data[label]], axis=1)
         self.msgtimecost()
         return data

@@ -107,7 +107,7 @@ class RSDataProcessor(RSObject):
 class RSData(pd.DataFrame, RSObject):
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
                  copy=False):
-        super(RSData, self).__init__(data=None, index=None, columns=None, dtype=None, copy=False)
+        super(RSData, self).__init__(data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
 
 

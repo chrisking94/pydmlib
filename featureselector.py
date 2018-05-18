@@ -52,8 +52,8 @@ class FSNone(FeatureSelector):
 
 
 class FSChi2(FeatureSelector):
-    def __init__(self, features2process):
-        super(FSChi2, self).__init__(features2process, name='χ²特征选择')
+    def __init__(self, features2process, threshold=0.2):
+        super(FSChi2, self).__init__(features2process, threshold, name='χ²特征选择')
 
     def score(self, data, target):
         skb = SelectKBest(chi2, k='all')
@@ -62,8 +62,8 @@ class FSChi2(FeatureSelector):
 
 
 class FSRFC(FeatureSelector):
-    def __init__(self, features2process):
-        super(FSRFC, self).__init__(features2process, name='rfc特征选择')
+    def __init__(self, features2process, threshold=0.2):
+        super(FSRFC, self).__init__(features2process, threshold, name='rfc特征选择')
 
     def score(self, data, target):
         clf = RandomForestClassifier()
@@ -72,8 +72,8 @@ class FSRFC(FeatureSelector):
 
 
 class FSmRMR(FeatureSelector):
-    def __init__(self, features2process):
-        super(FSmRMR, self).__init__(features2process, name='mRMR特征选择')
+    def __init__(self, features2process, threshold=0.2):
+        super(FSmRMR, self).__init__(features2process, threshold, name='mRMR特征选择')
 
     def score(self, data, target):
         F = mrmr(data.values, target)
