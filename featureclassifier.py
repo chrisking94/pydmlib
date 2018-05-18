@@ -3,20 +3,25 @@ from base import *
 
 class FeatureClassifier(RSDataProcessor):
     def __init__(self, features2process, name='FeatureClassifier'):
-        super(FeatureClassifier, self).__init__(features2process, name, 'blue', 'white')
+        super(FeatureClassifier, self).__init__(features2process, name, 'blue', 'white', 'bold')
 
 
 class FCUniqueItemCountGe(FeatureClassifier):
-    def __init__(self, features2process, cont_feat_threshold, contfeats=[], discfeats=[]):
+    def __init__(self, features2process, cont_feat_threshold, contfeats, discfeats):
         """
         通过特征取值类型的个数来区分连续、离散特征
         :param features2process:
         :param cont_feat_threshold:连续特征值类型数目的阈值，大于阈值的被划分为连续特征
-        :param contfeats:预设连续特征，在fit_transform时此列表中预设的特征不会被划分到discfeats
-        :param discfeats:预设离散特征，在fit_transform时此列表中预设的特征不会被划分到contfeats
+        :param contfeats: list, 用于存储分类结果中连续特征
+                            可以预设连续特征，在fit_transform时此列表中预设的特征不会被划分到discfeats
+                            * 只有在创建对象时输入该参数，之后对列表的更改不会影响预设值
+        :param discfeats: list, 用于存储分类结果中离散特征
+                            可以预设离散特征，在fit_transform时此列表中预设的特征不会被划分到contfeats
         """
         super(FCUniqueItemCountGe, self).__init__(features2process, '值类型数>=%d为连续特征' % ( cont_feat_threshold))
         self.threshold = cont_feat_threshold
+        self.presetContFeats = contfeats.copy()
+        self.presetDiscFeats = discfeats.copy()
         self.contfeats = contfeats
         self.discfeats = discfeats
 
@@ -27,22 +32,23 @@ class FCUniqueItemCountGe(FeatureClassifier):
         :param contfeats:预设连续特征，分类器将会保持该列表中的特征为连续特征
         :return:contfeats, discfeats
         """
-        discfeats = self.discfeats.copy()
-        contfeats = self.contfeats.copy()
+        self.starttimer()
+        self.contfeats.clear()
+        self.discfeats.clear()
         features, label = self._getFeaturesNLabel(data)
         cntdict = {}
         for col in features:
             cnt = data[col].unique().shape[0]
             cntdict[col] = cnt
             if (cnt >= self.threshold):
-                if col not in discfeats:
-                    contfeats.append(col)
+                if col not in self.presetDiscFeats:
+                    self.contfeats.append(col)
             else:
-                if col not in contfeats:
-                    discfeats.append(col)
-        self.msg('%d个连续特征 %s' % (contfeats.__len__(), contfeats.__str__()))
-        self.msg('%d个离散特征 %s' % (discfeats.__len__(), discfeats.__str__()))
+                if col not in self.presetContFeats:
+                    self.discfeats.append(col)
+        self.msg('%d个连续特征 %s' % (self.contfeats.__len__(), self.contfeats.__str__()))
+        self.msg('%d个离散特征 %s' % (self.discfeats.__len__(), self.discfeats.__str__()))
         self.msg('值类型数量 %s' %(cntdict.__str__()))
-
-        return contfeats, discfeats
+        self.msgtimecost()
+        return data
 

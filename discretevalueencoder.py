@@ -7,8 +7,8 @@ class DiscreteValueEncoder(RSDataProcessor):
 
 
 class DVEOneHot(DiscreteValueEncoder):
-    def __init__(self):
-        super(DVEOneHot, self).__init__('OneHot编码')
+    def __init__(self, features2process):
+        super(DVEOneHot, self).__init__(features2process, 'OneHot编码')
 
     def fit_transform(self, data):
         """

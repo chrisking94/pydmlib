@@ -5,7 +5,7 @@ import sklearn.cross_validation as cv
 
 class ModelTester(RSObject):
     def __init__(self, name='ModelTester'):
-        super(ModelTester, self).__init__('ModelTester', 'red', 'default', 'highlight')
+        super(ModelTester, self).__init__(name, 'red', 'default', 'highlight')
         self.data = None
         self.targetlabels = None  # target的值列表，用于混淆矩阵的label参数
 
@@ -73,6 +73,7 @@ class MTSingle(ModelTester):
             data = processor.fit_transform(data)
         self.data = data
         self.msgtimecost(msg='数据处理总耗时')
+        return data
 
 
 class MTAutoGrid(ModelTester):
@@ -88,7 +89,7 @@ class MTAutoGrid(ModelTester):
         """
         super(MTAutoGrid, self).__init__('AutoGridModelTester')
         self.data_procr_grid = data_procr_grid
-        self.test_size = 0.2
+        self.test_size = test_size
         self.reporttablehead = []
         for procrs in self.data_procr_grid[:-1]:
             self.reporttablehead.append(procrs.__base__.__name__)

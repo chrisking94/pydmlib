@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import random
 import gc
 
+
 class RSObject(object):
     modedict = {'default': 0, 'highlight': 1, 'bold': 2, 'nobold': 22, 'underline': 4, 'nounderline': 24,
                 'blink': 5, 'noblink': 25, 'inverse': 7, 'noinverse': 27}
@@ -83,13 +84,17 @@ class RSDataProcessor(RSObject):
     def _getFeaturesNLabel(self, data):
         """
         :param data:
-        :param features2process:为None则设置为data所有features，否则不变
+        :param features2process: 需要处理的特征子集
+                            为None则设置为data所有features
+                            否则为feature2process∩data.columns
         :return:features, label
         """
-        if self.features2process==None:
-            self.features2process = data.columns[:-1]
+        if self.features2process is None:
+            features = data.columns[:-1]
+        else:
+            features = [i for i in self.features2process if i in data.columns]
         label = data.columns[-1]
-        return self.features2process, label
+        return features, label
 
     def fit_transform(self, data):
         """

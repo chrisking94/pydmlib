@@ -8,8 +8,8 @@ class Normalizer(RSDataProcessor):
 
 
 class NmlzMinMax(Normalizer):
-    def __init__(self, features):
-        super(NmlzMinMax, self).__init__('MinMax归一化')
+    def __init__(self, features2process):
+        super(NmlzMinMax, self).__init__(features2process, 'MinMax归一化')
 
     def fit_transform(self, data):
         self.starttimer()

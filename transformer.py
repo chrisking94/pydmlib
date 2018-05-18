@@ -1,5 +1,4 @@
 from base import *
-from sklearn.preprocessing import FunctionTransformer
 
 
 class Transformer(RSDataProcessor):
@@ -30,17 +29,13 @@ class TsfmFunction(Transformer):
     def fit_transform(self, data):
         self.starttimer()
         features, label = self._getFeaturesNLabel(data)
-        nanindexs = data.isnull()
-        data = data.fillna(0)
         if self.breplace:
-            data[features] = FunctionTransformer(self.transform).fit_transform(data[features])
+            data[features] = self.transform(data[features])
         else:
-            ts = FunctionTransformer(self.transform).fit_transform(data[features])
+            ts = self.transform(data[features])
             modified = data[features].columns[((ts - data[features]).max() != 0)]
             if modified.shape[0] != 0:
                 ts = pd.DataFrame(ts, columns=(modified + '_' + self.name))
-                data = pd.concat([data, ts], axis=1)
-        data[nanindexs] = np.nan
+                data = pd.concat([data[data.columns[:-1]], ts, data[label]], axis=1)
         self.msgtimecost()
-
         return data

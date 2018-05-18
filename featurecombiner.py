@@ -2,14 +2,14 @@ from base import *
 import re
 
 
-class FeatureCombiner(RSObject):
+class FeatureCombiner(RSDataProcessor):
     def __init__(self, features2process, name='FeatureCombiner'):
         """
         特征组合
         :param features2process: 
         :param name: 
         """
-        super(FeatureCombiner, self).__init__(name, 'cyan', 'blue', 'highlight')
+        super(FeatureCombiner, self).__init__(features2process, name, 'cyan', 'blue', 'highlight')
 
 
 class FCbArithmetical(FeatureCombiner):
@@ -27,24 +27,30 @@ class FCbArithmetical(FeatureCombiner):
         self.operations = operations
         self.parsedOperations = []
         for operation in self.operations:
-            self.parsedOperations.append(operation)
+            self.parsedOperations.append(self._parse(operation))
 
     def _parse(self, operation):
         fregex = re.compile(r'\[([^\]]+)\]')
         features = fregex.findall(operation)
-        operation = operation.replace('[', 'data[')
+        operation = operation.replace('[', 'data[\'')
+        operation = operation.replace(']', '\']')
         if features.__len__() < 2 :
             self.error('operation <%s> invalid!' % operation)
         if operation.find('@replace') != -1:
-            stmp = ';data.drop(columns=%s)' % features[1:].__str__()
+            stmp = ';data = data.drop(columns=%s)' % features[1:].__str__()
             operation = operation.replace('@replace', stmp)
         return operation
 
     def fit_transform(self, data):
         self.starttimer()
+        features, label = self._getFeaturesNLabel(data)
+        data = data.copy()
+        data, target = data[features], data[label]
         for i, cmd in enumerate(self.parsedOperations):
-            self._submsg(self.operations[i], 'cyan', 'start')
             exec(cmd)
+            self._submsg(self.operations[i], 'cyan', 'done.')
+        pd.concat([data, target], axis=1)
         self.msgtimecost()
+        return data
 
 
