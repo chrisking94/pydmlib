@@ -50,5 +50,5 @@ class FCUniqueItemCountGe(FeatureClassifier):
         self.msg('%d个离散特征 %s' % (self.discfeats.__len__(), self.discfeats.__str__()))
         self.msg('值类型数量 %s' %(cntdict.__str__()))
         self.msgtimecost()
-        return data
+        return data.copy()
 

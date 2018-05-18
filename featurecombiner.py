@@ -49,7 +49,7 @@ class FCbArithmetical(FeatureCombiner):
         for i, cmd in enumerate(self.parsedOperations):
             exec(cmd)
             self._submsg(self.operations[i], 'cyan', 'done.')
-        pd.concat([data, target], axis=1)
+        data = pd.concat([data, target], axis=1)
         self.msgtimecost()
         return data
 
