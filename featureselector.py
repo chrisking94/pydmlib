@@ -12,7 +12,7 @@ class FeatureSelector(RSDataProcessor):
         self.threshold = threshold
 
     def fit_transform(self, data):
-        '''
+        """
         选择最佳特征
         :param encdata:输入数据
         :param scorer:str,评分器，有以下几个值
@@ -21,7 +21,7 @@ class FeatureSelector(RSDataProcessor):
             'rfr':RandomForestClassifier.feature_importance_
             'mrmr':Minimum Redundancy Maximum Relevance Feature Selection
         :param threshold:float, 0~1
-        '''
+        """
         self.starttimer()
         self.msg('--feature count before selection %d' % data.shape[1])
         features, label = self._getFeaturesNLabel(data)

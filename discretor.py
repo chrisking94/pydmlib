@@ -11,9 +11,9 @@ class Discretor(RSDataProcessor):
 
 class DsctChi2(Discretor):
     def __init__(self, features2process, min_interval=1):
-        '''
+        """
         chi^2离散
-        '''
+        """
         super(DsctChi2, self).__init__(features2process, 'χ²离散')
         self.min_interval = min_interval
         self.min_epos = 0.05
@@ -96,11 +96,11 @@ class DsctChi2(Discretor):
         return res
 
     def fit_transform(self, data):
-        '''
+        """
         chi2离散
         :param data:
         :return:
-        '''
+        """
         self.starttimer()
         features, label = self._getFeaturesNLabel(data)
         X = data[features]
@@ -132,17 +132,17 @@ class DsctChi2(Discretor):
 
 class DsctMonospace(Discretor):
     def __init__(self, features2process, bin_size=None):
-        '''
+        """
         等宽离散
         :param bin_size:默认分10桶
-        '''
+        """
         super(DsctMonospace, self).__init__(features2process, '等宽离散')
         self.bin_size = bin_size
 
     def fit_transform(self, data):
-        '''
+        """
         :param X: pandas.DataFrame([feature1, feature2, ...])
-        '''
+        """
         self.starttimer()
         features, label = self._getFeaturesNLabel(data)
         X, y = data[features], data[label]
@@ -158,9 +158,9 @@ class DsctMonospace(Discretor):
 
 class DsctNone(Discretor):
     def __init__(self):
-        '''
+        """
         不离散
-        '''
+        """
         super(DsctNone, self).__init__('不离散')
 
     def fit_transform(self, data):

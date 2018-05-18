@@ -10,12 +10,12 @@ class ModelTester(RSObject):
         self.targetlabels = None  # target的值列表，用于混淆矩阵的label参数
 
     def classify(self, classifier, test_size=0.2):
-        '''
+        """
         使用分类器对分类后的数据进行预测
         :param classifier:
         :param test_size:测试集大小
         :return:
-        '''
+        """
         self.starttimer()
         self.msg('\033[1;31;47m%s\033[0m' % ('↓' * 40))
         data = self.data
@@ -52,21 +52,21 @@ class ModelTester(RSObject):
 
 class MTSingle(ModelTester):
     def __init__(self, data_procr_sequence, name='SingleModelTester'):
-        '''
+        """
         固定单模型测试
         :param data_procr_sequence:list(数据处理器)
         :param name:
-        '''
+        """
         super(MTSingle, self).__init__(name)
         self.dataProcrSequence = data_procr_sequence
 
     def fit_transform(self, data):
-        '''
+        """
        开始测试
        :param data: 测试数据，可以是：
            1、整个数据集
            2、tuple(trainset，testset)
-       '''
+       """
         self.starttimer()
         self._gettargetlabels(data)
         for processor in self.dataProcrSequence:
@@ -77,7 +77,7 @@ class MTSingle(ModelTester):
 
 class MTAutoGrid(ModelTester):
     def __init__(self, data_procr_grid, test_size=0.2):
-        '''
+        """
         自动化网格测试
         :param data_procr_grid: 数据处理器表，表末尾必须是分类器，结构示例如下：
                             [[procr11, proc12],
@@ -85,7 +85,7 @@ class MTAutoGrid(ModelTester):
                              proc3,
                              ...
                              [clf1, clf2, ...]]
-        '''
+        """
         super(MTAutoGrid, self).__init__('AutoGridModelTester')
         self.data_procr_grid = data_procr_grid
         self.test_size = 0.2
@@ -117,11 +117,11 @@ class MTAutoGrid(ModelTester):
                 self._run(data_procr_grid[1:], infolist)
 
     def fit_transform(self, data):
-        '''
+        """
         开始测试
         :param data:输入数据集
         :return:
-        '''
+        """
         self.starttimer()
         self._gettargetlabels(data)
         # 制作reporttable表头

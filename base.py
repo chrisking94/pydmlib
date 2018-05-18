@@ -19,11 +19,11 @@ class RSObject(object):
         self.timestart = time.time()
 
     def _getcolor(self, colorname):
-        '''
+        """
         transfer color name into color num
         :param colorname: str or int
         :return:color num
-        '''
+        """
         if isinstance(colorname, str):
             color = RSObject.colordict[colorname]
         else:
@@ -73,33 +73,34 @@ class RSObject(object):
 class RSDataProcessor(RSObject):
     def __init__(self, features2process=None, name='DataProcessor', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
-        '''
+        """
         :param features2process:需要处理的特征
                         如果None，则处理所有特征
-        '''
+        """
         super(RSDataProcessor, self).__init__(name, msgforecolor, msgbackcolor, msgmode)
         self.features2process = features2process
 
     def _getFeaturesNLabel(self, data):
-        '''
+        """
         :param data:
         :param features2process:为None则设置为data所有features，否则不变
         :return:features, label
-        '''
+        """
         if self.features2process==None:
             self.features2process = data.columns[:-1]
         label = data.columns[-1]
         return self.features2process, label
 
     def fit_transform(self, data):
-        '''
+        """
         :param data: [X y]
         :return:[X' y]
-        '''
+        """
         self.error('Not implemented!')
 
 
 class RSData(RSObject, pd.DataFrame):
     def __init__(self):
         super(RSData, self).__init__('RSData', 'random', 'default')
+
 

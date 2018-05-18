@@ -8,7 +8,7 @@ class Sampler(RSDataProcessor):
 
 class SplUnder(Sampler):
     def __init__(self, features2process, feature_weights=None):
-        '''
+        """
         对于某一行数据，根据feature_weights中的权重来计算其重要性（见:param feature_weights）
         采样时首选重要性高的数据
         :param deature_weights:
@@ -17,7 +17,7 @@ class SplUnder(Sampler):
                 计算后首选importance高的数据
             如果feature_weights==1,则首选空值少的某行
             如果feature_weights==None，则进行随机抽样
-        '''
+        """
         super(SplUnder, self).__init__(features2process, '向下采样')
         self.feature_weights = feature_weights
 

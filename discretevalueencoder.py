@@ -11,11 +11,11 @@ class DVEOneHot(DiscreteValueEncoder):
         super(DVEOneHot, self).__init__('OneHot编码')
 
     def fit_transform(self, data):
-        '''
+        """
         OneHot encode
         :param data:
         :param columns:
-        '''
+        """
         self.starttimer()
         columns, label = self._getFeaturesNLabel(data)
         data = data.copy()
