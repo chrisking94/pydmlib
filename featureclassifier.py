@@ -40,15 +40,12 @@ class FCUniqueItemCountGe(FeatureClassifier):
         for col in features:
             cnt = data[col].unique().shape[0]
             cntdict[col] = cnt
-            if (cnt >= self.threshold):
+            if cnt >= self.threshold:
                 if col not in self.presetDiscFeats:
                     self.contfeats.append(col)
             else:
                 if col not in self.presetContFeats:
                     self.discfeats.append(col)
-        self.msg('%d个连续特征 %s' % (self.contfeats.__len__(), self.contfeats.__str__()))
-        self.msg('%d个离散特征 %s' % (self.discfeats.__len__(), self.discfeats.__str__()))
-        self.msg('值类型数量 %s' %(cntdict.__str__()))
-        self.msgtimecost()
+        self.msg('%d continuous features, %d discrete features.' % (self.contfeats.__len__(), self.discfeats.__len__()))
         return data.copy()
 
