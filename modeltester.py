@@ -1,6 +1,6 @@
 from base import *
 from misc import ConfusionMatrix
-import sklearn.cross_validation as cv
+import sklearn.model_selection as cv
 
 
 class ModelTester(RSObject):
