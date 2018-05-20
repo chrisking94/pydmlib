@@ -127,6 +127,8 @@ class RSDataProcessor(RSObject):
         else:
             features = [i for i in self.features2process if i in data.columns]
         label = data.columns[-1]
+        if isinstance(data, RSData):
+            data.addhistory(self.coloredname)
         return features, label
 
     def fit_transform(self, data):
@@ -145,8 +147,10 @@ class RSData(pd.DataFrame, RSObject):
         super(RSData, self).__init__(data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
         self.checkpoints = self.CheckPointMgr(self)
-        self.bmodified = False
-        self.checkpoints['origin'].save('original data')
+        self.checkpoints['<root>']._save('false checkpoint, no content in.', True)
+
+    def addhistory(self, info):
+        self.checkpoints.addhistory(info)
 
     class CheckPointMgr(dict, RSObject):
         def __init__(self, wrapperobj):
@@ -160,8 +164,8 @@ class RSData(pd.DataFrame, RSObject):
             self.unsavedcheckpoint = self.CheckPoint(self, 'unsaved', None)
 
         def pop(self, pointname, **kwargs):
-            if pointname == 'origin':
-                self.error('cannot remove protected checkpoint <origin>')
+            if pointname == '<root>':
+                self.error('cannot remove protected checkpoint <root>')
                 return
             if pointname in self.keys():
                 if pointname == self.lastcheckpoint:
@@ -176,7 +180,7 @@ class RSData(pd.DataFrame, RSObject):
             :param info:
             :return:
             """
-            dict.__getitem__(self, self.lastcheckpoint).addhistory(info)
+            self.unsavedcheckpoint.addhistory(info)
 
         class CheckPoint(object):
             def __init__(self, wrapperobj, pointname, parent):
@@ -200,24 +204,34 @@ class RSData(pd.DataFrame, RSObject):
             def _removechild(self, child):
                 self.children.remove(child)
 
+            def _save(self, comment, bfalsepoint):
+                """
+                to create false point
+                :param comment:
+                :param bfalsepoint:
+                :return:
+                """
+                self.comment = comment
+                if self.data is not None:
+                    del self.data
+                if not bfalsepoint:
+                    self.data = pd.DataFrame.copy(self.wrapperobj.wrapperobj)
+                if self.name not in self.wrapperobj.keys():
+                    dict.__setitem__(self.wrapperobj, self.name, self)
+                if self.parent is not None:
+                    self.parent._addchild(self)
+                self.wrapperobj.lastcheckpoint = self.name
+                self.wrapperobj.unsavedcheckpoint = \
+                    RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
+                self.time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+
             def save(self, comment=''):
                 """
                 back up data and set this checkpoint as current
                 :param comment: comment for this checkpoint
                 :return:
                 """
-                self.comment = comment
-                if self.data is not None:
-                    del self.data
-                self.data = pd.DataFrame.copy(self.wrapperobj.wrapperobj)
-                if self.name not in self.wrapperobj.keys():
-                    dict.__setitem__(self.wrapperobj, self.name, self)
-                if self.parent is not None:
-                    self.parent._addchild(self)
-                self.wrapperobj.lastcheckpoint = self.name
-                self.wrapperobj.unsavedcheckpoint =\
-                    RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
-                self.time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                self._save(comment, False)
 
             def recover(self):
                 """
@@ -245,14 +259,25 @@ class RSData(pd.DataFrame, RSObject):
                 self.history.append(info)
 
             def briefinfo(self):
-                return '%s\t%s\t-%s' % (self.name, str(self.time), self.comment)
+                s = self.name
+                if self.name == self.wrapperobj.lastcheckpoint:
+                    s += '*'
+                s = '%s\t%s\t-%s' % (s, str(self.time), self.comment)
+                return s
 
             def detail(self):
-                s = ''
+                s = self.briefinfo()
+                s += '\n--operation trace: '
+                for track in self.history:
+                    s += ' ⇒ %s' % track
+                if self.history.__len__() == 0:
+                    s+= 'None'
                 return s
 
             def __str__(self):
-                return self.data.__str__()
+                s = self.detail()
+                s += '\n%s' % self.data.__str__()
+                return s
 
             __repr__ = __str__
 
@@ -270,6 +295,41 @@ class RSData(pd.DataFrame, RSObject):
             for i, (k, v) in enumerate(lstitem):
                 slist.append('\t%d.%s\n' % (i+1, v.briefinfo()))
             return ''.join(slist)
+
+    def append(self, other, ignore_index=False, verify_integrity=False):
+        return RSData(self.name,
+                      super(RSData, self).append(other, ignore_index,verify_integrity))
+
+    def astype(self, dtype, copy=True, errors='raise', **kwargs):
+        return RSData(self.name,
+                      super(RSData, self).astype(dtype, copy, errors, **kwargs))
+
+    def copy(self, deep=True):
+        """
+        no copy for RSData, use checkpoint instead
+        :param deep:
+        :return:
+        """
+        return self
+
+    def drop(self, labels=None, axis=0, index=None, columns=None, level=None,
+             inplace=False, errors='raise'):
+        super(RSData, self).drop(labels, axis, index, columns, level,
+                                 True, errors)
+        return self
+
+    def dropna(self, axis=0, how='any', thresh=None, subset=None,
+               inplace=False):
+        super(RSData, self).dropna(axis, how, thresh, subset,
+               inplace)
+        return self
+
+
+    def __getitem__(self, item):
+        return RSData('%s-subset' % self.name,
+                      super(RSData, self).__getitem__(item))
+
+
 
     def __str__(self):
         if self.checkpoints.lastcheckpoint != '':
