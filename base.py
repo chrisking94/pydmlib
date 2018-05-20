@@ -1,9 +1,12 @@
+#coding=utf-8
 import time
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import random
 import gc
+import os
+import inspect
 
 
 class RSObject(object):
@@ -18,6 +21,7 @@ class RSObject(object):
         self.msgbackcolor = msgbackcolor
         self.msgmode = RSObject.modedict[msgmode]
         self.timestart = time.time()
+        self.coloredname = self._colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
 
     def _getcolor(self, colorname):
         """
@@ -40,14 +44,12 @@ class RSObject(object):
         return s
 
     def msg(self, msg):
-        cname = self._colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
-        msg = '%s: %s' % (cname, msg)
+        msg = '%s: %s' % (self.coloredname, msg)
         print(msg)
 
     def _submsg(self, subtitle, forecolor, msg):
-        cname = self._colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
         csubtitle = self._colorstr(subtitle, 0, forecolor, 48)
-        msg = '%s[%s]: %s' % (cname, csubtitle, msg)
+        msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
         print(msg)
 
     def warning(self, msg):
@@ -63,12 +65,43 @@ class RSObject(object):
     def msgtimecost(self, start=None, msg=''):
         if start == None:
             start = self.timestart
-        self._submsg('timecost', 5, '%fs %s' %(time.time() - start, msg))
+        timecost = time.time() - start
+        if timecost<1:
+            timecost = '%fs' % round(timecost,1)
+        else:
+            m, s = divmod(timecost, 60)
+            h, h = divmod(m, 60)
+            timecost = '%02d:%02d:%02d' % (h, m, s)
+        self._submsg('timecost', 5, '%s %s' %(timecost, msg))
 
     def msgtime(self, msg=''):
         localtime = time.asctime(time.localtime(time.time()))
         self._submsg(localtime, 6, msg)
         print(msg)
+
+    def unfoldIpynb(self, notebook, module=None, xpath=''):
+        """
+        unfold source in jupyter, after this cmd please refresh the web browser
+        :param notebook: ?.ipynb, the ?
+        :param module: e.g. sklearn.svm
+        :param xpath: extra path, if target *.py does not exist, use module+xpath
+                        e.g. sklearn.svm.aaa, aaa.py isn't there in sklearn.svm
+                            so we use :
+                                unfoldIpynb('xxx', sklearn.svm, 'aaa')
+                            or use like:
+                                unfoldIpynb('xxx', None, '/usr/aaa/bbb'
+        :return: None
+        """
+        if module is None:
+            modulepath = xpath
+        else:
+            modulepath = inspect.getsourcefile(self.__class__.__name__)
+            if modulepath.endswith('__init__.py'):
+                modulepath = modulepath[:-('__init__.py'.__len__())]
+            else:
+                modulepath += '/'
+            modulepath += xpath
+        ipynbpath = os.getcwd() + '/' + notebook + '.ipynb'
 
 
 class RSDataProcessor(RSObject):
@@ -103,11 +136,168 @@ class RSDataProcessor(RSObject):
         """
         self.error('Not implemented!')
 
+    __call__ = fit_transform
+
 
 class RSData(pd.DataFrame, RSObject):
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
                  copy=False):
         super(RSData, self).__init__(data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
+        self.checkpoints = self.CheckPointMgr(self)
+        self.bmodified = False
+        self.checkpoints['origin'].save('original data')
+
+    class CheckPointMgr(dict, RSObject):
+        def __init__(self, wrapperobj):
+            dict.__init__(self)
+            RSObject.__init__(self, '%s.CheckPoints',
+                              wrapperobj.msgforecolor,
+                              wrapperobj.msgbackcolor,
+                              'default')
+            self.wrapperobj = wrapperobj
+            self.lastcheckpoint = ''
+            self.unsavedcheckpoint = self.CheckPoint(self, 'unsaved', None)
+
+        def pop(self, pointname, **kwargs):
+            if pointname == 'origin':
+                self.error('cannot remove protected checkpoint <origin>')
+                return
+            if pointname in self.keys():
+                if pointname == self.lastcheckpoint:
+                    self.lastcheckpoint = dict.__getitem__(self, pointname).parent
+                dict.pop(self, pointname)
+            else:
+                self.error('No such check point <%s>.' % pointname)
+
+        def addhistory(self, info):
+            """
+            add history info to current point
+            :param info:
+            :return:
+            """
+            dict.__getitem__(self, self.lastcheckpoint).addhistory(info)
+
+        class CheckPoint(object):
+            def __init__(self, wrapperobj, pointname, parent):
+                object.__init__(self)
+                self.wrapperobj = wrapperobj
+                self.name = pointname
+                self.time = None
+                self.parent = None
+                self.history = []
+                self.data = None
+                if parent is not None:
+                    parent._addchild(self)
+                self.children = []
+
+            def _addchild(self, child):
+                child.parent = self
+                child.history = self.history
+                if child not in self.children:
+                    self.children.append(child)
+
+            def _removechild(self, child):
+                self.children.remove(child)
+
+            def save(self, comment=''):
+                """
+                back up data and set this checkpoint as current
+                :param comment: comment for this checkpoint
+                :return:
+                """
+                self.comment = comment
+                if self.data is not None:
+                    del self.data
+                self.data = pd.DataFrame.copy(self.wrapperobj.wrapperobj)
+                if self.name not in self.wrapperobj.keys():
+                    dict.__setitem__(self.wrapperobj, self.name, self)
+                if self.parent is not None:
+                    self.parent._addchild(self)
+                self.wrapperobj.lastcheckpoint = self.name
+                self.wrapperobj.unsavedcheckpoint =\
+                    RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
+                self.time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+
+            def recover(self):
+                """
+                recover from this checkpoint, and set current checkpoint to this
+                :return:
+                """
+                rsdata = self.wrapperobj.wrapperobj
+                super(RSData, rsdata).__init__(self.data)
+                self.wrapperobj.lastcheckpoint = self.name
+                self.wrapperobj.unsavedcheckpoint = \
+                    RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
+
+            def drop(self):
+                """
+                remove this checkpoint and delete data it's holding
+                if this is current checkpoint,
+                drop() will move current point to this point's parent
+                :return:
+                """
+                self.parent._removechild(self)
+                del self.data
+                self.wrapperobj.pop(self.name)
+
+            def addhistory(self, info):
+                self.history.append(info)
+
+            def briefinfo(self):
+                return '%s\t%s\t-%s' % (self.name, str(self.time), self.comment)
+
+            def detail(self):
+                s = ''
+                return s
+
+            def __str__(self):
+                return self.data.__str__()
+
+            __repr__ = __str__
+
+        def __getitem__(self, pointname):
+            if pointname in dict.keys(self):
+                return dict.__getitem__(self, pointname)
+            else:
+                self.unsavedcheckpoint.name = pointname
+                return self.unsavedcheckpoint
+
+        def __str__(self):
+            slist = ['%s.CheckPoints<%d point(s)>:\n' % (self.wrapperobj.coloredname, self.__len__())]
+            lstitem = list(self.items())
+            lstitem.sort(key=lambda x:x[1].time)
+            for i, (k, v) in enumerate(lstitem):
+                slist.append('\t%d.%s\n' % (i+1, v.briefinfo()))
+            return ''.join(slist)
+
+    def __str__(self):
+        if self.checkpoints.lastcheckpoint != '':
+            s = '%s('+ self.checkpoints.lastcheckpoint + '): \n%s'
+        else:
+            s = '%s: \n%s'
+        return s %(self.coloredname, super(RSData, self).__str__())
+
+    __repr__ = __str__
+
+
+
+def test():
+    data = [[1,2],[3,4]]
+    data = RSData('R', data, columns=['A', 'B'])
+    print(data)
+    data.checkpoints['origin'].save('kk')
+    print(data.checkpoints['origin'])
+    print(data.checkpoints)
+    data.loc[0, 'A'] = 9
+    for i in range(1000000):
+        for j in range(100):
+            pass
+    data.checkpoints['modified'].save('this is comment.')
+    print(data)
+    data.checkpoints['origin'].recover()
+    print(data)
+    print(data.checkpoints)
+    pass
 
 

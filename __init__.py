@@ -1,2 +1,3 @@
-import re
+import base
 
+base.test()
