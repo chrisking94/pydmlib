@@ -144,12 +144,25 @@ class RSDataProcessor(RSObject):
 class RSData(pd.DataFrame, RSObject):
     @staticmethod
     def wrapreturn(func):
-        def wrappedfunc(self, *arg, **kwargs):
-            ret = func(self, *arg, **kwargs)
-            return RSData(self.name, ret ,checkpoints=self.checkpoints)
+        if 'inplace' in func.__code__.co_varnames:
+            def wrappedfunc(self, *arg, **kwargs):
+                func(self, *arg, **kwargs, inplace=True)
+                return self
+        else:
+            def wrappedfunc(self, *arg, **kwargs):
+                ret = func(self, *arg, **kwargs)
+                if isinstance(ret, pd.DataFrame):
+                    return self.__class__(self.name, ret, checkpoints=self.checkpoints)
+                else:
+                    return ret
+        return wrappedfunc
 
-    def decoratememberfunctions(self):
-        pass
+    @staticmethod
+    def decoratememberfunctions():
+        self = RSData
+        for func in self.__base__.__dict__.values():
+            setattr(self, func.__name__, self.wrapreturn(func))
+            print(func.__name__)
 
     __metaclass__ = decoratememberfunctions
 
@@ -334,6 +347,7 @@ def test():
     data.checkpoints['origin'].recover()
     print(data)
     print(data.checkpoints)
+    print(data[['A']].__class__)
     pass
 
 
