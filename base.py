@@ -2,7 +2,7 @@
 import time
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import random
 import gc
 import os
@@ -142,8 +142,19 @@ class RSDataProcessor(RSObject):
 
 
 class RSData(pd.DataFrame, RSObject):
+    @staticmethod
+    def wrapreturn(func):
+        def wrappedfunc(self, *arg, **kwargs):
+            ret = func(self, *arg, **kwargs)
+            return RSData(self.name, ret ,checkpoints=self.checkpoints)
+
+    def decoratememberfunctions(self):
+        pass
+
+    __metaclass__ = decoratememberfunctions
+
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
-                 copy=False):
+                 copy=False, checkpoints=None):
         super(RSData, self).__init__(data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
         self.checkpoints = self.CheckPointMgr(self)
@@ -295,41 +306,6 @@ class RSData(pd.DataFrame, RSObject):
             for i, (k, v) in enumerate(lstitem):
                 slist.append('\t%d.%s\n' % (i+1, v.briefinfo()))
             return ''.join(slist)
-
-    def append(self, other, ignore_index=False, verify_integrity=False):
-        return RSData(self.name,
-                      super(RSData, self).append(other, ignore_index,verify_integrity))
-
-    def astype(self, dtype, copy=True, errors='raise', **kwargs):
-        return RSData(self.name,
-                      super(RSData, self).astype(dtype, copy, errors, **kwargs))
-
-    def copy(self, deep=True):
-        """
-        no copy for RSData, use checkpoint instead
-        :param deep:
-        :return:
-        """
-        return self
-
-    def drop(self, labels=None, axis=0, index=None, columns=None, level=None,
-             inplace=False, errors='raise'):
-        super(RSData, self).drop(labels, axis, index, columns, level,
-                                 True, errors)
-        return self
-
-    def dropna(self, axis=0, how='any', thresh=None, subset=None,
-               inplace=False):
-        super(RSData, self).dropna(axis, how, thresh, subset,
-               inplace)
-        return self
-
-
-    def __getitem__(self, item):
-        return RSData('%s-subset' % self.name,
-                      super(RSData, self).__getitem__(item))
-
-
 
     def __str__(self):
         if self.checkpoints.lastcheckpoint != '':
