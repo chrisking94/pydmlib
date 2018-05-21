@@ -102,6 +102,8 @@ class MTAutoGrid(ModelTester):
         if not isinstance(current_procrs, list):
             current_procrs = [current_procrs]
         for procr in current_procrs:
+            if procr is None:
+                continue
             gc.collect()
             if data_procr_grid.__len__() == 1:
                 # 网格最后为分类器

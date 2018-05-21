@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import random
 import gc
 import os
-import inspect
+import warnings
+warnings.filterwarnings("ignore")
 
 
 class RSObject(object):
@@ -79,30 +80,6 @@ class RSObject(object):
         self._submsg(localtime, 6, msg)
         print(msg)
 
-    def unfoldIpynb(self, notebook, module=None, xpath=''):
-        """
-        unfold source in jupyter, after this cmd please refresh the web browser
-        :param notebook: ?.ipynb, the ?
-        :param module: e.g. sklearn.svm
-        :param xpath: extra path, if target *.py does not exist, use module+xpath
-                        e.g. sklearn.svm.aaa, aaa.py isn't there in sklearn.svm
-                            so we use :
-                                unfoldIpynb('xxx', sklearn.svm, 'aaa')
-                            or use like:
-                                unfoldIpynb('xxx', None, '/usr/aaa/bbb'
-        :return: None
-        """
-        if module is None:
-            modulepath = xpath
-        else:
-            modulepath = inspect.getsourcefile(self.__class__.__name__)
-            if modulepath.endswith('__init__.py'):
-                modulepath = modulepath[:-('__init__.py'.__len__())]
-            else:
-                modulepath += '/'
-            modulepath += xpath
-        ipynbpath = os.getcwd() + '/' + notebook + '.ipynb'
-
 
 class RSDataProcessor(RSObject):
     def __init__(self, features2process=None, name='DataProcessor', msgforecolor='default',
@@ -141,7 +118,39 @@ class RSDataProcessor(RSObject):
     __call__ = fit_transform
 
 
-class RSData(pd.DataFrame, RSObject):
+class RSDataMetaclass(type):
+    def __new__(cls, name, bases, attrs):
+        """
+        重写DataFrame的成员函数，使返回值类型为DataFrame的成员函数返回RSData包装过的(DataFrame)
+        :param name: 类名
+        :param bases: 父类表
+        :param attrs: 成员字典
+        :return:
+        """
+        funcdict = {}
+        RSDataMetaclass.getfuncs(pd.DataFrame, funcdict)
+        for k, v in funcdict.items():
+            if k not in attrs.keys():
+                wrappedfunc = RSDataMetaclass.wrapreturn(v)
+                if wrappedfunc is not None:
+                    attrs[k] = wrappedfunc
+        return type.__new__(cls, name, bases, attrs)
+
+    @staticmethod
+    def getfuncs(cls, dictret):
+        """
+        获取类以及祖先类的所有成员函数
+        :param cls: 类
+        :param dictret: 用于记录{'函数名' : 函数}的字典
+        :return:
+        """
+        bases = list(cls.__bases__)
+        bases.reverse()
+        for base in bases:
+            RSDataMetaclass.getfuncs(base, dictret)
+        cdict = dict([x for x in cls.__dict__.items() if x[1].__class__.__name__ == 'function'])
+        dictret.update(cdict)
+
     @staticmethod
     def wrapreturn(func):
         if 'inplace' in func.__code__.co_varnames:
@@ -157,15 +166,8 @@ class RSData(pd.DataFrame, RSObject):
                     return ret
         return wrappedfunc
 
-    @staticmethod
-    def decoratememberfunctions():
-        self = RSData
-        for func in self.__base__.__dict__.values():
-            setattr(self, func.__name__, self.wrapreturn(func))
-            print(func.__name__)
 
-    __metaclass__ = decoratememberfunctions
-
+class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
                  copy=False, checkpoints=None):
         super(RSData, self).__init__(data, index, columns, dtype, copy)
@@ -175,6 +177,9 @@ class RSData(pd.DataFrame, RSObject):
 
     def addhistory(self, info):
         self.checkpoints.addhistory(info)
+
+    def toDataFrame(self):
+        return super(RSData, self).copy()
 
     class CheckPointMgr(dict, RSObject):
         def __init__(self, wrapperobj):
@@ -332,22 +337,9 @@ class RSData(pd.DataFrame, RSObject):
 
 
 def test():
-    data = [[1,2],[3,4]]
+    data = [[1,2],[3,4],[5,6]]
     data = RSData('R', data, columns=['A', 'B'])
-    print(data)
-    data.checkpoints['origin'].save('kk')
-    print(data.checkpoints['origin'])
-    print(data.checkpoints)
-    data.loc[0, 'A'] = 9
-    for i in range(1000000):
-        for j in range(100):
-            pass
-    data.checkpoints['modified'].save('this is comment.')
-    print(data)
-    data.checkpoints['origin'].recover()
-    print(data)
-    print(data.checkpoints)
-    print(data[['A']].__class__)
+    print(data.sample(2))
     pass
 
 
