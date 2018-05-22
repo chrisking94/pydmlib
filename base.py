@@ -155,7 +155,13 @@ class RSDataMetaclass(type):
     def wrapreturn(func):
         if 'inplace' in func.__code__.co_varnames:
             def wrappedfunc(self, *arg, **kwargs):
-                func(self, *arg, **kwargs, inplace=True)
+                if func.__code__.co_varnames.index('inplace')+1 <= arg.__len__():
+                    arg = list(arg)
+                    arg[func.__code__.co_varnames.index('inplace')] = True
+                    arg = tuple(arg)
+                else:
+                    kwargs['inplace'] = True
+                func(self, *arg, **kwargs)
                 return self
         else:
             def wrappedfunc(self, *arg, **kwargs):
@@ -167,12 +173,15 @@ class RSDataMetaclass(type):
         return wrappedfunc
 
 
-class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
+class RSData(pd.DataFrame, RSObject):#, metaclass=RSDataMetaclass):
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
                  copy=False, checkpoints=None):
         super(RSData, self).__init__(data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
-        self.checkpoints = self.CheckPointMgr(self)
+        if checkpoints is None:
+            self.checkpoints = self.CheckPointMgr(self)
+        else:
+            self.checkpoints = checkpoints
         self.checkpoints['<root>']._save('false checkpoint, no content in.', True)
 
     def addhistory(self, info):
@@ -233,18 +242,22 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
             def _removechild(self, child):
                 self.children.remove(child)
 
-            def _save(self, comment, bfalsepoint):
+            def _save(self, comment, bfalsepoint, data=None):
                 """
                 to create false point
                 :param comment:
                 :param bfalsepoint:
+                :param data: backup outside data
                 :return:
                 """
                 self.comment = comment
                 if self.data is not None:
                     del self.data
                 if not bfalsepoint:
-                    self.data = pd.DataFrame.copy(self.wrapperobj.wrapperobj)
+                    if data is None:
+                        self.data = pd.DataFrame.copy(self.wrapperobj.wrapperobj)
+                    else:
+                        self.data = data
                 if self.name not in self.wrapperobj.keys():
                     dict.__setitem__(self.wrapperobj, self.name, self)
                 if self.parent is not None:
@@ -254,13 +267,13 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                     RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
                 self.time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
-            def save(self, comment=''):
+            def save(self, comment='', data=None):
                 """
                 back up data and set this checkpoint as current
                 :param comment: comment for this checkpoint
                 :return:
                 """
-                self._save(comment, False)
+                self._save(comment, False, data)
 
             def recover(self):
                 """
@@ -272,6 +285,7 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                 self.wrapperobj.lastcheckpoint = self.name
                 self.wrapperobj.unsavedcheckpoint = \
                     RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
+                return self.wrapperobj.wrapperobj
 
             def drop(self):
                 """
@@ -339,7 +353,6 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
 def test():
     data = [[1,2],[3,4],[5,6]]
     data = RSData('R', data, columns=['A', 'B'])
-    print(data.sample(2))
     pass
 
 
