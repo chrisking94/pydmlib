@@ -7,12 +7,12 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         super(ConfusionMatrix, self).__init__(confusion_matrix(y_test, y_pred, labels), index=labels, columns=labels)
         RSObject.__init__(self, 'ConfusionMatrix', 'blue', 'default', 'bold')
 
-    def normalize(self):
+    def normalized(self):
         return self / self.sum(axis=1)
 
     def show(self, bnormalize=False):
         if (bnormalize):
-            self.msg("Normalized\n%s" % self.normalize().__str__())
+            self.msg("Normalized\n%s" % self.normalized().__str__())
         else:
             self.msg('Without normalizing\n%s' % self.__str__())
 
@@ -24,7 +24,7 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
     def getclassscores(self):
         scores = []
         for i in range(self.shape[0]):
-            scores.append(self.values[i, i])
+            scores.append(self.normalized().values[i, i])
         return scores
 
     def __getitem__(self, item):

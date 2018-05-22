@@ -111,37 +111,38 @@ class MTAutoGrid(ModelTester):
                 procr = procrs
             self.reporttablehead.append(procr.__class__.__base__.__name__)
         self.reporttablehead.extend(['分类器', '训练集得分', '测试集得分'])
-        self.reporttable = None # pd.DataFrame()
+        self.reporttable = None  # pd.DataFrame()
 
     def _run(self, data_procr_grid, nodeinfolist, nodedata):
         current_procrs = data_procr_grid[0]
         if not isinstance(current_procrs, list):
             current_procrs = [current_procrs]
-        b_classifier_node = data_procr_grid.__len__() > 1
+        b_classifier_node = data_procr_grid.__len__() == 1
         if b_classifier_node:
             # 数据处理节点
             data = nodedata.copy()
         else:
             data = nodedata
         for procr in current_procrs:
+            infolist = nodeinfolist.copy()
             if procr is None:
                 infolist.append('None')
                 continue
-            infolist = nodeinfolist.copy()
             gc.collect()
             if b_classifier_node:
                 # 网格最后为分类器
                 self.data = data
                 self.classify(procr, self.test_size)
-                infolist.extend([procr.name, self.trainscore, self.testscore])
+                clfname = procr.__class__.__name__
+                infolist.extend([clfname, self.trainscore, self.testscore])
                 infolist.extend(self.cm.getclassscores())
                 self.reporttable.loc[self.reporttable.shape[0]] = infolist  # 记录测试信息
-                self._submsg('%s done.' % procr.__class__.__name__, -1, '\n%s' % self.reporttable.loc[self.reporttable.shape[0]-1].__str__())
-                self.msgtimecost(msg='目前总耗时。')
+                self._submsg('%s done.' % clfname, -1, '\n%s' % self.reporttable.loc[self.reporttable.shape[0]-1].__str__())
+                self.msgtimecost(msg='总耗时。')
             else:
-                data = nodedata.copy
+                data = nodedata.copy()
                 try:
-                    data = procr.fit_transform(self.data)
+                    data = procr.fit_transform(data)
                     infolist.append(procr.name)
                 except:
                     infolist.append('%s_failed' % procr.name)
@@ -157,7 +158,7 @@ class MTAutoGrid(ModelTester):
         self._gettargetlabels(data)
         # 制作reporttable表头
         head = self.reporttablehead.copy()
-        head.extend(self.targetlabels + '类正确率')
+        head.extend(['%d类正确率' % x for x in self.targetlabels])
         self.reporttable = pd.DataFrame(columns=head)
         self._run(self.data_procr_grid, [], data)
         self.msgtime('测试完成！调用log()可获取测试日志。')
@@ -167,6 +168,6 @@ class MTAutoGrid(ModelTester):
         pass
 
     def log(self):
-        self.msg('%s\n' % self.reporttable.__str__())
         return self.reporttable
+
 
