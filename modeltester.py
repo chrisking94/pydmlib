@@ -110,7 +110,7 @@ class MTAutoGrid(ModelTester):
             else:
                 procr = procrs
             self.reporttablehead.append(procr.__class__.__base__.__name__)
-        self.reporttablehead.extend(['分类器', '训练集得分', '测试集得分'])
+        self.reporttablehead.extend(['分类器', '数据集大小', '训练集得分', '测试集得分'])
         self.reporttable = None  # pd.DataFrame()
 
     def _run(self, data_procr_grid, nodeinfolist, nodedata):
@@ -122,7 +122,8 @@ class MTAutoGrid(ModelTester):
             # 数据处理节点
             data = nodedata.copy()
         else:
-            data = nodedata
+            # 分类器节点
+            data = cv.train_test_split(nodedata, test_size=self.test_size, random_state=0)
         for procr in current_procrs:
             infolist = nodeinfolist.copy()
             if procr is None:
@@ -134,10 +135,10 @@ class MTAutoGrid(ModelTester):
                 self.data = data
                 self.classify(procr, self.test_size)
                 clfname = procr.__class__.__name__
-                infolist.extend([clfname, self.trainscore, self.testscore])
+                infolist.extend([clfname, nodedata.shape[0], self.trainscore, self.testscore])
                 infolist.extend(self.cm.getclassscores())
                 self.reporttable.loc[self.reporttable.shape[0]] = infolist  # 记录测试信息
-                self._submsg('%s done.' % clfname, -1, '\n%s' % self.reporttable.loc[self.reporttable.shape[0]-1].__str__())
+                self._submsg('%s done.' % clfname, 'green', '\n%s' % self.reporttable.loc[self.reporttable.shape[0]-1].__str__())
                 self.msgtimecost(msg='总耗时。')
             else:
                 data = nodedata.copy()

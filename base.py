@@ -67,8 +67,8 @@ class RSObject(object):
         if start == None:
             start = self.timestart
         timecost = time.time() - start
-        if timecost<1:
-            timecost = '%fs' % round(timecost,1)
+        if timecost < 1:
+            timecost = '%.2fs' % round(timecost, 2)
         else:
             m, s = divmod(timecost, 60)
             h, h = divmod(m, 60)
