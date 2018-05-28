@@ -6,7 +6,7 @@ from scipy import interpolate
 
 class ConfusionMatrix(pd.DataFrame, RSObject):
     def __init__(self, y_test, y_pred, labels=None):
-        super(ConfusionMatrix, self).__init__(confusion_matrix(y_test, y_pred, labels), index=labels, columns=labels)
+        pd.DataFrame.__init__(self, confusion_matrix(y_test, y_pred, labels), index=labels, columns=labels)
         RSObject.__init__(self, 'ConfusionMatrix', 'blue', 'default', 'bold')
 
     def normalized(self):
@@ -35,7 +35,7 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
 
 class ROCCurve(RSObject):
     def __init__(self, y_true, y_score, title='ROC-Curve'):
-        super(ROCCurve, self).__init__(title, 'white', 'black', 'bold')
+        RSObject.__init__(self, title, 'white', 'black', 'bold')
         self.fpr, self.tpr, self.thresholds = roc_curve(y_true,
                                                         y_score)  # y_score can be the probability of the POSITIVE class,...
 

@@ -5,7 +5,7 @@ import sklearn.model_selection as cv
 
 class ModelTester(RSObject):
     def __init__(self, name='ModelTester'):
-        super(ModelTester, self).__init__(name, 'red', 'default', 'highlight')
+        RSObject.__init__(self, name, 'red', 'default', 'highlight')
         self.data = None
         self.targetlabels = None  # target的值列表，用于混淆矩阵的label参数
         self.trainscore = 0
@@ -58,7 +58,7 @@ class MTSingle(ModelTester):
         :param data_procr_sequence:list(数据处理器)
         :param name:
         """
-        super(MTSingle, self).__init__(name)
+        ModelTester.__init__(self, name)
         self.dataProcrSequence = data_procr_sequence
 
     def fit_transform(self, data):
@@ -103,7 +103,7 @@ class MTAutoGrid(ModelTester):
                              ...
                              [clf1, clf2, ...]]
         """
-        super(MTAutoGrid, self).__init__('AutoGridModelTester')
+        ModelTester.__init__(self, 'AutoGridModelTester')
         self.data_procr_grid = data_procr_grid
         self.report_table = None  # pd.DataFrame()
         self.process_table = []
@@ -124,16 +124,15 @@ class MTAutoGrid(ModelTester):
             ps.append(procr)
             if isinstance(procr, TesterController):
                 code = procr.code()
-                if code == 0:  # break
+                if isinstance(procr, TCBreak):  # break
                     self.process_table.append(ps)
                     return False
-                #elif code == 1: # continue
-                elif code==2:  # end
+                elif isinstance(procr, TCEnd):  # end
                     self.process_table.append(ps)
                     return True
-                elif code==3:  #run once
-                    #  TO-DO
-                    pass
+                elif isinstance(procr, TCRunOnce):  #run once
+                    #  find next TCRunOnce
+                    data_procr_grid = procr.goto_pair(data_procr_grid, ps)
             if data_procr_grid.__len__() > 1:
                 if not self._gen_process_table(data_procr_grid[1:], ps):
                     return False
@@ -207,7 +206,7 @@ class MTAutoGrid(ModelTester):
 
 class TesterController(RSDataProcessor):
     def __init__(self, name='TesterController'):
-        super(TesterController, self).__init__(None, name, 'white', 'black', 'default', False)
+        RSDataProcessor.__init__(self, None, name, 'white', 'black', 'default', False)
 
     def code(self):
         self.error('Not implemented!')
@@ -215,11 +214,11 @@ class TesterController(RSDataProcessor):
 
 class TCBreak(TesterController):
     def __init__(self, name='TC-Break'):
-        super(TCBreak, self).__init__(name)
+        TesterController.__init__(self, name)
 
     def fit_transform(self, data):
         self.msgtime(self._colorstr('**break*point' * 8, 0, self.msgforecolor, self.msgbackcolor))
-        return False
+        return data
 
     def code(self):
         return 0
@@ -227,11 +226,12 @@ class TCBreak(TesterController):
 
 class TCContinue(TesterController):
     def __init__(self, name='TC-Continue'):
-        super(TCContinue, self).__init__(name)
+        TesterController.__init__(self, name)
         self.b_report = True
 
     def fit_transform(self, data):
         self.msg('skipped.')
+        return data
 
     def get_report(self):
         return ['跳过']
@@ -242,22 +242,59 @@ class TCContinue(TesterController):
 
 class TCEnd(TesterController):
     def __init__(self, name='TC-End'):
-        super(TCEnd, self).__init__(name)
+        TesterController.__init__(self, name)
 
     def fit_transform(self, data):
         self.msgtime(self._colorstr('--end-point' * 10, 0, self.msgforecolor, self.msgbackcolor))
-        return None
+        return data
 
     def code(self):
         return 2
 
 
 class TCRunOnce(TesterController):
+    state_dict = {}
     def __init__(self, name):
-        super(TCRunOnce, self).__init__(name)
+        TesterController.__init__(self, name)
+        self.state_dict[name] = 0
+        self.type = '|'
+        self.data = None
 
     def fit_transform(self, data):
-        return
+        if self.type == ')':
+            if isinstance(self.state_dict[self.name], int):
+                self.state_dict[self.name] = data
+        return self.state_dict[self.name]
 
-    def code(self):
-        return 3
+    def goto_pair(self, data_procr_grid, processor_sequence):
+        """
+        如果[TCRunOnce(x), ..., TCRunOnce(x)]之间的处理器已被运行过，则将data_procr_grid指针移动到对应的TCRunOnce位置处
+        :param data_procr_grid: 处理器网格
+        :param processor_sequence: 当前的处理器序列
+        :return: 跳到对应的TCRunOnce节点的data_procr_grid
+        """
+        #  find next TCRunOnce
+        self.type = '('
+        if self.has_been_run():
+            for i, procrs in enumerate(data_procr_grid[1:]):
+                processor_sequence.append(TCContinue())
+                if isinstance(procrs, TCRunOnce) and procrs.name == self.name:
+                    procrs.type = ')'
+                    processor_sequence.append(procrs)
+                    return data_procr_grid[i + 1:]
+        else:
+            return data_procr_grid
+
+    def has_been_run(self):
+        return self.state_dict[self.name] == 1
+
+    @staticmethod
+    def reset(name):
+        """
+        重置RunOnce点
+        :param name:
+        :return:
+        """
+        TCRunOnce.state_dict[name] = 0
+
+

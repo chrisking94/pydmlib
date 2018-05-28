@@ -5,7 +5,7 @@ from sklearn.ensemble.iforest import IsolationForest
 
 class OutlierHandler(RSDataProcessor):
     def __init__(self, features2process, name='AbnormalValueHandler'):
-        super(OutlierHandler, self).__init__(features2process, name, 'black', 'cyan')
+        RSDataProcessor.__init__(self, features2process, name, 'black', 'cyan')
 
     def _process(self, data, features, label):
         data = data.copy()
@@ -33,7 +33,7 @@ class OHConfidence(OutlierHandler):
         对于features2process中的特征，把在置信区间之外的数据设置为NaN
         :param alpha:0~100
         """
-        super(OHConfidence, self).__init__(features2process, '置信区间异常检测，α=%.2f' % alpha)
+        OutlierHandler.__init__(self, features2process, '置信区间异常检测，α=%.2f' % alpha)
         self.alpha = alpha
 
     def _detect(self, X):
@@ -46,7 +46,7 @@ class OHConfidence(OutlierHandler):
 
 class OH3Sigma(OutlierHandler):
     def __init__(self, features2process):
-        super(OH3Sigma, self).__init__(features2process, '3σ异常检测，|x-u|>3σ')
+        OutlierHandler.__init__(self, features2process, '3σ异常检测，|x-u|>3σ')
 
     def _detect(self, X):
         #  若数据服从正态分布
@@ -57,7 +57,7 @@ class OH3Sigma(OutlierHandler):
 
 class OHBox(OutlierHandler):
     def __init__(self, features2process):
-        super(OHBox, self).__init__(features2process, 'BoxPlot异常检测，x<Ql-1.5IQR or x>Qu+1.5IQR')
+        OutlierHandler.__init__(self, features2process, 'BoxPlot异常检测，x<Ql-1.5IQR or x>Qu+1.5IQR')
 
     def _detect(self, X):
         # 不在[Ql-1.5IQR ~ Qu+1.5IQR]的为异常值
@@ -69,7 +69,7 @@ class OHBox(OutlierHandler):
 
 class OHIForest(OutlierHandler):
     def __init__(self, features2process, **kwargs):
-        super(OHIForest, self).__init__(features2process, 'IForest异常检测')
+        OutlierHandler.__init__(self, features2process, 'IForest异常检测')
         self.iforest = IsolationForest(**kwargs)
 
     def _detect(self, X):

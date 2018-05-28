@@ -4,12 +4,12 @@ from misc import ConfusionMatrix, ROCCurve
 
 class Reporter(RSDataProcessor):
     def __init__(self, features2process, name='Reporter', forecolor='blue'):
-        super(Reporter, self).__init__(features2process, name, forecolor, 'black', 'default', True)
+        RSDataProcessor.__init__(self, features2process, name, forecolor, 'black', 'default', True)
 
 
 class DataReporter(Reporter):
     def __init__(self, features2process, name='DataReporter'):
-        super(DataReporter, self).__init__(features2process, name, 'blue')
+        Reporter.__init__(self, features2process, name, 'blue')
 
 
 class DRBrief(DataReporter):
@@ -23,7 +23,7 @@ class DRBrief(DataReporter):
                     3.unique-items: columns and unique items of each one
                     *.if no args is provided,report [1 ,2]
         """
-        super(DRBrief, self).__init__(features2process, 'BriefDataReporter')
+        DataReporter.__init__(self, features2process, 'BriefDataReporter')
         self.args = args
         self.data_shape = (0, 0)
 
@@ -61,7 +61,7 @@ class DRBrief(DataReporter):
 
 class ResultReporter(Reporter):
     def __init__(self, name='ResultReporter'):
-        super(ResultReporter, self).__init__(name, 'white')
+        Reporter.__init__(self, name, 'white')
 
 
 class ClfResult(object):
@@ -77,7 +77,7 @@ class ClfResult(object):
 
 class RRConfusionMatrix(ResultReporter):
     def __init__(self, name='RR-ConfusionMatrix'):
-        super(RRConfusionMatrix, self).__init__(name)
+        ResultReporter.__init__(self, name)
         self.cm = None
 
     def fit_transform(self, data):
@@ -97,7 +97,7 @@ class RRConfusionMatrix(ResultReporter):
 
 class RRRocCurve(ResultReporter):
     def __init__(self, name='RR-RocCurve'):
-        super(RRRocCurve, self).__init__(name)
+        ResultReporter.__init__(self, name)
         self.roc = None
 
     def fit_transform(self, data):

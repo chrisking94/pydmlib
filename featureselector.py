@@ -12,7 +12,7 @@ class FeatureSelector(RSDataProcessor):
         选择最佳特征
         :param threshold:float, 0~1
         """
-        super(FeatureSelector, self).__init__(features2process, name, 'pink', 'white', 'highlight')
+        RSDataProcessor.__init__(self, features2process, name, 'pink', 'white', 'highlight')
         self.threshold = threshold
 
     def _process(self, data, features, label):
@@ -35,7 +35,7 @@ class FeatureSelector(RSDataProcessor):
 
 class FSNone(FeatureSelector):
     def __init__(self, features2process):
-        super(FSNone, self).__init__(features2process, name='不做特征选择')
+        FeatureSelector.__init__(self, features2process, name='不做特征选择')
 
     def _process(self, data, features, label):
         self.msgtime()
@@ -44,7 +44,7 @@ class FSNone(FeatureSelector):
 
 class FSChi2(FeatureSelector):
     def __init__(self, features2process, threshold=0.2):
-        super(FSChi2, self).__init__(features2process, threshold, name='χ²特征选择')
+        FeatureSelector.__init__(self, features2process, threshold, name='χ²特征选择')
 
     def score(self, data, target):
         skb = SelectKBest(chi2, k='all')
@@ -54,7 +54,7 @@ class FSChi2(FeatureSelector):
 
 class FSRFC(FeatureSelector):
     def __init__(self, features2process, threshold=0.2):
-        super(FSRFC, self).__init__(features2process, threshold, name='rfc特征选择')
+        FeatureSelector.__init__(self, features2process, threshold, name='rfc特征选择')
 
     def score(self, data, target):
         clf = RandomForestClassifier()
@@ -64,7 +64,7 @@ class FSRFC(FeatureSelector):
 
 class FSmRMR(FeatureSelector):
     def __init__(self, features2process, threshold=0.2):
-        super(FSmRMR, self).__init__(features2process, threshold, name='mRMR特征选择')
+        FeatureSelector.__init__(self, features2process, threshold, name='mRMR特征选择')
 
     def score(self, data, target):
         F = mrmr(data.values, target)
@@ -75,7 +75,7 @@ class FSmRMR(FeatureSelector):
 
 class FSManual(FeatureSelector):
     def __init__(self, features2process, name='手动特征选择'):
-        super(FSManual, self).__init__(features2process, name=name)
+        FeatureSelector.__init__(self, features2process, name=name)
 
     def _process(self, data, features, label):
         self.msg('%d features in total.' % features.__len__())

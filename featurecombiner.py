@@ -9,7 +9,7 @@ class FeatureCombiner(RSDataProcessor):
         :param features2process: 
         :param name: 
         """
-        super(FeatureCombiner, self).__init__(features2process, name, 'cyan', 'blue', 'highlight')
+        RSDataProcessor.__init__(self, features2process, name, 'cyan', 'blue', 'highlight')
 
 
 class FCbArithmetical(FeatureCombiner):
@@ -26,7 +26,7 @@ class FCbArithmetical(FeatureCombiner):
                                 *.匹配到的$1可能等于$2
                                 *.单变量时，可以使用简略的$而不必写成$0,$2等形式
         """
-        super(FCbArithmetical, self).__init__(features2process, name)
+        FeatureCombiner.__init__(self, features2process, name)
         self.operations = operations
         self.staticOperations = []
         self.dynamicOperations = []

@@ -4,7 +4,7 @@ import sklearn.model_selection as ms
 
 class FormatConverter(RSDataProcessor):
     def __init__(self, features2process=None, name='FormatConverter'):
-        super(FormatConverter, self).__init__(features2process, name, 'green', 'blue', 'highlight', False)
+        RSDataProcessor.__init__(self, features2process, name, 'green', 'blue', 'highlight', False)
 
 
 class FCovTrainTestSet(FormatConverter):
@@ -13,7 +13,7 @@ class FCovTrainTestSet(FormatConverter):
         data ←→ (trainset, testset)
         :param features2process:
         """
-        super(FCovTrainTestSet, self).__init__(features2process, 'data←→(trainset, testset)')
+        FormatConverter.__init__(self, features2process, 'data←→(trainset, testset)')
         self.test_size = test_size
         self.random_state = random_state
 
@@ -40,7 +40,7 @@ class FCovDataTarget(FormatConverter):
                         2、或输入只有X，(X FCovDataTarget.target) -> data。
                         * bXonly在流式处理中必须成对使用，以避免数据混乱而导致错误。
         """
-        super(FCovDataTarget, self).__init__(features2process, 'data←→(X y)')
+        FormatConverter.__init__(self, features2process, 'data←→(X y)')
         self.bXonly = bXonly
 
     def fit_transform(self, data):

@@ -99,7 +99,7 @@ class RSDataProcessor(RSObject):
         :param msgmode:
         :param b_report: 是否输出报告，作用于self.get_report_title(), self.get_report()
         """
-        super(RSDataProcessor, self).__init__(name, msgforecolor, msgbackcolor, msgmode)
+        RSObject.__init__(self, name, msgforecolor, msgbackcolor, msgmode)
         self.features2process = features2process
         self.b_report = b_report
 
@@ -128,6 +128,7 @@ class RSDataProcessor(RSObject):
         :return:[X' y]
         """
         self.starttimer()
+        self.msgtime('running...')
         features, label = self._getFeaturesNLabel(data)
         data = self._process(data, features, label)
         self.msgtimecost()
@@ -188,10 +189,10 @@ class RSDataMetaclass(type):
             RSDataMetaclass._rfaf(bases, dict_ret)
 
 
-class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
+class RSData(pd.DataFrame, RSObject):#, metaclass=RSDataMetaclass):
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
                  copy=False, checkpoints=None):
-        super(RSData, self).__init__(data, index, columns, dtype, copy)
+        pd.DataFrame.__init__(self, data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
         if checkpoints is None:
             self.checkpoints = self.CheckPointMgr(self)

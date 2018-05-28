@@ -3,7 +3,7 @@ from base import *
 
 class Discretor(RSDataProcessor):
     def __init__(self, features2process, name='Discretor'):
-        super(Discretor, self).__init__(features2process, name, 'red', 'white')
+        RSDataProcessor.__init__(self, features2process, name, 'red', 'white')
 
 
 class DsctChi2(Discretor):
@@ -11,7 +11,7 @@ class DsctChi2(Discretor):
         """
         chi^2离散
         """
-        super(DsctChi2, self).__init__(features2process, 'χ²离散')
+        Discretor.__init__(self, features2process, 'χ²离散')
         self.min_interval = min_interval
         self.min_epos = 0.05
         self.final_bin = []
@@ -130,7 +130,7 @@ class DsctMonospace(Discretor):
         等宽离散
         :param bin_amount:默认分10桶
         """
-        super(DsctMonospace, self).__init__(features2process, '等宽离散，bin_amount=%d' % bin_amount)
+        Discretor.__init__(self, features2process, '等宽离散，bin_amount=%d' % bin_amount)
         self.bin_amount = bin_amount
 
     def _process(self, data, features, label):
@@ -154,7 +154,7 @@ class DsctInfomationEntropy(Discretor):
         :param features2process:
         :param min_infomation_gain:  离散后最少值种类个数
         """
-        super(DsctInfomationEntropy, self).__init__(features2process, '信息熵分裂')
+        Discretor.__init__(self, features2process, '信息熵分裂')
 
     def _process(self, data, features, label):
         return data

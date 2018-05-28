@@ -3,12 +3,12 @@ from base import *
 
 class DiscreteValueEncoder(RSDataProcessor):
     def __init__(self, features2process, name='DiscreteValueEncoder'):
-        super(DiscreteValueEncoder, self).__init__(features2process, name, 'white', 'black')
+        RSDataProcessor.__init__(self, features2process, name, 'white', 'black')
 
 
 class DVEOneHot(DiscreteValueEncoder):
     def __init__(self, features2process):
-        super(DVEOneHot, self).__init__(features2process, 'OneHot编码')
+        DiscreteValueEncoder.__init__(self, features2process, 'OneHot编码')
 
     def _process(self, data, features, label):
         """

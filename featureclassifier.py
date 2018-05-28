@@ -3,7 +3,7 @@ from base import *
 
 class FeatureClassifier(RSDataProcessor):
     def __init__(self, features2process, name='FeatureClassifier'):
-        super(FeatureClassifier, self).__init__(features2process, name, 'blue', 'white', 'bold', False)
+        RSDataProcessor.__init__(self, features2process, name, 'blue', 'white', 'bold', False)
 
 
 class FCUniqueItemCountGe(FeatureClassifier):
@@ -18,7 +18,7 @@ class FCUniqueItemCountGe(FeatureClassifier):
         :param discfeats: list, 用于存储分类结果中离散特征
                             可以预设离散特征，在fit_transform时此列表中预设的特征不会被划分到contfeats
         """
-        super(FCUniqueItemCountGe, self).__init__(features2process, '值类型数>=%d为连续特征' % ( cont_feat_threshold))
+        FeatureClassifier.__init__(self, features2process, '值类型数>=%d为连续特征' % ( cont_feat_threshold))
         self.threshold = cont_feat_threshold
         self.presetContFeats = contfeats.copy()
         self.presetDiscFeats = discfeats.copy()

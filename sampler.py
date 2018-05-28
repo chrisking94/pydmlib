@@ -3,7 +3,7 @@ from base import *
 
 class Sampler(RSDataProcessor):
     def __init__(self, features2process, name='Sampler'):
-        super(Sampler, self).__init__(features2process, name, 'blue', 'yellow', 'highlight')
+        RSDataProcessor.__init__(self, features2process, name, 'blue', 'yellow', 'highlight')
 
 
 class SplUnder(Sampler):
@@ -18,7 +18,7 @@ class SplUnder(Sampler):
             如果feature_weights==1,则首选空值少的某行
             如果feature_weights==None，则进行随机抽样
         """
-        super(SplUnder, self).__init__(features2process, '向下采样')
+        Sampler.__init__(self, features2process, '向下采样')
         self.feature_weights = feature_weights
 
     def _process(self, data, features, label):
@@ -46,7 +46,7 @@ class SplUnder(Sampler):
 
 class SplMiddle(Sampler):
     def __init__(self, features2process):
-        super(SplMiddle, self).__init__(features2process, '中间采样')
+        Sampler.__init__(self, features2process, '中间采样')
 
     def _process(self, data, features, label):
         self.msg('--sample count before undersampling %d' % data.shape[0])
@@ -74,7 +74,7 @@ class SplAppoint(Sampler):
         :param features2process:
         :param sample_count: 采样数
         """
-        super(SplAppoint, self).__init__(features2process, '指定采样，样本大小=%.2f' % sample_count)
+        Sampler.__init__(self, features2process, '指定采样，样本大小=%.2f' % sample_count)
         self.sample_count = sample_count
 
     def _process(self, data, features, label):

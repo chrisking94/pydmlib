@@ -10,7 +10,7 @@ class Wrapper(RSDataProcessor):
         :param features2process:
         :param name:
         """
-        super(Wrapper, self).__init__(features2process, name, 'random', 'random', 'blink')
+        RSDataProcessor.__init__(self, features2process, name, 'random', 'random', 'blink')
 
 
 class WrpDataProcessor(Wrapper):
@@ -35,7 +35,7 @@ class WrpDataProcessor(Wrapper):
             else:
                 name = 'WrpDPXy-%s'
             name = name % (processor.__class__.__name__)
-        super(WrpDataProcessor, self).__init__(features2process, name)
+        Wrapper.__init__(self, features2process, name)
         self.processor = processor
         self.bXonly = bXonly
 
@@ -72,7 +72,7 @@ class WrpClassifier(Wrapper):
         """
         if name == '':
             name = 'WrpClf-%s' % clf.__class__.__name__
-        super(WrpClassifier, self).__init__(features2process, name)
+        Wrapper.__init__(self, features2process, name)
         self.clf = clf
         self.test_size = test_size
 
@@ -113,5 +113,12 @@ class WrpClassifier(Wrapper):
         return [self.trainscore, self.testscore]
 
 
-
+def IWrap(features2process, processor):
+    """
+    intelligently wrapping， select wrapping type automatically
+    """
+    if hasattr(processor, 'predict'):
+        return WrpClassifier(features2process, processor)
+    else:
+        return WrpDataProcessor(features2process, processor, bXonly=False)
 

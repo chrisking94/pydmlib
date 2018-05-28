@@ -9,7 +9,7 @@ class Transformer(RSDataProcessor):
         :param features2process:
         :param name:
         """
-        super(Transformer, self).__init__(features2process, name, 'black', 'green')
+        RSDataProcessor.__init__(self, features2process, name, 'black', 'green')
 
 
 class TsfmFunction(Transformer):
@@ -21,7 +21,7 @@ class TsfmFunction(Transformer):
         :param breplace: 是否用转换后的数据替换原数据，为False则把转换后数据追加到data中
         :param name:
         """
-        super(TsfmFunction, self).__init__(features2process, name)
+        Transformer.__init__(self, features2process, name)
         self.transform = transform
         self.breplace = breplace
 

@@ -3,7 +3,7 @@ from base import *
 
 class NanHandler(RSDataProcessor):
     def __init__(self, featues2process, name='NanHandler'):
-        super(NanHandler, self).__init__(featues2process, name, 'yellow', 'black')
+        RSDataProcessor.__init__(self, featues2process, name, 'yellow', 'black')
 
 
 class NHToSpecial(NanHandler):
@@ -11,7 +11,7 @@ class NHToSpecial(NanHandler):
         """
         :param value: 替代nan的值
         """
-        super(NHToSpecial, self).__init__(featues2process, '设置NaN为%d' % (value))
+        NanHandler.__init__(self, featues2process, '设置NaN为%d' % (value))
         self.special = value
 
     def _process(self, data, features, label):
@@ -27,7 +27,7 @@ class NHDropColumns(NanHandler):
         :param features2process:
         :param nullrate_threshold:空值率阈值
         """
-        super(NHDropColumns, self).__init__(features2process, '丢弃缺失率超过%.3f的列' % nullrate_threshold)
+        NanHandler.__init__(self, features2process, '丢弃缺失率超过%.3f的列' % nullrate_threshold)
         self.nullrate_threshold = nullrate_threshold
 
     def _process(self, data, features, label):
@@ -50,7 +50,7 @@ class NHDropRows(NanHandler):
             如果feature_weights is dict(f1:w1,f2:w2,...,fi:wi,...)，则按miss_rate_xj=∑(wi*(if <fi> is null then 1 else 0))
             如果feature_weights==None，则miss_rate_xj=count(xj.null)/len(xj)
         """
-        super(NHDropRows, self).__init__(features2process, '丢弃信息缺失率>=%.3f的行' % miss_rate_threshold)
+        NanHandler.__init__(self, features2process, '丢弃信息缺失率>=%.3f的行' % miss_rate_threshold)
         self.miss_rate_threshold = miss_rate_threshold
         if feature_weights is not None:
             feature_weights = np.array(feature_weights)
