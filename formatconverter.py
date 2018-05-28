@@ -4,16 +4,16 @@ import sklearn.model_selection as ms
 
 class FormatConverter(RSDataProcessor):
     def __init__(self, features2process=None, name='FormatConverter'):
-        super(FormatConverter, self).__init__(features2process, name, 'green', 'blue', 'highlight')
+        super(FormatConverter, self).__init__(features2process, name, 'green', 'blue', 'highlight', False)
 
 
-class FCoTrainTestSet(FormatConverter):
+class FCovTrainTestSet(FormatConverter):
     def __init__(self, features2process, test_size=0.2, random_state=0):
         """
         data ←→ (trainset, testset)
         :param features2process:
         """
-        super(FCoTrainTestSet, self).__init__(features2process, 'data←→(trainset, testset)')
+        super(FCovTrainTestSet, self).__init__(features2process, 'data←→(trainset, testset)')
         self.test_size = test_size
         self.random_state = random_state
 
@@ -29,19 +29,52 @@ class FCoTrainTestSet(FormatConverter):
         return ret
 
 
-class FCoDataTarget(FormatConverter):
-    def __init__(self, features2process):
-        super(FCoDataTarget, self).__init__(features2process, 'data←→(X y)')
+class FCovDataTarget(FormatConverter):
+    target = None
+
+    def __init__(self, features2process, bXonly=False):
+        """
+        data←→(X y)
+        :param features2process:
+        :param bXonly: 1、仅返回 X， data -> X，y会被存储到FCovDataTarget.target；
+                        2、或输入只有X，(X FCovDataTarget.target) -> data。
+                        * bXonly在流式处理中必须成对使用，以避免数据混乱而导致错误。
+        """
+        super(FCovDataTarget, self).__init__(features2process, 'data←→(X y)')
+        self.bXonly = bXonly
 
     def fit_transform(self, data):
+        """
+        see __init__
+        :param data: data；
+                     (X y)；
+                     (X) 这种情况返回[X FCovDataTarget.target]
+        :return:
+        """
         self.starttimer()
         if isinstance(data, tuple):
-            self.msg('(X y) → data')
             features = [x for x in self.features2process if x in data[0].columns]
-            ret = pd.concat([data[0][features], data[1]], axis=1)
+            X = data[0][features]
+            if data.__len__() == 1:
+                y = self.target
+                if y is None:
+                    self.error('there is no [target] stored in!')
+                elif y.shape[0] != X.shape[0]:
+                    self.error('(y.len=%d) must be same with (X.len=%d)!' %(y.shape[0], X.shape[0]))
+            elif data.__len__() == 2:
+                y = data[1]
+            else:
+                y = None
+                self.error('format of input tuple should be (X y)')
+            self.msg('(X y) → data')
+            ret = pd.concat([X, y], axis=1)
         else:
-            self.msg('data → (X y)')
             features, label = self._getFeaturesNLabel(data)
-            ret = data[features], data[label]
+            if self.bXonly:
+                self.msg('data → X')
+                ret = data[features]
+            else:
+                self.msg('data → (X y)')
+                ret = data[features], data[label]
         self.msgtimecost()
         return ret

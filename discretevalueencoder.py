@@ -10,22 +10,18 @@ class DVEOneHot(DiscreteValueEncoder):
     def __init__(self, features2process):
         super(DVEOneHot, self).__init__(features2process, 'OneHot编码')
 
-    def fit_transform(self, data):
+    def _process(self, data, features, label):
         """
         OneHot encode
         :param data:
         :param columns:
         """
-        self.starttimer()
-        columns, label = self._getFeaturesNLabel(data)
+        self.msg('shape before encoding %s' % (data.shape.__str__()))
         data = data.copy()
-        data[columns] = data[columns].astype('str')
-        target = data[data.columns[-1]]
-        encdisc = pd.get_dummies(data[columns], dummy_na=False)
-        encdisc = encdisc.astype('float')
-        data.drop(columns=columns, inplace=True)
-        data.drop(columns=[data.columns[-1]], inplace=True)
-        data = pd.concat([data, encdisc, target], axis=1)
-        self.msg('shape after encoding: %s' % (data.shape.__str__()))
-        self.msgtimecost()
+        X = data[features].astype('str', copy=False)
+        encdisc = pd.get_dummies(X, dummy_na=False)
+        encdisc = encdisc.astype('float', copy=False)
+        data.drop(columns=features, inplace=True)
+        data = pd.concat([encdisc, data], axis=1)
+        self.msg('shape after encoding %s' % (data.shape.__str__()))
         return data

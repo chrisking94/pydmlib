@@ -3,7 +3,7 @@ from base import *
 
 class FeatureClassifier(RSDataProcessor):
     def __init__(self, features2process, name='FeatureClassifier'):
-        super(FeatureClassifier, self).__init__(features2process, name, 'blue', 'white', 'bold')
+        super(FeatureClassifier, self).__init__(features2process, name, 'blue', 'white', 'bold', False)
 
 
 class FCUniqueItemCountGe(FeatureClassifier):
@@ -25,17 +25,9 @@ class FCUniqueItemCountGe(FeatureClassifier):
         self.contfeats = contfeats
         self.discfeats = discfeats
 
-    def fit_transform(self, data):
-        """
-        把特征分成连续特征，离散特征
-        :param data:[X y]
-        :param contfeats:预设连续特征，分类器将会保持该列表中的特征为连续特征
-        :return:contfeats, discfeats
-        """
-        self.starttimer()
+    def _process(self, data, features, label):
         self.contfeats.clear()
         self.discfeats.clear()
-        features, label = self._getFeaturesNLabel(data)
         cntdict = {}
         for col in features:
             cnt = data[col].unique().shape[0]
@@ -43,9 +35,13 @@ class FCUniqueItemCountGe(FeatureClassifier):
             if cnt >= self.threshold:
                 if col not in self.presetDiscFeats:
                     self.contfeats.append(col)
+                else:
+                    self.discfeats.append(col)
             else:
                 if col not in self.presetContFeats:
                     self.discfeats.append(col)
+                else:
+                    self.contfeats.append(col)
         self.msg('%d continuous features, %d discrete features.' % (self.contfeats.__len__(), self.discfeats.__len__()))
-        return data.copy()
+        return data
 

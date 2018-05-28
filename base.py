@@ -1,5 +1,6 @@
 #coding=utf-8
 import time
+import datetime
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,40 +65,50 @@ class RSObject(object):
         self.timestart = time.time()
 
     def msgtimecost(self, start=None, msg=''):
-        if start == None:
+        if start is None:
             start = self.timestart
         timecost = time.time() - start
         if timecost < 1:
             timecost = '%.2fs' % round(timecost, 2)
         else:
             m, s = divmod(timecost, 60)
-            h, h = divmod(m, 60)
+            h, m = divmod(m, 60)
             timecost = '%02d:%02d:%02d' % (h, m, s)
         self._submsg('timecost', 5, '%s %s' %(timecost, msg))
 
     def msgtime(self, msg=''):
-        localtime = time.asctime(time.localtime(time.time()))
-        self._submsg(localtime, 6, msg)
-        print(msg)
+        self._submsg(self.strtime(), 6, msg)
+
+    @staticmethod
+    def strtime(format_='%Y-%m-%d %H:%M:%S', houroffset=12):
+        t = datetime.datetime.now() + datetime.timedelta(hours=houroffset)
+        t = t.strftime(format_)
+        return t
 
 
 class RSDataProcessor(RSObject):
     def __init__(self, features2process=None, name='DataProcessor', msgforecolor='default',
-                 msgbackcolor='default', msgmode='default'):
+                 msgbackcolor='default', msgmode='default', b_report=True):
         """
+
         :param features2process:需要处理的特征
                         如果None，则处理所有特征
+        :param name:
+        :param msgforecolor:
+        :param msgbackcolor:
+        :param msgmode:
+        :param b_report: 是否输出报告，作用于self.get_report_title(), self.get_report()
         """
         super(RSDataProcessor, self).__init__(name, msgforecolor, msgbackcolor, msgmode)
         self.features2process = features2process
+        self.b_report = b_report
 
     def _getFeaturesNLabel(self, data):
         """
-        :param data:
-        :param features2process: 需要处理的特征子集
-                            为None则设置为data所有features
-                            否则为feature2process∩data.columns
+        ignored
         :return:features, label
+                features: 如果self.features2process为None则设置成data.columns
+                            否则为feature2process∩data.columns
         """
         if self.features2process is None:
             features = data.columns[:-1]
@@ -108,72 +119,76 @@ class RSDataProcessor(RSObject):
             data.addhistory(self.coloredname)
         return features, label
 
+    def _process(self, data, features, label):
+        self.error('Not implemented!')
+
     def fit_transform(self, data):
         """
         :param data: [X y]
         :return:[X' y]
         """
-        self.error('Not implemented!')
+        self.starttimer()
+        features, label = self._getFeaturesNLabel(data)
+        data = self._process(data, features, label)
+        self.msgtimecost()
+        return data
 
-    __call__ = fit_transform
+    def get_report_title(self, *args):
+        """
+        返回当前对象输出报告的标题，可以用于制表，一般用在ModelTester中
+        :return: list, 默认返回list[父类类名]
+        """
+        if self.b_report:
+            return [self.__class__.__bases__[0].__name__]
+        else:
+            return []
+
+    def get_report(self):
+        """
+        输出报告，一般用在ModelTester中
+        :return:  list, 默认返回当前对象名
+        """
+        if self.b_report:
+            return [self.name]
+        else:
+            return []
+
+    def __call__(self, *args, **kwargs):
+        return  self.fit_transform(*args)
 
 
 class RSDataMetaclass(type):
     def __new__(cls, name, bases, attrs):
-        """
-        重写DataFrame的成员函数，使返回值类型为DataFrame的成员函数返回RSData包装过的(DataFrame)
-        :param name: 类名
-        :param bases: 父类表
-        :param attrs: 成员字典
-        :return:
-        """
-        funcdict = {}
-        RSDataMetaclass.getfuncs(pd.DataFrame, funcdict)
-        for k, v in funcdict.items():
-            if k not in attrs.keys():
-                wrappedfunc = RSDataMetaclass.wrapreturn(v)
-                if wrappedfunc is not None:
-                    attrs[k] = wrappedfunc
-        return type.__new__(cls, name, bases, attrs)
+        func_dict = {}
+        cls._rfaf([pd.DataFrame], func_dict)
+        func_dict = [(k, cls._wrap_return(v)) for (k, v) in func_dict.items() if k not in attrs.keys()]
+        attrs.update(func_dict)
+        return type(name, bases, attrs)
 
     @staticmethod
-    def getfuncs(cls, dictret):
-        """
-        获取类以及祖先类的所有成员函数
-        :param cls: 类
-        :param dictret: 用于记录{'函数名' : 函数}的字典
-        :return:
-        """
-        bases = list(cls.__bases__)
-        bases.reverse()
-        for base in bases:
-            RSDataMetaclass.getfuncs(base, dictret)
-        cdict = dict([x for x in cls.__dict__.items() if x[1].__class__.__name__ == 'function'])
-        dictret.update(cdict)
-
-    @staticmethod
-    def wrapreturn(func):
-        if 'inplace' in func.__code__.co_varnames:
-            def wrappedfunc(self, *arg, **kwargs):
-                if func.__code__.co_varnames.index('inplace')+1 <= arg.__len__():
-                    arg = list(arg)
-                    arg[func.__code__.co_varnames.index('inplace')] = True
-                    arg = tuple(arg)
-                else:
-                    kwargs['inplace'] = True
-                func(self, *arg, **kwargs)
-                return self
-        else:
-            def wrappedfunc(self, *arg, **kwargs):
-                ret = func(self, *arg, **kwargs)
-                if isinstance(ret, pd.DataFrame):
-                    return self.__class__(self.name, ret, checkpoints=self.checkpoints)
-                else:
-                    return ret
+    def _wrap_return(func):
+        def wrappedfunc(self, *arg, **kwargs):
+            ret = func(self, *arg, **kwargs)
+            if isinstance(ret, pd.DataFrame):
+                return RSData(self.name, ret, checkpoints=self.checkpoints)
+            else:
+                return ret
         return wrappedfunc
 
+    @staticmethod
+    def _rfaf(classes_, dict_ret):  # recursively find all functions
+        bases = []
+        for c in classes_:
+            funcs = [(k, v) for (k, v) in c.__dict__.items()
+                             if v.__class__.__name__=='function'
+                                and k not in dict_ret.keys()]
+            dict_ret.update(funcs)
+            bases.extend(c.__bases__)
+        if bases.__len__() > 0:
+            RSDataMetaclass._rfaf(bases, dict_ret)
 
-class RSData(pd.DataFrame, RSObject):#, metaclass=RSDataMetaclass):
+
+class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
     def __init__(self, name='RSData', data=None, index=None, columns=None, dtype=None,
                  copy=False, checkpoints=None):
         super(RSData, self).__init__(data, index, columns, dtype, copy)
@@ -265,7 +280,7 @@ class RSData(pd.DataFrame, RSObject):#, metaclass=RSDataMetaclass):
                 self.wrapperobj.lastcheckpoint = self.name
                 self.wrapperobj.unsavedcheckpoint = \
                     RSData.CheckPointMgr.CheckPoint(self.wrapperobj, 'unsaved', self)
-                self.time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                self.time = RSData.strtime()
 
             def save(self, comment='', data=None):
                 """

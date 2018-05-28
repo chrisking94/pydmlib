@@ -8,23 +8,15 @@ from skfeature.function.information_theoretical_based.MRMR import mrmr
 
 class FeatureSelector(RSDataProcessor):
     def __init__(self, features2process, threshold=0.2, name='FeatureSelector'):
+        """"
+        选择最佳特征
+        :param threshold:float, 0~1
+        """
         super(FeatureSelector, self).__init__(features2process, name, 'pink', 'white', 'highlight')
         self.threshold = threshold
 
-    def fit_transform(self, data):
-        """
-        选择最佳特征
-        :param encdata:输入数据
-        :param scorer:str,评分器，有以下几个值
-            None :不做选择
-            'chi2':SelectKBest(chi2).scores
-            'rfr':RandomForestClassifier.feature_importance_
-            'mrmr':Minimum Redundancy Maximum Relevance Feature Selection
-        :param threshold:float, 0~1
-        """
-        self.starttimer()
+    def _process(self, data, features, label):
         self.msg('--feature count before selection %d' % data.shape[1])
-        features, label = self._getFeaturesNLabel(data)
         sdata, starget = data[features], data[label]
         scores = self.score(sdata, starget)
 
@@ -35,7 +27,6 @@ class FeatureSelector(RSDataProcessor):
         fdata = data.drop(columns=sdata.columns[scores < self.threshold])
 
         self.msg('--feature count after selection %d' % fdata.shape[1])
-        self.msgtimecost()
         return fdata
 
     def score(self, data, target):
@@ -46,7 +37,7 @@ class FSNone(FeatureSelector):
     def __init__(self, features2process):
         super(FSNone, self).__init__(features2process, name='不做特征选择')
 
-    def fit_transform(self, data):
+    def _process(self, data, features, label):
         self.msgtime()
         return data.copy()
 
@@ -80,3 +71,14 @@ class FSmRMR(FeatureSelector):
         scores = pd.Series(F)
         scores[pd.Index(F)] = np.arange(1, 0, float(-1) / F.shape[0])
         return scores
+
+
+class FSManual(FeatureSelector):
+    def __init__(self, features2process, name='手动特征选择'):
+        super(FSManual, self).__init__(features2process, name=name)
+
+    def _process(self, data, features, label):
+        self.msg('%d features in total.' % features.__len__())
+        ret = pd.concat([data[features], data[label]], axis=1)
+        return ret
+

@@ -11,7 +11,7 @@ class SplUnder(Sampler):
         """
         对于某一行数据，根据feature_weights中的权重来计算其重要性（见:param feature_weights）
         采样时首选重要性高的数据
-        :param deature_weights:
+        :param feature_weights:
             features = {f1,f2,...}
             如果feature_weights is dict(f1:w1,f2:w2,...)，则按importancei=∑(wi*(if <fi> not null then 1 else 0))
                 计算后首选importance高的数据
@@ -21,9 +21,7 @@ class SplUnder(Sampler):
         super(SplUnder, self).__init__(features2process, '向下采样')
         self.feature_weights = feature_weights
 
-    def fit_transform(self, data):
-        self.starttimer()
-        features, label = self._getFeaturesNLabel(data)
+    def _process(self, data, features, label):
         feature_weights = self.feature_weights
         self.msg('采样前行数 %d' % data.shape[0])
         lables, cnts = np.unique(data[label], return_counts=True)
@@ -43,7 +41,6 @@ class SplUnder(Sampler):
             else:
                 self.error('Invalid value for feature_weights!')
         self.msg('采样后行数 %d' % newdata.shape[0])
-        self.msgtimecost()
         return newdata
 
 
@@ -51,9 +48,7 @@ class SplMiddle(Sampler):
     def __init__(self, features2process):
         super(SplMiddle, self).__init__(features2process, '中间采样')
 
-    def fit_transform(self, data):
-        self.starttimer()
-        features, label = self._getFeaturesNLabel(data)
+    def _process(self, data, features, label):
         self.msg('--sample count before undersampling %d' % data.shape[0])
         lables, cnts = np.unique(data[label], return_counts=True)
         avg = int(cnts.mean())
@@ -68,8 +63,31 @@ class SplMiddle(Sampler):
                 # oversampling
                 sdata = sdata.append(data[data[label] == lbl])  # preserve original data
                 sdata = sdata.append(data[data[label] == lbl].sample(avg - cnt, replace=True))
-
         self.msg('--sample count after undersampling %d' % data.shape[0])
-        self.msgtimecost()
         return sdata
+
+
+class SplAppoint(Sampler):
+    def __init__(self, features2process, sample_count):
+        """
+        指定数目采样
+        :param features2process:
+        :param sample_count: 采样数
+        """
+        super(SplAppoint, self).__init__(features2process, '指定采样，样本大小=%.2f' % sample_count)
+        self.sample_count = sample_count
+
+    def _process(self, data, features, label):
+        y = data[label]
+        labels = np.unique(y)
+        if self.sample_count < 1:
+            sample_count = int(data.shape[0] * self.sample_count)
+        else:
+            sample_count = self.sample_count
+        avg_size = int(sample_count / labels.shape[0])
+        sample_ret = pd.DataFrame(columns=data.columns)
+        for label in labels:
+            sample_ret = sample_ret.append(data[y == label].sample(avg_size))
+        return sample_ret
+
 

@@ -1,5 +1,7 @@
 from base import *
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import roc_curve, auc
+from scipy import interpolate
 
 
 class ConfusionMatrix(pd.DataFrame, RSObject):
@@ -29,6 +31,48 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
 
     def __getitem__(self, item):
         return super(ConfusionMatrix, self).values[item]
+
+
+class ROCCurve(RSObject):
+    def __init__(self, y_true, y_score, title='ROC-Curve'):
+        super(ROCCurve, self).__init__(title, 'white', 'black', 'bold')
+        self.fpr, self.tpr, self.thresholds = roc_curve(y_true,
+                                                        y_score)  # y_score can be the probability of the POSITIVE class,...
+
+    def plot(self, ax=None):
+        if ax is None:
+            fig = plt.figure(figsize=(5, 5))
+            ax = fig.add_subplot(111)
+        ax.set_title(self.name)
+        ax.set_xlabel('FP Rate')
+        ax.set_ylabel('TP Rate')
+        ax.legend(loc="lower right")
+
+        #         srtd = list(zip(self.fpr, self.tpr))
+        #         srtd.sort(key=lambda x:x[0])
+        #         ax.scatter(self.fpr, self.tpr)
+        #         x, y = [], []
+        #         lastxx = -100
+        #         for xx, yy in srtd:
+        #             if xx != lastxx:
+        #                 x.append(xx)
+        #                 y.append(yy)
+        #             lastxx = xx
+        #         x0, y0 = x, y
+        #         x2 = np.arange(0, 1, 0.05)
+        #         A2, B2, C2 = optimize.curve_fit(f_2, x0, y0)[0]
+        #         y2 = A2*x2*x2 + B2*x2 + C2
+        #         # 拟合之后的平滑曲线图
+        #         ax.plot(x2, y2)
+        ax.plot(self.fpr, self.tpr, lw=1)
+        # ax.plot(self.thresholds, self.tpr)
+        # ax.plot(self.fpr, self.thresholds)
+        plt.show()
+        self.msg('AUC=%f' % self.auc())
+
+    def auc(self):
+        return auc(self.fpr, self.tpr)
+
 
 def test():
     cm = ConfusionMatrix([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 3])

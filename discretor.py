@@ -5,9 +5,6 @@ class Discretor(RSDataProcessor):
     def __init__(self, features2process, name='Discretor'):
         super(Discretor, self).__init__(features2process, name, 'red', 'white')
 
-    def fit_transform(X, y):
-        raise Exception('error:Not implemented!')
-
 
 class DsctChi2(Discretor):
     def __init__(self, features2process, min_interval=1):
@@ -95,14 +92,12 @@ class DsctChi2(Discretor):
         res = np.asarray(res)
         return res
 
-    def fit_transform(self, data):
+    def _process(self, data, features, label):
         """
         chi2离散
         :param data:
         :return:
         """
-        self.starttimer()
-        features, label = self._getFeaturesNLabel(data)
         X = data[features]
         y = data[label]
         for col in features:
@@ -116,7 +111,6 @@ class DsctChi2(Discretor):
                 self._fit(xs, ys, self.min_interval)
             X[col] = self._transform(xs)
         data[features] = X
-        self.msgtimecost()
         return X
 
     def get_Discretization_index(self, Discretization_vals, val):
@@ -131,38 +125,39 @@ class DsctChi2(Discretor):
 
 
 class DsctMonospace(Discretor):
-    def __init__(self, features2process, bin_size=None):
+    def __init__(self, features2process, bin_amount=10):
         """
         等宽离散
-        :param bin_size:默认分10桶
+        :param bin_amount:默认分10桶
         """
-        super(DsctMonospace, self).__init__(features2process, '等宽离散')
-        self.bin_size = bin_size
+        super(DsctMonospace, self).__init__(features2process, '等宽离散，bin_amount=%d' % bin_amount)
+        self.bin_amount = bin_amount
 
-    def fit_transform(self, data):
+    def _process(self, data, features, label):
         """
         :param X: pandas.DataFrame([feature1, feature2, ...])
         """
-        self.starttimer()
-        features, label = self._getFeaturesNLabel(data)
         X, y = data[features], data[label]
-        bs = self.bin_size
-        if bs is None:
-            bs = (X.max() - X.min()) / 10
+        bs = self.bin_amount
+        bs = (X.max() - X.min()) / bs
         bs[bs == 0] = 1  # 避免除数为0
         X = ((X - X.min()) / bs).round()
         data[features] = X
-        self.msgtimecost()
         return data
 
-np.ndarray
-class DsctNone(Discretor):
-    def __init__(self):
-        """
-        不离散
-        """
-        super(DsctNone, self).__init__('不离散')
 
-    def fit_transform(self, data):
+class DsctInfomationEntropy(Discretor):
+    def __init__(self, features2process, min_infomation_gain=0.01):
+        """
+        基于信息熵的离散法
+        原理： http://www.doc88.com/p-352263493037.html
+        :param features2process:
+        :param min_infomation_gain:  离散后最少值种类个数
+        """
+        super(DsctInfomationEntropy, self).__init__(features2process, '信息熵分裂')
+
+    def _process(self, data, features, label):
         return data
+
+
 
