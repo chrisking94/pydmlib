@@ -5,12 +5,16 @@ from scipy import interpolate
 
 
 class ConfusionMatrix(pd.DataFrame, RSObject):
-    def __init__(self, y_test, y_pred, labels=None):
-        pd.DataFrame.__init__(self, confusion_matrix(y_test, y_pred, labels), index=labels, columns=labels)
+    def __init__(self, y_test, y_pred, labels=None, **kwargs):
+        if 'data' in kwargs.keys():
+            cm = kwargs['data']
+        else:
+            cm = confusion_matrix(y_test, y_pred, labels)
+        pd.DataFrame.__init__(self, cm, index=labels, columns=labels)
         RSObject.__init__(self, 'ConfusionMatrix', 'blue', 'default', 'bold')
 
     def normalized(self):
-        return self / self.sum(axis=1)
+        return ConfusionMatrix(self.index, self.columns, labels=None, data=self / self.sum(axis=1))
 
     def show(self, bnormalize=False):
         if (bnormalize):
@@ -19,8 +23,10 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
             self.msg('Without normalizing\n%s' % self.__str__())
 
     def draw(self):
-        plt.imshow(self.values, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title(self.name)
+        fig = plt.figure(figsize=(1, 1))
+        ax = fig.add_subplot(111)
+        ax.imshow(self.values, interpolation='nearest', cmap=plt.cm.Blues)
+        ax.set_title(self.name)
         plt.show()
 
     def getclassscores(self):

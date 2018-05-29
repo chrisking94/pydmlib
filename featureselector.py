@@ -16,17 +16,15 @@ class FeatureSelector(RSDataProcessor):
         self.threshold = threshold
 
     def _process(self, data, features, label):
-        self.msg('--feature count before selection %d' % data.shape[1])
+        feat_count0 = data.shape[1]
         sdata, starget = data[features], data[label]
         scores = self.score(sdata, starget)
-
         scores = pd.Series(scores)
         # normalization
         scores = (scores - scores.min()) / (scores.max() - scores.min())
         scores[scores.isnull()] = 0
         fdata = data.drop(columns=sdata.columns[scores < self.threshold])
-
-        self.msg('--feature count after selection %d' % fdata.shape[1])
+        self.msg('feature count  %d ==> %d' % (feat_count0, fdata.shape[1]))
         return fdata
 
     def score(self, data, target):

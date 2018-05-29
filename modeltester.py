@@ -6,90 +6,9 @@ import sklearn.model_selection as cv
 class ModelTester(RSObject):
     def __init__(self, name='ModelTester'):
         RSObject.__init__(self, name, 'red', 'default', 'highlight')
-        self.data = None
-        self.targetlabels = None  # target的值列表，用于混淆矩阵的label参数
-        self.trainscore = 0
-        self.testscore = 0
-        self.cm = None
 
     def report(self):
         self.error('Not implemented!')
-
-    def classify(self, classifier, test_size=0.2):
-        """
-        使用分类器对分类后的数据进行预测
-        :param classifier:
-        :param test_size:测试集大小
-        :return:
-        """
-        self.starttimer()
-        self.msgtime(msg='开始测试[%s]。' % classifier.__class__.__name__)
-        data = self.data
-        if isinstance(data, tuple):
-            trainset, testset = data[0], data[1]
-        else:
-            trainset, testset = cv.train_test_split(data, test_size=test_size, random_state=0)
-
-        x_train, y_train = trainset[trainset.columns[:-1]], trainset[trainset.columns[-1]]
-        x_test, y_test = testset[testset.columns[:-1]], testset[testset.columns[-1]]
-        classifier.fit(x_train, y_train)
-        self.trainscore = classifier.score(x_train, y_train)
-        if hasattr(classifier, 'predict_proba'):
-            y_prob = classifier.predict_proba(x_test)
-            y_pred = classifier.classes_[y_prob.argmax(axis=1)]
-            self.roc = ROCCurve(y_test, y_prob[:,1], 'ROC of %s' % classifier.__class__.__name__)
-        else:
-            y_pred = classifier.predict(x_test)
-            self.roc = None
-            self.msg('classifier [%s] does not have method predict_proba(),roc is not available!')
-        self.testscore = (y_pred == y_test).sum() / y_test.shape[0]
-        self.cm = ConfusionMatrix(y_test, y_pred, self.targetlabels)
-        self.msgtimecost(msg='完成.')
-        return self.trainscore, self.testscore, self.cm
-
-    def _gettargetlabels(self, data):
-        self.targetlabels = data[data.columns[-1]].unique()
-
-
-class MTSingle(ModelTester):
-    def __init__(self, data_procr_sequence, name='SingleModelTester'):
-        """
-        固定单模型测试
-        :param data_procr_sequence:list(数据处理器)
-        :param name:
-        """
-        ModelTester.__init__(self, name)
-        self.dataProcrSequence = data_procr_sequence
-
-    def fit_transform(self, data):
-        """
-       开始测试
-       :param data: 测试数据，可以是：
-           1、整个数据集
-           2、tuple(trainset，testset)
-       """
-        self.starttimer()
-        self._gettargetlabels(data)
-        for processor in self.dataProcrSequence:
-            data = processor.fit_transform(data)
-            gc.collect()
-        self.data = data
-        self.msgtimecost(msg='数据处理总耗时')
-        return data
-
-    def report(self):
-        """
-        输出分类结果相关信息
-        """
-        self.msg('\033[1;31;47m%s\033[0m' % ('↓' * 40))
-        self._submsg('训练集得分', 1, '%f' % (self.trainscore*100))
-        self._submsg('测试集得分', 1, '%f' % (self.testscore* 100))
-        self.cm.show()
-        self.cm.show(True)
-        self.cm.plot()
-        if self.roc is not None:
-            self.roc.plot()
-        self.msg('↑' * 40)
 
 
 class MTAutoGrid(ModelTester):
@@ -107,6 +26,7 @@ class MTAutoGrid(ModelTester):
         self.data_procr_grid = data_procr_grid
         self.report_table = None  # pd.DataFrame()
         self.process_table = []
+        self.check_points = []  # 输出检查点
         self._gen_process_table(data_procr_grid, [])  # 存入self.process_table
 
     def _gen_process_table(self, data_procr_grid, processor_sequence):
@@ -131,15 +51,26 @@ class MTAutoGrid(ModelTester):
             ps.append(procr)
             if isinstance(procr, TesterController):
                 if isinstance(procr, TCBreak):  # break
+                    cp = TCCheckPoint()
+                    self.check_points.append(cp)
+                    ps.append(cp)
                     self.process_table.append(ps)
                     return False
                 elif isinstance(procr, TCEnd):  # end
+                    cp = TCCheckPoint()
+                    self.check_points.append(cp)
+                    ps.append(cp)
                     self.process_table.append(ps)
                     return True
+                elif isinstance(procr, TCCheckPoint):
+                    self.check_points.append(procr)
             if data_procr_grid.__len__() > 1:
                 if not self._gen_process_table(data_procr_grid[1:], ps):
                     return False
             else:
+                cp = TCCheckPoint()
+                self.check_points.append(cp)
+                ps.append(cp)
                 self.process_table.append(ps)
         return True
 
@@ -184,8 +115,23 @@ class MTAutoGrid(ModelTester):
         self.msgtimecost(msg='总耗时。')
         self.msgtime(msg='测试完成！调用log()可获取测试日志。')
         self.log()
-        self.data = cdata
         return cdata
+
+    def data(self, check_point_id=-1):
+        """
+        返回CheckPoint中保存的数据
+        :param check_point_id:  id(>=100): 可通过log()查看
+                                index(<100): 在self.check_points中的索引
+        :return:
+        """
+        if check_point_id <100:
+            return self.check_points[check_point_id].data
+        else:
+            checkpoints = [x for x in self.check_points if x.id == check_point_id]
+            if checkpoints.__len__()>0:
+                return checkpoints[0].data
+            else:
+                self.warning('No such CheckPoint[id=%d]' % check_point_id)
 
     def log(self):
         return self.report_table
@@ -238,22 +184,17 @@ class TCEnd(TesterController):
 
 
 class TCCheckPoint(TesterController):
+    id_count = 100
     def __init__(self):
-        TesterController.__init__(self, 'TC-CheckPoint')
+        self.id = self.id_count
+        TesterController.__init__(self, 'TCCP-%d' % self.id)
         self.data = None
+        self.id_count += 1
 
     def fit_transform(self, data):
         self.msgtime(self._colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         if self.data is None:
             self.data = data
         return self.data
-
-    def get_report(self):
-        return ['检查点']
-
-    def get_report_title(self, *args):
-        return ['检查点']
-
-
 
 

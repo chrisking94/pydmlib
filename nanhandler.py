@@ -1,4 +1,5 @@
 from base import *
+from discretevalueencoder import DVEOneHot
 
 
 class NanHandler(RSDataProcessor):
@@ -70,5 +71,19 @@ class NHDropRows(NanHandler):
         data = data.loc[keep, :]
         self.msg('sample count after dropping  %d' % data.shape[0])
         return data
+
+
+class NHOneHot(NanHandler, DVEOneHot):
+    def __init__(self, features2process):
+        """
+        对features2process中含有缺失值的列进行OneHot编码
+        :param features2process:
+        """
+        DVEOneHot.__init__(self, features2process)
+        NanHandler.__init__(self, features2process, '对含有NaN的列进行OneHot编码')
+
+    def _process(self, data, features, label):
+        nan_columns = features[data[features].isnull().sum() > 0]
+        return  DVEOneHot._process(self, data, nan_columns, label)
 
 
