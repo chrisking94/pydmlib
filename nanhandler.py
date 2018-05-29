@@ -43,7 +43,7 @@ class NHDropRows(NanHandler):
     def __init__(self, features2process, miss_rate_threshold=0.2, feature_weights=None):
         """
         对于某一行数据，根据feature_weights中的权重来计算其缺失率（见:param feature_weights）
-        丢弃缺失率 >= miss_rate_threshold的行
+        丢弃缺失率 > miss_rate_threshold的行
         :param miss_rate_threshold: 信息缺失率
         :param feature_weights: {w1,w2,...}
             features = {f1,f2,...}, 样本xj,j=0,1,2,...
@@ -59,14 +59,14 @@ class NHDropRows(NanHandler):
 
     def _process(self, data, features, label):
         """
-        丢弃features2process列中，含有nan值的行
+        丢弃features2process子集缺失率超过threshold的行
         """
         self.msg('sample count before dropping  %d' % data.shape[0])
         if self.feature_weights is None:
             miss_rate = data[features].isnull().sum(axis=1) / float(data.shape[0])
         else:
             miss_rate = (data[features].isnull() * self.feature_weights).sum(axis=1)
-        keep = (miss_rate < self.miss_rate_threshold).index
+        keep = miss_rate <= self.miss_rate_threshold
         data = data.loc[keep, :]
         self.msg('sample count after dropping  %d' % data.shape[0])
         return data

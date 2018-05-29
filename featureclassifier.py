@@ -3,7 +3,7 @@ from base import *
 
 class FeatureClassifier(RSDataProcessor):
     def __init__(self, features2process, name='FeatureClassifier'):
-        RSDataProcessor.__init__(self, features2process, name, 'blue', 'white', 'bold', False)
+        RSDataProcessor.__init__(self, features2process, name, 'blue', 'white', 'bold')
 
 
 class FCUniqueItemCountGe(FeatureClassifier):

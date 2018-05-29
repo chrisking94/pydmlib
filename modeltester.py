@@ -119,20 +119,23 @@ class MTAutoGrid(ModelTester):
         cur_procrs = data_procr_grid[0]
         if not isinstance(cur_procrs, list):
             cur_procrs = [cur_procrs]
-        for procr in cur_procrs:
-            ps = processor_sequence.copy()
+        if cur_procrs.__len__() > 1:
+            # 多处理器分叉，设置数据检查点
+            processor_sequence.append(TCCheckPoint())
+        for i, procr in enumerate(cur_procrs):
+            if i==0:
+                ps = processor_sequence.copy()
+            else:
+                ps = [TCContinue('TCContinue-%s' % x.name) for x in processor_sequence[:-1]]
+                ps.append(processor_sequence[-1])  # 复制数据检查点
             ps.append(procr)
             if isinstance(procr, TesterController):
-                code = procr.code()
                 if isinstance(procr, TCBreak):  # break
                     self.process_table.append(ps)
                     return False
                 elif isinstance(procr, TCEnd):  # end
                     self.process_table.append(ps)
                     return True
-                elif isinstance(procr, TCRunOnce):  #run once
-                    #  find next TCRunOnce
-                    data_procr_grid = procr.goto_pair(data_procr_grid, ps)
             if data_procr_grid.__len__() > 1:
                 if not self._gen_process_table(data_procr_grid[1:], ps):
                     return False
@@ -158,13 +161,11 @@ class MTAutoGrid(ModelTester):
             report_line = []
             for procr in sequence:
                 cdata = procr.fit_transform(cdata)
-                if isinstance(procr, TesterController):
-                    if procr.code() == 1:  # continue
-                        b_contains_continue = True
-                else:
-                    report_line.extend(procr.get_report())
-                    if not b_contains_continue and not b_head_done:
-                        report_table_head.extend(procr.get_report_title())
+                if isinstance(procr, TCContinue):  # continue
+                    b_contains_continue = True
+                report_line.extend(procr.get_report())
+                if not b_contains_continue and not b_head_done:
+                    report_table_head.extend(procr.get_report_title())
             # 生成表头
             if not b_contains_continue:
                 if not b_head_done:
@@ -206,10 +207,7 @@ class MTAutoGrid(ModelTester):
 
 class TesterController(RSDataProcessor):
     def __init__(self, name='TesterController'):
-        RSDataProcessor.__init__(self, None, name, 'white', 'black', 'default', False)
-
-    def code(self):
-        self.error('Not implemented!')
+        RSDataProcessor.__init__(self, None, name, 'white', 'black', 'default')
 
 
 class TCBreak(TesterController):
@@ -220,24 +218,14 @@ class TCBreak(TesterController):
         self.msgtime(self._colorstr('**break*point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
-    def code(self):
-        return 0
-
 
 class TCContinue(TesterController):
     def __init__(self, name='TC-Continue'):
         TesterController.__init__(self, name)
-        self.b_report = True
 
     def fit_transform(self, data):
         self.msg('skipped.')
         return data
-
-    def get_report(self):
-        return ['跳过']
-
-    def code(self):
-        return 1
 
 
 class TCEnd(TesterController):
@@ -248,53 +236,24 @@ class TCEnd(TesterController):
         self.msgtime(self._colorstr('--end-point' * 10, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
-    def code(self):
-        return 2
 
-
-class TCRunOnce(TesterController):
-    state_dict = {}
-    def __init__(self, name):
-        TesterController.__init__(self, name)
-        self.state_dict[name] = 0
-        self.type = '|'
+class TCCheckPoint(TesterController):
+    def __init__(self):
+        TesterController.__init__(self, 'TC-CheckPoint')
         self.data = None
 
     def fit_transform(self, data):
-        if self.type == ')':
-            if isinstance(self.state_dict[self.name], int):
-                self.state_dict[self.name] = data
-        return self.state_dict[self.name]
+        self.msgtime(self._colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        if self.data is None:
+            self.data = data
+        return self.data
 
-    def goto_pair(self, data_procr_grid, processor_sequence):
-        """
-        如果[TCRunOnce(x), ..., TCRunOnce(x)]之间的处理器已被运行过，则将data_procr_grid指针移动到对应的TCRunOnce位置处
-        :param data_procr_grid: 处理器网格
-        :param processor_sequence: 当前的处理器序列
-        :return: 跳到对应的TCRunOnce节点的data_procr_grid
-        """
-        #  find next TCRunOnce
-        self.type = '('
-        if self.has_been_run():
-            for i, procrs in enumerate(data_procr_grid[1:]):
-                processor_sequence.append(TCContinue())
-                if isinstance(procrs, TCRunOnce) and procrs.name == self.name:
-                    procrs.type = ')'
-                    processor_sequence.append(procrs)
-                    return data_procr_grid[i + 1:]
-        else:
-            return data_procr_grid
+    def get_report(self):
+        return ['检查点']
 
-    def has_been_run(self):
-        return self.state_dict[self.name] == 1
+    def get_report_title(self, *args):
+        return ['检查点']
 
-    @staticmethod
-    def reset(name):
-        """
-        重置RunOnce点
-        :param name:
-        :return:
-        """
-        TCRunOnce.state_dict[name] = 0
+
 
 

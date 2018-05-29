@@ -4,7 +4,7 @@ from misc import ConfusionMatrix, ROCCurve
 
 class Reporter(RSDataProcessor):
     def __init__(self, features2process, name='Reporter', forecolor='blue'):
-        RSDataProcessor.__init__(self, features2process, name, forecolor, 'black', 'default', True)
+        RSDataProcessor.__init__(self, features2process, name, forecolor, 'black', 'default')
 
 
 class DataReporter(Reporter):
@@ -91,7 +91,7 @@ class RRConfusionMatrix(ResultReporter):
         return titles
 
     def get_report(self):
-        scores = [self.cm[i, i] for i in range(self.cm.shape[0])]
+        scores = [self.cm.normalized()[i, i] for i in range(self.cm.shape[0])]
         return scores
 
 

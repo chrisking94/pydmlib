@@ -88,7 +88,7 @@ class RSObject(object):
 
 class RSDataProcessor(RSObject):
     def __init__(self, features2process=None, name='DataProcessor', msgforecolor='default',
-                 msgbackcolor='default', msgmode='default', b_report=True):
+                 msgbackcolor='default', msgmode='default'):
         """
 
         :param features2process:需要处理的特征
@@ -97,11 +97,9 @@ class RSDataProcessor(RSObject):
         :param msgforecolor:
         :param msgbackcolor:
         :param msgmode:
-        :param b_report: 是否输出报告，作用于self.get_report_title(), self.get_report()
         """
         RSObject.__init__(self, name, msgforecolor, msgbackcolor, msgmode)
         self.features2process = features2process
-        self.b_report = b_report
 
     def _getFeaturesNLabel(self, data):
         """
@@ -139,20 +137,14 @@ class RSDataProcessor(RSObject):
         返回当前对象输出报告的标题，可以用于制表，一般用在ModelTester中
         :return: list, 默认返回list[父类类名]
         """
-        if self.b_report:
-            return [self.__class__.__bases__[0].__name__]
-        else:
-            return []
+        return [self.__class__.__bases__[0].__name__]
 
     def get_report(self):
         """
         输出报告，一般用在ModelTester中
         :return:  list, 默认返回当前对象名
         """
-        if self.b_report:
-            return [self.name]
-        else:
-            return []
+        return [self.name]
 
     def __call__(self, *args, **kwargs):
         return  self.fit_transform(*args)
