@@ -167,7 +167,8 @@ class TesterController(RSDataProcessor):
 class TCCheckPoint(TesterController):
     def __init__(self, name = ''):
         if name == '':
-            TesterController.__init__(self, 'TCCP-%d' % self.id)
+            TesterController.__init__(self, 'TCCP-%d')
+            self.name = self.name % self.id
             self.strid = ''
         else:
             self.strid = name

@@ -5,6 +5,14 @@ class Sampler(RSDataProcessor):
     def __init__(self, features2process, name='Sampler'):
         RSDataProcessor.__init__(self, features2process, name, 'blue', 'yellow', 'highlight')
 
+    def _sample(self, data, features, label):
+        self.error('Not implemented!')
+
+    def _process(self, data, features, label):
+        spcount0 = data.shape[0]
+        self._sample(data, features, label)
+        self.msg('sample count\t%d ==> %d' % (spcount0, data.shape[0]))
+
 
 class SplUnder(Sampler):
     def __init__(self, features2process, feature_weights=None):
@@ -21,11 +29,10 @@ class SplUnder(Sampler):
         Sampler.__init__(self, features2process, '向下采样')
         self.feature_weights = feature_weights
 
-    def _process(self, data, features, label):
+    def _sample(self, data, features, label):
         feature_weights = self.feature_weights
-        self.msg('采样前行数 %d' % data.shape[0])
         lables, cnts = np.unique(data[label], return_counts=True)
-        self.msg('minor class count: %d' % cnts.min())
+        self.msg('minor class sample count  %d' % cnts.min())
         mc_samplecount = cnts.min()
         minorclass = lables[cnts == mc_samplecount][0]
         lables, cnts = lables[lables != minorclass], cnts[lables != minorclass]
@@ -40,7 +47,6 @@ class SplUnder(Sampler):
                 self.error('Not implemented!')
             else:
                 self.error('Invalid value for feature_weights!')
-        self.msg('采样后行数 %d' % newdata.shape[0])
         return newdata
 
 
@@ -48,8 +54,7 @@ class SplMiddle(Sampler):
     def __init__(self, features2process):
         Sampler.__init__(self, features2process, '中间采样')
 
-    def _process(self, data, features, label):
-        self.msg('--sample count before undersampling %d' % data.shape[0])
+    def _sample(self, data, features, label):
         lables, cnts = np.unique(data[label], return_counts=True)
         avg = int(cnts.mean())
         self.msg(
@@ -63,7 +68,6 @@ class SplMiddle(Sampler):
                 # oversampling
                 sdata = sdata.append(data[data[label] == lbl])  # preserve original data
                 sdata = sdata.append(data[data[label] == lbl].sample(avg - cnt, replace=True))
-        self.msg('--sample count after undersampling %d' % data.shape[0])
         return sdata
 
 
@@ -77,7 +81,7 @@ class SplAppoint(Sampler):
         Sampler.__init__(self, features2process, '指定采样，样本大小=%.2f' % sample_count)
         self.sample_count = sample_count
 
-    def _process(self, data, features, label):
+    def _sample(self, data, features, label):
         y = data[label]
         labels = np.unique(y)
         if self.sample_count < 1:
