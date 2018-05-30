@@ -112,6 +112,7 @@ class FCbArithmetical(FeatureCombiner):
 
     def _process(self, data, features, label):
         data = data.copy()
+        feat_count0 = data.shape[1] - 1
         data, target = data[data.columns[:-1]], data[label]
         # 静态表达式
         operations = [x for x in self.staticOperations if self._is_valid(x, features)]
@@ -122,6 +123,10 @@ class FCbArithmetical(FeatureCombiner):
             exec(self._parse_static(cmd))
             self._submsg('done', 'cyan', self._opr_to_readable(cmd))
         data = pd.concat([data, target], axis=1)
+        nadded = data.shape[1]-feat_count0-1
+        nmodified = operations.__len__() - nadded
+        self.msg('feature count\t%d ==> %d, %d added, %d replaced.' %
+                 (feat_count0, data.shape[1]-1, nadded, nmodified))
         return data
 
 

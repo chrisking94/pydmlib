@@ -1,6 +1,7 @@
 from base import *
 from misc import *
 import sklearn.model_selection as cv
+from wrapper import IWrap
 
 
 class ModelTester(RSObject):
@@ -9,6 +10,20 @@ class ModelTester(RSObject):
 
     def report(self):
         self.error('Not implemented!')
+
+
+class MTAGProcessorSequence(RSDataProcessor, list):
+    def __init__(self, procr_list=None):
+        RSDataProcessor.__init__(self, None, 'MTAGProcessorSequence', 'random', 'random')
+        list.__init__(self, procr_list)
+
+    def fit_transform(self, data):
+        for procr in self:
+            data = procr.fit_transform(data)
+        return data
+
+    def copy(self):
+        return MTAGProcessorSequence(self)
 
 
 class MTAutoGrid(ModelTester):
@@ -23,11 +38,16 @@ class MTAutoGrid(ModelTester):
                              [clf1, clf2, ...]]
         """
         ModelTester.__init__(self, 'AutoGridModelTester')
+        #  format processor grid
+        if data_procr_grid.__len__() == 0 or not isinstance(data_procr_grid[-1], TCEnd):
+            data_procr_grid.append(TCEnd())
+        if not isinstance(data_procr_grid[0], TCStart):
+            data_procr_grid.insert(0, TCStart())
         self.data_procr_grid = data_procr_grid
         self.report_table = None  # pd.DataFrame()
         self.process_table = []
         self.check_points = []  # 输出检查点
-        self._gen_process_table(data_procr_grid, [])  # 存入self.process_table
+        self._gen_process_table(data_procr_grid, MTAGProcessorSequence())  # 存入self.process_table
 
     def _gen_process_table(self, data_procr_grid, processor_sequence):
         """
@@ -48,26 +68,23 @@ class MTAutoGrid(ModelTester):
             else:
                 ps = [TCContinue('TCContinue-%s' % x.name) for x in processor_sequence[:-1]]
                 ps.append(processor_sequence[-1])  # 复制数据检查点
-            ps.append(procr)
-            if isinstance(procr, TesterController):
+            if isinstance(procr, TCCheckPoint):
+                procr = procr.copy()
+                ps.append(procr)
+                self.check_points.append(procr)
                 if isinstance(procr, TCBreak):  # break
-                    self.check_points.append(procr)
                     self.process_table.append(ps)
                     return False
                 elif isinstance(procr, TCEnd):  # end
-                    self.check_points.append(procr)
                     self.process_table.append(ps)
                     return True
-                elif isinstance(procr, TCCheckPoint):
-                    self.check_points.append(procr)
+            else:
+                if not isinstance(procr, RSDataProcessor):
+                    procr = IWrap(None, procr)
+                ps.append(procr)
             if data_procr_grid.__len__() > 1:
                 if not self._gen_process_table(data_procr_grid[1:], ps):
                     return False
-            else:
-                cp = TCCheckPoint()
-                self.check_points.append(cp)
-                ps.append(cp)
-                self.process_table.append(ps)
         return True
 
     def fit_transform(self, data):
@@ -133,16 +150,21 @@ class MTAutoGrid(ModelTester):
             if checkpoints.__len__()>0:
                 return checkpoints[0].data
             else:
-                self.warning('No such CheckPoint[id=%d]' % check_point_id)
+                self.warning('No such CheckPoint[id=%s]' % str(check_point_id))
 
     def log(self):
-        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            return self.report_table
+        return self.report_table
 
     def read_checkpoints(self):
+        return pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self.check_points],
+                            columns=['id', 'strid', 'Name', 'Info'])
+
+    def show(self, what='log'):
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            return pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self.check_points],
-                                columns=['id', 'strid', 'Name', 'Info'])
+            if what == 'log':
+                print(self.log())
+            elif what == 'checkpoints':
+                print(self.read_checkpoints())
 
     def savelog(self, filepath='', btimesuffix=False):
         """
@@ -157,6 +179,14 @@ class MTAutoGrid(ModelTester):
             if btimesuffix:
                 filepath = '%s_%s.csv' % (filepath, self.strtime())
         self.report_table.to_csv(filepath, sep='\t')
+
+    def run_sequence(self, index):
+        """
+        运行测试序列表中的一条测试序列
+        :param index:
+        :return:
+        """
+        pass
 
 
 class TesterController(RSDataProcessor):
@@ -219,6 +249,16 @@ class TCContinue(TesterController):
 
     def fit_transform(self, data):
         self.msg('skipped.')
+        return data
+
+
+class TCStart(TCCheckPoint):
+    def __init__(self, name='TC-Start'):
+        TCCheckPoint.__init__(name)
+
+    def fit_transform(self, data):
+        data = TCCheckPoint.fit_transform(self, data)
+        self.msgtime(self._colorstr('--start-point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
 

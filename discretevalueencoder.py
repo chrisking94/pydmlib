@@ -9,9 +9,10 @@ class DiscreteValueEncoder(RSDataProcessor):
         self.error('Not implemented!')
 
     def _process(self, data, features, label):
-        dshape0 = data.shape[0] - 1
+        dshape0 = data.shape[1] - 1
         data = self._encode(data, features, label)
-        self.msg('data.features\t%d ==> %d' %(dshape0, data.shape[0] - 1))
+        self.msg('data.features\t%d ==> %d' %(dshape0, data.shape[1] - 1))
+        return data
 
 
 class DVEOneHot(DiscreteValueEncoder):

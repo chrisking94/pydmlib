@@ -27,6 +27,7 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         bsize = size
         size *= class_count
         fig = plt.figure(figsize=(size, size))
+        fig.suptitle(self.name)
         ax = fig.add_subplot(111)
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
@@ -39,14 +40,12 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         ax.set_xticklabels(self.columns)
         ax.set_yticks(np.arange(halfbs, 1, blocksize))
         ax.set_yticklabels(self.columns)
-
         for x in range(class_count):
             for y in range(class_count):
                 ax.text(halfbs + x * blocksize, halfbs + y * blocksize, round(nmcm[y, x], 3),
                         horizontalalignment='center',
                         verticalalignment='center', fontsize=15 * bsize, color='orange')
         ax.imshow(self.normalized().values, interpolation='nearest', cmap=plt.cm.Blues)
-        ax.set_title(self.name)
         plt.show()
 
     def getclassscores(self):
