@@ -228,7 +228,7 @@ class TCEnd(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self._colorstr('--end-point' * 10, 0, self.msgforecolor, self.msgbackcolor))
+        self.msgtime(self._colorstr('--end-point' * 9, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
 

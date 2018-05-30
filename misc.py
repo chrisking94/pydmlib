@@ -14,7 +14,7 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         RSObject.__init__(self, name, 'blue', 'default', 'bold')
 
     def normalized(self):
-        return ConfusionMatrix(self.index, self.columns, labels=None, data=self / self.sum(axis=1))
+        return ConfusionMatrix(self.index, self.columns, labels=None, data=self.div(self.sum(axis=1), axis=0))
 
     def show(self, bnormalize=False):
         if (bnormalize):
@@ -31,17 +31,21 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         nmcm = self.normalized()
-        blocksize = 1/class_count
-        halfbs = blocksize/2
+        blocksize = 1 / class_count
+        halfbs = blocksize / 2
+        ax.xaxis.set_ticks_position('top')
+        ax.invert_yaxis()
         ax.set_xticks(np.arange(halfbs, 1, blocksize))
         ax.set_xticklabels(self.columns)
         ax.set_yticks(np.arange(halfbs, 1, blocksize))
         ax.set_yticklabels(self.columns)
+
         for x in range(class_count):
             for y in range(class_count):
-                ax.text(halfbs+x*blocksize, halfbs+y*blocksize, round(nmcm[x, y], 3), horizontalalignment='center',
-                      verticalalignment='center',fontsize=15*bsize, color='orange')
-        ax.imshow(self.values, interpolation='nearest', cmap=plt.cm.Blues)
+                ax.text(halfbs + x * blocksize, halfbs + y * blocksize, round(nmcm[y, x], 3),
+                        horizontalalignment='center',
+                        verticalalignment='center', fontsize=15 * bsize, color='orange')
+        ax.imshow(self.normalized().values, interpolation='nearest', cmap=plt.cm.Blues)
         ax.set_title(self.name)
         plt.show()
 

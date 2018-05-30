@@ -10,8 +10,9 @@ class Sampler(RSDataProcessor):
 
     def _process(self, data, features, label):
         spcount0 = data.shape[0]
-        self._sample(data, features, label)
+        data = self._sample(data, features, label)
         self.msg('sample count\t%d ==> %d' % (spcount0, data.shape[0]))
+        return data
 
 
 class SplUnder(Sampler):
