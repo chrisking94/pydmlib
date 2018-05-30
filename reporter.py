@@ -81,9 +81,8 @@ class RRConfusionMatrix(ResultReporter):
         self.cm = None
 
     def fit_transform(self, data):
-        self.cm = ConfusionMatrix(data.y_true, data.y_pred, data.labels)
-        self.cm.show(True)
-        self.cm.draw()
+        self.cm = ConfusionMatrix(data.y_true, data.y_pred, data.labels, name='CM of %s' % data.clfname)
+        self.cm.draw(2)
         return data
 
     def get_report_title(self, *args):

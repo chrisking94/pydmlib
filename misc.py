@@ -5,13 +5,13 @@ from scipy import interpolate
 
 
 class ConfusionMatrix(pd.DataFrame, RSObject):
-    def __init__(self, y_test, y_pred, labels=None, **kwargs):
+    def __init__(self, y_test, y_pred, labels=None, name='ConfusionMatrix', **kwargs):
         if 'data' in kwargs.keys():
             cm = kwargs['data']
         else:
             cm = confusion_matrix(y_test, y_pred, labels)
         pd.DataFrame.__init__(self, cm, index=labels, columns=labels)
-        RSObject.__init__(self, 'ConfusionMatrix', 'blue', 'default', 'bold')
+        RSObject.__init__(self, name, 'blue', 'default', 'bold')
 
     def normalized(self):
         return ConfusionMatrix(self.index, self.columns, labels=None, data=self / self.sum(axis=1))
@@ -22,9 +22,25 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         else:
             self.msg('Without normalizing\n%s' % self.__str__())
 
-    def draw(self):
-        fig = plt.figure(figsize=(1, 1))
+    def draw(self, size=1):
+        class_count = self.shape[0]
+        bsize = size
+        size *= class_count
+        fig = plt.figure(figsize=(size, size))
         ax = fig.add_subplot(111)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        nmcm = self.normalized()
+        blocksize = 1/class_count
+        halfbs = blocksize/2
+        ax.set_xticks(np.arange(halfbs, 1, blocksize))
+        ax.set_xticklabels(self.columns)
+        ax.set_yticks(np.arange(halfbs, 1, blocksize))
+        ax.set_yticklabels(self.columns)
+        for x in range(class_count):
+            for y in range(class_count):
+                ax.text(halfbs+x*blocksize, halfbs+y*blocksize, round(nmcm[x, y], 3), horizontalalignment='center',
+                      verticalalignment='center',fontsize=15*bsize, color='orange')
         ax.imshow(self.values, interpolation='nearest', cmap=plt.cm.Blues)
         ax.set_title(self.name)
         plt.show()

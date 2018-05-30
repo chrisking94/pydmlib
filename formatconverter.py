@@ -4,7 +4,7 @@ import sklearn.model_selection as ms
 
 class FormatConverter(RSDataProcessor):
     def __init__(self, features2process=None, name='FormatConverter'):
-        RSDataProcessor.__init__(self, features2process, name, 'green', 'blue', 'highlight', False)
+        RSDataProcessor.__init__(self, features2process, name, 'green', 'blue', 'highlight')
 
 
 class FCovTrainTestSet(FormatConverter):

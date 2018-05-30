@@ -16,6 +16,7 @@ class RSObject(object):
                 'blink': 5, 'noblink': 25, 'inverse': 7, 'noinverse': 27}
     colordict = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'pink': 5, 'cyan': 6, 'white': 7,
                  'default': 8, 'random': -1}
+    id_count = 100
 
     def __init__(self, name='RS-Object', msgforecolor='default', msgbackcolor='default', msgmode='default'):
         self.name = name
@@ -24,6 +25,8 @@ class RSObject(object):
         self.msgmode = RSObject.modedict[msgmode]
         self.timestart = time.time()
         self.coloredname = self._colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
+        self.id = RSObject.id_count
+        RSObject.id_count += 1
 
     def _getcolor(self, colorname):
         """

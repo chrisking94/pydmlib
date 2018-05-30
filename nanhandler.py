@@ -36,7 +36,7 @@ class NHDropColumns(NanHandler):
         nullrates = X.isnull().sum() / X.shape[0]
         dropcols = X.columns[nullrates>self.nullrate_threshold]
         data = data.drop(columns=dropcols)
-        self.msg('丢弃列 %s' % dropcols.__str__())
+        self.msg('discard columns %s' % dropcols.__str__())
         return data
 
 
@@ -62,14 +62,14 @@ class NHDropRows(NanHandler):
         """
         丢弃features2process子集缺失率超过threshold的行
         """
-        self.msg('sample count before dropping  %d' % data.shape[0])
+        sample_count = data.shape[0]
         if self.feature_weights is None:
             miss_rate = data[features].isnull().sum(axis=1) / float(data.shape[0])
         else:
             miss_rate = (data[features].isnull() * self.feature_weights).sum(axis=1)
         keep = miss_rate <= self.miss_rate_threshold
         data = data.loc[keep, :]
-        self.msg('sample count after dropping  %d' % data.shape[0])
+        self.msg('sample count\t%d ==> %d' % (sample_count, data.shape[0]))
         return data
 
 

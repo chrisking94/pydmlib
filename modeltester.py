@@ -51,15 +51,11 @@ class MTAutoGrid(ModelTester):
             ps.append(procr)
             if isinstance(procr, TesterController):
                 if isinstance(procr, TCBreak):  # break
-                    cp = TCCheckPoint()
-                    self.check_points.append(cp)
-                    ps.append(cp)
+                    self.check_points.append(procr)
                     self.process_table.append(ps)
                     return False
                 elif isinstance(procr, TCEnd):  # end
-                    cp = TCCheckPoint()
-                    self.check_points.append(cp)
-                    ps.append(cp)
+                    self.check_points.append(procr)
                     self.process_table.append(ps)
                     return True
                 elif isinstance(procr, TCCheckPoint):
@@ -92,8 +88,11 @@ class MTAutoGrid(ModelTester):
             report_line = []
             for procr in sequence:
                 cdata = procr.fit_transform(cdata)
-                if isinstance(procr, TCContinue):  # continue
-                    b_contains_continue = True
+                if isinstance(procr, TesterController):
+                    if isinstance(procr, TCContinue):  # continue
+                        b_contains_continue = True
+                    elif isinstance(procr, TCCheckPoint):
+                        procr.set_infolist(report_line)
                 report_line.extend(procr.get_report())
                 if not b_contains_continue and not b_head_done:
                     report_table_head.extend(procr.get_report_title())
@@ -120,21 +119,30 @@ class MTAutoGrid(ModelTester):
     def data(self, check_point_id=-1):
         """
         返回CheckPoint中保存的数据
-        :param check_point_id:  id(>=100): 可通过log()查看
-                                index(<100): 在self.check_points中的索引
+        :param check_point_id: int:
+                                    id(>=100): 可通过log()查看
+                                    index(<100): 在self.check_points中的索引
+                                str:
+                                    TCCheckPoint().name
         :return:
         """
-        if check_point_id <100:
+        if isinstance(check_point_id, int) and check_point_id <100:
             return self.check_points[check_point_id].data
         else:
-            checkpoints = [x for x in self.check_points if x.id == check_point_id]
+            checkpoints = [x for x in self.check_points if x.is_me(check_point_id)]
             if checkpoints.__len__()>0:
                 return checkpoints[0].data
             else:
                 self.warning('No such CheckPoint[id=%d]' % check_point_id)
 
     def log(self):
-        return self.report_table
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            return self.report_table
+
+    def read_checkpoints(self):
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            return pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self.check_points],
+                                columns=['id', 'strid', 'Name', 'Info'])
 
     def savelog(self, filepath='', btimesuffix=False):
         """
@@ -156,11 +164,50 @@ class TesterController(RSDataProcessor):
         RSDataProcessor.__init__(self, None, name, 'white', 'black', 'default')
 
 
-class TCBreak(TesterController):
-    def __init__(self, name='TC-Break'):
-        TesterController.__init__(self, name)
+class TCCheckPoint(TesterController):
+    def __init__(self, name = ''):
+        if name == '':
+            TesterController.__init__(self, 'TCCP-%d' % self.id)
+            self.strid = ''
+        else:
+            self.strid = name
+            TesterController.__init__(self, 'TCCP-%s' % name)
+        self.data = None
+        self.infolist = None
+        self.copy_count = 0
 
     def fit_transform(self, data):
+        self.msgtime(self._colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        if self.data is None:
+            self.data = data
+        return self.data
+
+    def is_me(self, id):
+        if isinstance(id, str):
+            return id == self.strid
+        else:
+            return id == self.id
+
+    def copy(self):
+        if self.strid == '':
+            return self.__class__()
+        else:
+            self.copy_count += 1
+            return self.__class__('%s%d' % (self.strid, self.copy_count))
+
+    def set_infolist(self, info):
+        self.infolist = info.copy()
+
+    def info(self):
+        return self.infolist.__str__()
+
+
+class TCBreak(TCCheckPoint):
+    def __init__(self, name='TC-Break'):
+        TCCheckPoint.__init__(self, name)
+
+    def fit_transform(self, data):
+        data = TCCheckPoint.fit_transform(self, data)
         self.msgtime(self._colorstr('**break*point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
@@ -174,27 +221,13 @@ class TCContinue(TesterController):
         return data
 
 
-class TCEnd(TesterController):
+class TCEnd(TCCheckPoint):
     def __init__(self, name='TC-End'):
-        TesterController.__init__(self, name)
+        TCCheckPoint.__init__(self, name)
 
     def fit_transform(self, data):
+        data = TCCheckPoint.fit_transform(self, data)
         self.msgtime(self._colorstr('--end-point' * 10, 0, self.msgforecolor, self.msgbackcolor))
         return data
-
-
-class TCCheckPoint(TesterController):
-    id_count = 100
-    def __init__(self):
-        self.id = self.id_count
-        TesterController.__init__(self, 'TCCP-%d' % self.id)
-        self.data = None
-        self.id_count += 1
-
-    def fit_transform(self, data):
-        self.msgtime(self._colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
-        if self.data is None:
-            self.data = data
-        return self.data
 
 
