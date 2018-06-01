@@ -75,6 +75,6 @@ class FCovDataTarget(FormatConverter):
                 ret = data[features]
             else:
                 self.msg('data → (X y)')
-                ret = data[features], data[label]
+                ret = (data[features], data[label])
         self.msgtimecost()
         return ret

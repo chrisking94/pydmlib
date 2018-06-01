@@ -64,7 +64,7 @@ class NHDropRows(NanHandler):
         """
         sample_count = data.shape[0]
         if self.feature_weights is None:
-            miss_rate = data[features].isnull().sum(axis=1) / float(data.shape[0])
+            miss_rate = data[features].isnull().sum(axis=1) / float(features.shape[0])
         else:
             miss_rate = (data[features].isnull() * self.feature_weights).sum(axis=1)
         keep = miss_rate <= self.miss_rate_threshold

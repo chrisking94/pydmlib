@@ -64,7 +64,7 @@ class ROCCurve(RSObject):
         self.fpr, self.tpr, self.thresholds = roc_curve(y_true,
                                                         y_score)  # y_score can be the probability of the POSITIVE class,...
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, label=''):
         if ax is None:
             fig = plt.figure(figsize=(5, 5))
             ax = fig.add_subplot(111)
@@ -89,7 +89,7 @@ class ROCCurve(RSObject):
         #         y2 = A2*x2*x2 + B2*x2 + C2
         #         # 拟合之后的平滑曲线图
         #         ax.plot(x2, y2)
-        ax.plot(self.fpr, self.tpr, lw=1)
+        ax.plot(self.fpr, self.tpr, lw=1, label=label)
         # ax.plot(self.thresholds, self.tpr)
         # ax.plot(self.fpr, self.thresholds)
         plt.show()

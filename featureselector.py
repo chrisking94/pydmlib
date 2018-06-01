@@ -4,6 +4,7 @@ from scipy.stats import pearsonr
 from sklearn.feature_selection import chi2
 from sklearn.ensemble import RandomForestClassifier
 from skfeature.function.information_theoretical_based.MRMR import mrmr
+from sklearn.linear_model import LogisticRegression
 
 
 class FeatureSelector(RSDataProcessor):
@@ -79,4 +80,20 @@ class FSManual(FeatureSelector):
         self.msg('%d features in total.' % features.__len__())
         ret = pd.concat([data[features], data[label]], axis=1)
         return ret
+
+
+class FSL1Regularization(FeatureSelector):
+    def __init__(self, features2process, C):
+        """
+        去掉L1正则化后w为0的特征
+        :param features2process:
+        :param C:
+        """
+        FeatureSelector.__init__(self, features2process, threshold=0.001, name='L1正则化特征选择')
+        self.C = C
+
+    def _score(self, data, target):
+        clf = LogisticRegression(C=self.C)
+        clf.fit(data, target)
+        return clf.coef_.sum(axis=0)
 

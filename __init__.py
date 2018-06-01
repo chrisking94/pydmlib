@@ -18,3 +18,5 @@ import misc
 
 # base.test()
 # misc.test()
+import modeltester
+modeltester.test()

@@ -61,7 +61,7 @@ class DRBrief(DataReporter):
 
 class ResultReporter(Reporter):
     def __init__(self, name='ResultReporter'):
-        Reporter.__init__(self, name, 'white')
+        Reporter.__init__(self, name, name)
 
 
 class ClfResult(object):
@@ -101,7 +101,7 @@ class RRRocCurve(ResultReporter):
 
     def fit_transform(self, data):
         self.roc = ROCCurve(data.y_true, data.y_prob[:, -1], title='ROC of %s' % data.clfname)
-        self.roc.plot()
+        self.roc.plot(label=data.clfname)
         return data
 
     def get_report_title(self, *args):

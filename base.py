@@ -16,7 +16,7 @@ class RSObject(object):
                 'blink': 5, 'noblink': 25, 'inverse': 7, 'noinverse': 27}
     colordict = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'pink': 5, 'cyan': 6, 'white': 7,
                  'default': 8, 'random': -1}
-    id_count = 100
+    id_count = 9999
 
     def __init__(self, name='RS-Object', msgforecolor='default', msgbackcolor='default', msgmode='default'):
         self.name = name
@@ -81,6 +81,12 @@ class RSObject(object):
 
     def msgtime(self, msg=''):
         self._submsg(self.strtime(), 6, msg)
+
+    def is_me(self, id_name):
+        if isinstance(id_name, str):
+            return self.name == id_name
+        else:
+            return self.id == id
 
     @staticmethod
     def strtime(format_='%Y-%m-%d %H:%M:%S', houroffset=12):
@@ -150,7 +156,7 @@ class RSDataProcessor(RSObject):
         return [self.name]
 
     def __call__(self, *args, **kwargs):
-        return  self.fit_transform(*args)
+        return  [self.fit_transform(*args)]
 
 
 class RSDataMetaclass(type):
@@ -359,6 +365,51 @@ class RSData(pd.DataFrame, RSObject):#, metaclass=RSDataMetaclass):
 
     __repr__ = __str__
 
+
+class RSList(RSObject, list):
+    def __init__(self, copyfrom=()):
+        """
+        RS-List
+        :param iterable:
+        """
+        RSObject.__init__(self, 'RS-List', 'random', 'random')
+        list.__init__(self, copyfrom)
+
+    def __getitem__(self, item):
+        """
+        get item
+        :param item: id or index
+        :return:
+        """
+        if (isinstance(item, int) and item>9999) or isinstance(item, str):  # by id
+            ret = [x for x in self if isinstance(x, RSObject) and x.is_me(item)]
+            if ret.__len__() > 0:
+                return ret[0]
+            else:
+                self.error('No such item id=%s' % str(item))
+        elif isinstance(item, slice):
+            return self.__class__(copyfrom=list.__getitem__(self, item))
+        else:
+            return list.__getitem__(self, item)
+
+    def __setitem__(self, key, value):
+        if isinstance(key, int) and key>9999:  # by id
+            for i, x in enumerate(self):
+                if isinstance(x, RSObject) and x.is_me(key):
+                    key = i
+        list.__setitem__(self, key, value)
+
+    def get_index(self, id_index):
+        if (isinstance(id_index, int) and id_index>9999) or isinstance(id_index, str):  # by id
+            for i, x in enumerate(self):
+                if isinstance(x, RSObject) and x.is_me(id_index):
+                    return i
+            return None
+        else:
+            return id_index
+
+    def copy(self):
+        return self.__class__(copyfrom=list.copy(self))
 
 
 def test():
