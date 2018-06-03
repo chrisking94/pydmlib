@@ -3,7 +3,7 @@ from discretevalueencoder import *
 from discretor import *
 from featureclassifier import *
 from featurecombiner import *
-#from featureselector import *
+from featureselector import *
 from misc import *
 from modeltester import *
 from nanhandler import *
