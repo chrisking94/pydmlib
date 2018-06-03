@@ -17,7 +17,7 @@ class NHToSpecial(NanHandler):
 
     def _process(self, data, features, label):
         data[features] = data[features].fillna(self.special)
-        self.msg('data shape %s' % (data.shape.__str__()))
+        self.msg('data.shape.__str__()', 'data.shape')
         return data
 
 
@@ -36,7 +36,7 @@ class NHDropColumns(NanHandler):
         nullrates = X.isnull().sum() / X.shape[0]
         dropcols = X.columns[nullrates>self.nullrate_threshold]
         data = data.drop(columns=dropcols)
-        self.msg('discard columns %s' % dropcols.__str__())
+        self.msg(dropcols.__str__(), 'columns discarded')
         return data
 
 
@@ -69,7 +69,7 @@ class NHDropRows(NanHandler):
             miss_rate = (data[features].isnull() * self.feature_weights).sum(axis=1)
         keep = miss_rate <= self.miss_rate_threshold
         data = data.loc[keep, :]
-        self.msg('sample count\t%d ==> %d' % (sample_count, data.shape[0]))
+        self.msg('%d ==> %d' % (sample_count, data.shape[0]), 'sample count')
         return data
 
 
@@ -80,7 +80,7 @@ class NHOneHot(NanHandler, DVEOneHot):
         :param features2process:
         """
         DVEOneHot.__init__(self, features2process)
-        NanHandler.__init__(self, features2process, '对含有NaN的列进行OneHot编码')
+        NanHandler.__init__(self, features2process, '含NaN的列OneHot编码')
 
     def _process(self, data, features, label):
         nan_columns = features[data[features].isnull().sum() > 0]

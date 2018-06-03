@@ -116,12 +116,12 @@ class FCbArithmetical(FeatureCombiner):
         data, target = data[data.columns[:-1]], data[label]
         # 静态表达式
         operations = [x for x in self.staticOperations if self._is_valid(x, features)]
-        #动态表达式
+        # 动态表达式
         for dyopr in self.dynamicOperations:
             operations.extend(self._parse_dynamic(dyopr, features))
         for i, cmd in enumerate(operations):
             exec(self._parse_static(cmd))
-            self._submsg('done', 'cyan', self._opr_to_readable(cmd))
+            self.msg(self._opr_to_readable(cmd), 'done')
         data = pd.concat([data, target], axis=1)
         nadded = data.shape[1]-feat_count0-1
         nmodified = operations.__len__() - nadded

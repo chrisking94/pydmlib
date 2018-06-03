@@ -49,6 +49,7 @@ class ProcessorSequence(RSList, RSDataProcessor):
                 #  CheckPoint之前，只添加报告，不做运算
                 self.report_line.extend(procr.get_report())
                 self.report_title.extend(procr.get_report_title())
+                procr.msg('skipped.')
         self.report_table = pd.DataFrame(self.report_line, index=self.report_title)
         return data
 
@@ -70,8 +71,7 @@ class ProcessorSequence(RSList, RSDataProcessor):
                 x.reset()
 
     def log(self):
-        self._submsg('report', 'green',
-                     '\n%s' % self.report_table.__str__())
+        self.msg('\n%s' % self.report_table.__str__(), 'report')
 
     def get_report(self):
         return self.report_line
@@ -83,8 +83,8 @@ class ProcessorSequence(RSList, RSDataProcessor):
         return self.b_contains_continue
 
     def info(self):
-        return pd.DataFrame(data=[(x.id, x.name) for x in self],
-                            columns=('id', 'name'))
+        return pd.DataFrame(data=[(x.id, x.name, x.state) for x in self],
+                            columns=('id', 'name', 'state'))
 
     def __setitem__(self, key, value):
         """
@@ -96,6 +96,16 @@ class ProcessorSequence(RSList, RSDataProcessor):
         index = self.get_index(key)
         self.reset(index+1)
         RSList.__setitem__(self, key, self._wrapProcr(value))
+
+    def remove(self, id_index):
+        """
+        会把object之后的CheckPoint全部reset
+        :param id_index:
+        :return:
+        """
+        index = self.get_index(id_index)
+        self.reset(index+1)
+        RSList.remove(self, RSList.__getitem__(self, index))
 
     def insert(self, index, object):
         """
@@ -111,11 +121,27 @@ class ProcessorSequence(RSList, RSDataProcessor):
     def append(self, object):
         RSList.append(self, self._wrapProcr(object))
 
+    def extend(self, iterable):
+        RSList.extend(self, [self._wrapProcr(x) for x in iterable])
+
+    def __str__(self):
+        return self.info()
+
+
+class CheckPointList(RSList):
+    def __init__(self, copyfrom=()):
+        RSList.__init__(self, copyfrom)
+
+    def __str__(self):
+        return pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self],
+                            columns=['id', 'strid', 'name', 'info'])
+
 
 class MTAutoGrid(ModelTester, RSList):
     def __init__(self, data_procr_grid=None, copyfrom=()):
         """
         自动化网格测试
+        compatible with sklearn
         :param data_procr_grid: 数据处理器表，表末尾必须是分类器，结构示例如下：
                             [[procr11, procr12],
                              [procr21, procr22, procr23],
@@ -133,7 +159,7 @@ class MTAutoGrid(ModelTester, RSList):
                 data_procr_grid.insert(0, TCStart())
             self.data_procr_grid = data_procr_grid
             self.report_table = None  # pd.DataFrame()
-            self.check_points = ProcessorSequence()  # 所有检查点的列表
+            self.check_points = CheckPointList()  # 所有检查点的列表
             self._gen_process_table(data_procr_grid, ProcessorSequence())  # 存入self
 
     def _gen_process_table(self, data_procr_grid, processor_sequence):
@@ -192,7 +218,7 @@ class MTAutoGrid(ModelTester, RSList):
                 self.report_table.loc[self.report_table.shape[0], :] = sequence.get_report()
             # 输出报告
             sequence.log()
-            self.msgtimecost(msg='第%d/%d个测试完成。' % ((i+1), self.__len__()))
+            sequence.msgtimecost(msg='第%d/%d个测试完成。' % ((i+1), self.__len__()))
         self.msgtimecost(msg='总耗时。')
         self.msgtime(msg='测试完成！调用log()可获取测试日志。')
         self.log()
@@ -211,18 +237,11 @@ class MTAutoGrid(ModelTester, RSList):
         return self.check_points[id_index].data
 
     def log(self):
+        """
+        log
+        :return: DataFrame
+        """
         return self.report_table
-
-    def read_checkpoints(self):
-        return pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self.check_points],
-                            columns=['id', 'strid', 'Name', 'Info'])
-
-    def show(self, what='log'):
-        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            if what == 'log':
-                print(self.log())
-            elif what == 'checkpoints':
-                print(self.read_checkpoints())
 
     def savelog(self, filepath='', btimesuffix=False):
         """
@@ -238,16 +257,12 @@ class MTAutoGrid(ModelTester, RSList):
                 filepath = '%s_%s.csv' % (filepath, self.strtime())
         self.report_table.to_csv(filepath, sep='\t')
 
-    def run_sequence(self, index):
-        """
-        运行测试序列表中的一条测试序列
-        :param index:
-        :return:
-        """
-        pass
-
     def info(self):
-        pass
+        return pd.DataFrame([(x.id, x.name, x.__len__()) for x in self],
+                            columns=('id', 'name', 'procr_count'))
+
+    def __str__(self):
+        return self.info()
 
 
 class TesterController(RSDataProcessor):
@@ -269,7 +284,7 @@ class TCCheckPoint(TesterController):
         self.copy_count = 0
 
     def fit_transform(self, data):
-        self.msgtime(self._colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        self.msgtime(self.colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         if self.data is None:
             self.data = data
         return self.data
@@ -306,7 +321,7 @@ class TCBreak(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self._colorstr('**break*point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        self.msgtime(self.colorstr('**break*point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
 
@@ -343,7 +358,7 @@ class TCStart(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self._colorstr('--start-point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        self.msgtime(self.colorstr('--start-point' * 8, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
 
@@ -353,7 +368,7 @@ class TCEnd(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self._colorstr('--end-point' * 9, 0, self.msgforecolor, self.msgbackcolor))
+        self.msgtime(self.colorstr('--end-point' * 9, 0, self.msgforecolor, self.msgbackcolor))
         return data
 
 

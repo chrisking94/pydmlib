@@ -11,7 +11,7 @@ class Sampler(RSDataProcessor):
     def _process(self, data, features, label):
         spcount0 = data.shape[0]
         data = self._sample(data, features, label)
-        self.msg('sample count\t%d ==> %d' % (spcount0, data.shape[0]))
+        self.msg('%d ==> %d' % (spcount0, data.shape[0]), 'sample quantity')
         return data
 
 
@@ -33,7 +33,6 @@ class SplUnder(Sampler):
     def _sample(self, data, features, label):
         feature_weights = self.feature_weights
         lables, cnts = np.unique(data[label], return_counts=True)
-        self.msg('minor class sample count  %d' % cnts.min())
         mc_samplecount = cnts.min()
         minorclass = lables[cnts == mc_samplecount][0]
         lables, cnts = lables[lables != minorclass], cnts[lables != minorclass]
@@ -58,8 +57,6 @@ class SplMiddle(Sampler):
     def _sample(self, data, features, label):
         lables, cnts = np.unique(data[label], return_counts=True)
         avg = int(cnts.mean())
-        self.msg(
-            '\n--minor class count: %d \n--major class count: %d\n--average count: %d' % (cnts.min(), cnts.max(), avg))
         sdata = pd.DataFrame(columns=data.columns)
         for lbl, cnt in zip(lables, cnts):
             if cnt > avg:

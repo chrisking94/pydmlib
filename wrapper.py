@@ -4,13 +4,14 @@ from reporter import ClfResult
 
 
 class Wrapper(RSDataProcessor):
-    def __init__(self, features2process, name='Wrapper'):
+    def __init__(self, features2process, processor, name='Wrapper'):
         """
         包装器，负责把其他数据处理器包装成DataProcess，如包装sklearn.svm.SVC成DataProcessor
         :param features2process:
         :param name:
         """
         RSDataProcessor.__init__(self, features2process, name, 'random', 'random', 'blink')
+        self.processor = processor
 
 
 class WrpDataProcessor(Wrapper):
@@ -35,8 +36,7 @@ class WrpDataProcessor(Wrapper):
             else:
                 name = 'WrpDPXy-%s'
             name = name % (processor.__class__.__name__)
-        Wrapper.__init__(self, features2process, name)
-        self.processor = processor
+        Wrapper.__init__(self, features2process, processor, name)
         self.bXonly = bXonly
 
     def _process(self, data, features, label):
@@ -62,7 +62,7 @@ class WrpDataProcessor(Wrapper):
 
 
 class WrpClassifier(Wrapper):
-    def __init__(self, features2process, clf, name='', test_size=0.2):
+    def __init__(self, features2process, classifier, name='', test_size=0.2):
         """
         分类器的包装器
         :param features2process:
@@ -71,9 +71,8 @@ class WrpClassifier(Wrapper):
         :param test_size: 测试集大小
         """
         if name == '':
-            name = 'WrpClf-%s' % clf.__class__.__name__
-        Wrapper.__init__(self, features2process, name)
-        self.clf = clf
+            name = 'WrpClf-%s' % classifier.__class__.__name__
+        Wrapper.__init__(self, features2process, classifier, name)
         self.test_size = test_size
 
     def fit_transform(self, data):
@@ -92,19 +91,19 @@ class WrpClassifier(Wrapper):
             features, label = self._getFeaturesNLabel(data)
             X_train, X_test, y_train, y_test = cv.train_test_split(data[features], data[label], test_size=self.test_size, random_state=0)
 
-        self.clf.fit(X_train, y_train)
-        self.trainscore = self.clf.score(X_train, y_train)
-        if hasattr(self.clf, 'predict_proba'):
-            y_prob = self.clf.predict_proba(X_test)
-            y_pred = self.clf.classes_[y_prob.argmax(axis=1)]
+        self.processor.fit(X_train, y_train)
+        self.trainscore = self.processor.score(X_train, y_train)
+        if hasattr(self.processor, 'predict_proba'):
+            y_prob = self.processor.predict_proba(X_test)
+            y_pred = self.processor.classes_[y_prob.argmax(axis=1)]
         else:
             y_prob = None
-            y_pred = self.clf.predict(X_test)
+            y_pred = self.processor.predict(X_test)
         self.testscore = (y_pred == y_test).sum() / y_test.shape[0]
-        self._submsg('训练集得分', 1, '%f' % (self.trainscore * 100))
-        self._submsg('测试集得分', 1, '%f' % (self.testscore * 100))
+        self.msg('%f' % (self.trainscore * 100), '训练集得分')
+        self.msg('%f' % (self.testscore * 100), '测试集得分')
         self.msgtimecost()
-        return ClfResult(self.clf.classes_, self.trainscore, self.testscore, y_prob, y_pred, y_test, self.name)
+        return ClfResult(self.processor.classes_, self.trainscore, self.testscore, y_prob, y_pred, y_test, self.name)
 
     def get_report_title(self, *args):
         return ['训练集得分', '测试集得分']
@@ -119,6 +118,8 @@ def IWrap(features2process, processor):
     """
     if hasattr(processor, 'predict'):
         return WrpClassifier(features2process, processor)
-    else:
+    elif hasattr(processor, 'fit_transform'):
         return WrpDataProcessor(features2process, processor, bXonly=False)
+    else:
+        raise Exception('IWrap failed, invalid processor %s object.' % processor.__class__.__name__)
 

@@ -1,7 +1,6 @@
 from base import *
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve, auc
-from scipy import interpolate
 
 
 class ConfusionMatrix(pd.DataFrame, RSObject):
@@ -22,7 +21,7 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         else:
             self.msg('Without normalizing\n%s' % self.__str__())
 
-    def draw(self, size=1):
+    def plot(self, size=1):
         class_count = self.shape[0]
         bsize = size
         size *= class_count
@@ -48,12 +47,6 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         ax.imshow(self.normalized().values, interpolation='nearest', cmap=plt.cm.Blues)
         plt.show()
 
-    def getclassscores(self):
-        scores = []
-        for i in range(self.shape[0]):
-            scores.append(self.normalized().values[i, i])
-        return scores
-
     def __getitem__(self, item):
         return super(ConfusionMatrix, self).values[item]
 
@@ -68,41 +61,36 @@ class ROCCurve(RSObject):
         if ax is None:
             fig = plt.figure(figsize=(5, 5))
             ax = fig.add_subplot(111)
-        ax.set_title(self.name)
-        ax.set_xlabel('FP Rate')
-        ax.set_ylabel('TP Rate')
-        ax.legend(loc="lower right")
-
-        #         srtd = list(zip(self.fpr, self.tpr))
-        #         srtd.sort(key=lambda x:x[0])
-        #         ax.scatter(self.fpr, self.tpr)
-        #         x, y = [], []
-        #         lastxx = -100
-        #         for xx, yy in srtd:
-        #             if xx != lastxx:
-        #                 x.append(xx)
-        #                 y.append(yy)
-        #             lastxx = xx
-        #         x0, y0 = x, y
-        #         x2 = np.arange(0, 1, 0.05)
-        #         A2, B2, C2 = optimize.curve_fit(f_2, x0, y0)[0]
-        #         y2 = A2*x2*x2 + B2*x2 + C2
-        #         # 拟合之后的平滑曲线图
-        #         ax.plot(x2, y2)
-        ax.plot(self.fpr, self.tpr, lw=1, label=label)
+        plt.title(self.name)
+        plt.xlabel('FP Rate')
+        plt.ylabel('TP Rate')
+        plt.xlim(0, 1.01)
+        plt.ylim(0, 1.01)
+        plt.legend(loc="lower right")
+        plt.plot(self.fpr, self.tpr, lw=1, label=label)
         # ax.plot(self.thresholds, self.tpr)
         # ax.plot(self.fpr, self.thresholds)
+        plt.text(0.7, 0.1, 'AUC=%.3f' % self.auc(), horizontalalignment='center',
+          verticalalignment='center', fontdict={'size':20})
         plt.show()
-        self.msg('AUC=%f' % self.auc())
 
     def auc(self):
         return auc(self.fpr, self.tpr)
 
 
 def test():
-    cm = ConfusionMatrix([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 3])
-    print(cm)
-    print(cm[1, 1])
-    cm.show(True)
-    cm.draw()
+    # cm = ConfusionMatrix([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 3])
+    # print(cm)
+    # print(cm[1, 1])
+    # cm.show(True)
+    # cm.plot()
+    # from sklearn.datasets import load_iris
+    # X, y = load_iris(True)
+    # X, y = X[y!=2], y[y!=2]
+    # from sklearn.ensemble import RandomForestClassifier
+    # clf = RandomForestClassifier()
+    # clf.fit(X, y)
+    # prob = clf.predict_proba(X)[:,1]
+    # ROCCurve(y, prob).plot()
+    # print(prob)
     pass

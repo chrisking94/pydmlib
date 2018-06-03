@@ -32,18 +32,18 @@ class DRBrief(DataReporter):
         breportall = self.args.__len__() == 0
         self.data_shape = data.shape
         if breportall or 'shape' in self.args:
-            self.msg('data.shape=%s' % data.shape.__str__())
+            self.msg(data.shape.__str__(), 'data.shape')
         if breportall or 'columns' in self.args:
             b_contais_nan = False
             for x in features:
                 null_count = data[x].isnull().sum()
                 if null_count > 0:
-                    self._submsg('NaN count', -1, '%s -> %d' % (x, null_count))
+                    self.msg('%s -> %d' % (x, null_count), 'NaN count')
                     b_contais_nan = True
             if not b_contais_nan:
-                self._submsg('NaN count', -1, 'there isn\'t any NaN in this data set.')
+                self.msg('there isn\'t any NaN in this data set.', 'NaN count')
         if 'unique-items' in self.args:
-            self._submsg('unique-items', -1, '↓')
+            self.msg('↓', 'unique-items')
             for col in features:
                 items, cnts = np.unique(data[col], return_counts=True)
                 if items.shape[0] > 20:
@@ -82,11 +82,11 @@ class RRConfusionMatrix(ResultReporter):
 
     def fit_transform(self, data):
         self.cm = ConfusionMatrix(data.y_true, data.y_pred, data.labels, name='CM of %s' % data.clfname)
-        self.cm.draw(2)
+        self.cm.plot(2)
         return data
 
     def get_report_title(self, *args):
-        titles = ['%s正确率' % str(int(x)) for x in self.cm.columns]
+        titles = ['c%s正确率' % str(int(x)) for x in self.cm.columns]
         return titles
 
     def get_report(self):

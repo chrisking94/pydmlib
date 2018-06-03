@@ -24,38 +24,21 @@ class RSObject(object):
         self.msgbackcolor = msgbackcolor
         self.msgmode = RSObject.modedict[msgmode]
         self.timestart = time.time()
-        self.coloredname = self._colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
+        self.coloredname = self.colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
         self.id = RSObject.id_count
         RSObject.id_count += 1
 
-    def _getcolor(self, colorname):
-        """
-        transfer color name into color num
-        :param colorname: str or int
-        :return:color num
-        """
-        if isinstance(colorname, str):
-            color = RSObject.colordict[colorname]
-        else:
-            color = colorname
-        if color == -1:
-            color = random.randint(0, 8)
-        return color
-
-    def _colorstr(self, s, mode, fcolor, bcolor):
-        fcolor = self._getcolor(fcolor)
-        bcolor = self._getcolor(bcolor)
-        s = '\033[%d;%d;%dm%s\033[0m' % (mode, fcolor+30, bcolor+40, s)
-        return s
-
-    def msg(self, msg):
-        msg = '%s: %s' % (self.coloredname, msg)
-        print(msg)
-
-    def _submsg(self, subtitle, forecolor, msg):
-        csubtitle = self._colorstr(subtitle, 0, forecolor, 48)
+    def _submsg(self, title, title_color, msg):
+        csubtitle = self.colorstr(title, 0, title_color, 48)
         msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
         print(msg)
+
+    def msg(self, msg, title=''):
+        if title == '':
+            msg = '%s: %s' % (self.coloredname, msg)
+            print(msg)
+        else:
+            self._submsg(title, 'cyan', msg)
 
     def warning(self, msg):
         self._submsg('warning', 3, msg)
@@ -88,6 +71,33 @@ class RSObject(object):
         else:
             return self.id == id
 
+    def __str__(self):
+        return self.coloredname
+
+    __repr__ = __str__
+
+    @staticmethod
+    def getcolor(colorname):
+        """
+        transfer color name into color num
+        :param colorname: str or int
+        :return:color num
+        """
+        if isinstance(colorname, str):
+            color = RSObject.colordict[colorname]
+        else:
+            color = colorname
+        if color == -1:
+            color = random.randint(0, 8)
+        return color
+
+    @staticmethod
+    def colorstr(s, mode, fcolor, bcolor):
+        fcolor = RSObject.getcolor(fcolor)
+        bcolor = RSObject.getcolor(bcolor)
+        s = '\033[%d;%d;%dm%s\033[0m' % (mode, fcolor+30, bcolor+40, s)
+        return s
+
     @staticmethod
     def strtime(format_='%Y-%m-%d %H:%M:%S', houroffset=12):
         t = datetime.datetime.now() + datetime.timedelta(hours=houroffset)
@@ -96,10 +106,9 @@ class RSObject(object):
 
 
 class RSDataProcessor(RSObject):
-    def __init__(self, features2process=None, name='DataProcessor', msgforecolor='default',
+    def __init__(self, features2process=None, name='RSDataProcessor', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
         """
-
         :param features2process:需要处理的特征
                         如果None，则处理所有特征
         :param name:
@@ -109,6 +118,7 @@ class RSDataProcessor(RSObject):
         """
         RSObject.__init__(self, name, msgforecolor, msgbackcolor, msgmode)
         self.features2process = features2process
+        self.state = 'on'  # disable this processor by set state to 'off'
 
     def _getFeaturesNLabel(self, data):
         """
@@ -129,11 +139,24 @@ class RSDataProcessor(RSObject):
     def _process(self, data, features, label):
         self.error('Not implemented!')
 
+    def turn(self, state):
+        """
+        change processor state
+        :param state: str, several value to choose as following
+                        'on': turn on processor, fit_transform will works properly,
+                                also get_report ...
+                        'off': opposite to 'on'
+        :return:
+        """
+        self.state = state
+
     def fit_transform(self, data):
         """
         :param data: [X y]
         :return:[X' y]
         """
+        if self.state == 'off':
+            return data
         self.starttimer()
         self.msgtime('running...')
         features, label = self._getFeaturesNLabel(data)
@@ -146,6 +169,8 @@ class RSDataProcessor(RSObject):
         返回当前对象输出报告的标题，可以用于制表，一般用在ModelTester中
         :return: list, 默认返回list[父类类名]
         """
+        if self.state == 'off':
+            return []
         return [self.__class__.__bases__[0].__name__]
 
     def get_report(self):
@@ -153,10 +178,12 @@ class RSDataProcessor(RSObject):
         输出报告，一般用在ModelTester中
         :return:  list, 默认返回当前对象名
         """
+        if self.state == 'off':
+            return []
         return [self.name]
 
     def __call__(self, *args, **kwargs):
-        return  [self.fit_transform(*args)]
+        return  self.fit_transform(*args)
 
 
 class RSDataMetaclass(type):
@@ -338,8 +365,6 @@ class RSData(pd.DataFrame, RSObject):#, metaclass=RSDataMetaclass):
                 s = self.detail()
                 s += '\n%s' % self.data.__str__()
                 return s
-
-            __repr__ = __str__
 
         def __getitem__(self, pointname):
             if pointname in dict.keys(self):

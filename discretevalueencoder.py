@@ -11,7 +11,7 @@ class DiscreteValueEncoder(RSDataProcessor):
     def _process(self, data, features, label):
         dshape0 = data.shape[1] - 1
         data = self._encode(data, features, label)
-        self.msg('data.features\t%d ==> %d' %(dshape0, data.shape[1] - 1))
+        self.msg('%d ==> %d' %(dshape0, data.shape[1] - 1), 'feature count')
         return data
 
 

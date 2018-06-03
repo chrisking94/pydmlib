@@ -4,7 +4,7 @@ from sklearn.ensemble.iforest import IsolationForest
 
 
 class OutlierHandler(RSDataProcessor):
-    def __init__(self, features2process, name='AbnormalValueHandler'):
+    def __init__(self, features2process, name='OutlierHandler'):
         RSDataProcessor.__init__(self, features2process, name, 'black', 'cyan')
 
     def _process(self, data, features, label):

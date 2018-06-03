@@ -152,7 +152,7 @@ class DsctInfomationEntropy(Discretor):
         基于信息熵的离散法
         原理： http://www.doc88.com/p-352263493037.html
         :param features2process:
-        :param min_infomation_gain:  离散后最少值种类个数
+        :param min_infomation_gain:
         """
         Discretor.__init__(self, features2process, '信息熵分裂')
 
