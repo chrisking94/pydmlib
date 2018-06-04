@@ -94,9 +94,9 @@ class WrpClassifier(Wrapper):
         if self.b_train:
             self.msg('training...')
             self.processor.fit(X_train, y_train)
-        self.msg('testing on train set...')
+        self.msg('scoring on train set...')
         self.trainscore = self.processor.score(X_train, y_train)
-        self.msg('predicting on test set...')
+        self.msg('predicting test X...')
         if hasattr(self.processor, 'predict_proba'):
             y_prob = self.processor.predict_proba(X_test)
             y_pred = self.processor.classes_[y_prob.argmax(axis=1)]

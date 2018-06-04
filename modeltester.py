@@ -14,13 +14,13 @@ class ModelTester(RSObject):
 
 class ProcessorSequence(RSDataProcessor, RSList):
     def __init__(self, copyfrom=()):
+        self.checkpoints = CheckPointList()
         RSList.__init__(self, [self._wrapProcr(x) for x in copyfrom])
         RSDataProcessor.__init__(self, None, 'ProcessorSequence', 'random', 'random')
         self.report_line = []
         self.report_title = []
         self.b_contains_continue = False
         self.report_table = None
-        self.checkpoints = CheckPointList()
 
     def fit_transform(self, data=None):
         self.report_line = []
@@ -113,6 +113,8 @@ class ProcessorSequence(RSDataProcessor, RSList):
         :return:
         """
         index = self.get_index(id_index)
+        if index is None:
+            return
         self.reset(index+1)
         RSList.remove(self, RSList.__getitem__(self, index))
 
@@ -139,7 +141,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
     def __add__(self, other):
         if isinstance(other, ProcessorSequence):
             ret = self[:-1]
-            ret.extend(other[0:])
+            ret.extend(other[1:])
             return ret
         else:
             self.error('cannot add with %s object' % other.__class__.__name__)
