@@ -38,7 +38,7 @@ class RSObject(object):
             msg = '%s: %s' % (self.coloredname, msg)
             print(msg)
         else:
-            self._submsg(title, 'cyan', msg)
+            self._submsg(title, 'blue', msg)
 
     def warning(self, msg):
         self._submsg('warning', 3, msg)

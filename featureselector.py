@@ -73,7 +73,7 @@ class FSmRMR(FeatureSelector):
 
 
 class FSManual(FeatureSelector):
-    def __init__(self, features2process, b_except=False, name='手动特征选择'):
+    def __init__(self, features2process, name='手动特征选择', b_except=False):
         """
         select feature manually
         :param features2process:
@@ -85,8 +85,8 @@ class FSManual(FeatureSelector):
 
     def _process(self, data, features, label):
         if self.b_except:
-            features = list(set(data.columns) - set(features))
-        self.msg('%d features remaining.' % features.__len__())
+            features = list(set(data.columns[:-1]) - set(features))
+        self.msg('%d features preserved.' % features.__len__())
         ret = pd.concat([data[features], data[label]], axis=1)
         return ret
 

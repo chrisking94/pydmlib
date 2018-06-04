@@ -12,28 +12,32 @@ class ModelTester(RSObject):
         self.error('Not implemented!')
 
 
-class ProcessorSequence(RSList, RSDataProcessor):
+class ProcessorSequence(RSDataProcessor, RSList):
     def __init__(self, copyfrom=()):
+        RSList.__init__(self, [self._wrapProcr(x) for x in copyfrom])
         RSDataProcessor.__init__(self, None, 'ProcessorSequence', 'random', 'random')
-        for i, procr in enumerate(copyfrom):
-            if not isinstance(procr, RSDataProcessor):
-                copyfrom[i] = IWrap(None, procr)
-        RSList.__init__(self, copyfrom)
         self.report_line = []
         self.report_title = []
         self.b_contains_continue = False
         self.report_table = None
+        self.checkpoints = CheckPointList()
 
-    def fit_transform(self, data):
+    def fit_transform(self, data=None):
         self.report_line = []
+        self.report_title = []
         #  从后往前找到第一个可用检查点
         tmplist = self[:-1]
         tmplist.reverse()
         available_checkpoint = None
-        for procr in tmplist:
-            if isinstance(procr, TCCheckPoint):
-                if procr.is_available():
-                    available_checkpoint = procr
+        if data is None:
+            for procr in tmplist:
+                if isinstance(procr, TCCheckPoint):
+                    if procr.is_available():
+                        available_checkpoint = procr
+            if available_checkpoint is None:
+                self.error('no check point is available, please provide data in fit_transform().')
+        else:
+            self.reset()
         for procr in self:
             if available_checkpoint is not None:  # 从检查点开始执行
                 if available_checkpoint == procr:
@@ -55,6 +59,8 @@ class ProcessorSequence(RSList, RSDataProcessor):
 
     def _wrapProcr(self, procr):
         if isinstance(procr, RSDataProcessor):
+            if isinstance(procr, TCCheckPoint):
+                self.checkpoints.append(procr)
             return procr
         else:
             return IWrap(None, procr)
@@ -81,6 +87,9 @@ class ProcessorSequence(RSList, RSDataProcessor):
 
     def contains_continue(self):
         return self.b_contains_continue
+
+    def data(self, id_index):
+        return self.checkpoints[id_index].data
 
     def info(self):
         return pd.DataFrame(data=[(x.id, x.name, x.state) for x in self],
@@ -126,6 +135,14 @@ class ProcessorSequence(RSList, RSDataProcessor):
 
     def __str__(self):
         return self.info()
+
+    def __add__(self, other):
+        if isinstance(other, ProcessorSequence):
+            ret = self[:-1]
+            ret.extend(other[0:])
+            return ret
+        else:
+            self.error('cannot add with %s object' % other.__class__.__name__)
 
 
 class CheckPointList(RSList):
@@ -228,8 +245,8 @@ class MTAutoGrid(ModelTester, RSList):
         """
         返回CheckPoint中保存的数据
         :param id_index: int:
-                                    id(>=100): 可通过log()查看
-                                    index(<100): 在self.check_points中的索引
+                                    id(>=9999): 可通过log()查看
+                                    index(<9999): 在self.check_points中的索引
                                 str:
                                     TCCheckPoint().name
         :return:
@@ -271,7 +288,7 @@ class TesterController(RSDataProcessor):
 
 
 class TCCheckPoint(TesterController):
-    def __init__(self, name = ''):
+    def __init__(self, name = '', data=None):
         if name == '':
             TesterController.__init__(self, 'TCCP')
             self.name = 'TCCP-%d' % self.id
@@ -279,7 +296,7 @@ class TCCheckPoint(TesterController):
         else:
             self.strid = name
             TesterController.__init__(self, 'TCCP-%s' % name)
-        self.data = None
+        self.data = data
         self.infolist = None
         self.copy_count = 0
 
@@ -300,10 +317,12 @@ class TCCheckPoint(TesterController):
 
     def copy(self):
         if self.strid == '':
-            return self.__class__()
+            obj = self.__class__()
         else:
             self.copy_count += 1
-            return self.__class__('%s%d' % (self.strid, self.copy_count))
+            obj = self.__class__('%s%d' % (self.strid, self.copy_count))
+        obj.data = self.data
+        return obj
 
     def set_infolist(self, info):
         self.infolist = info.copy()

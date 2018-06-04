@@ -62,18 +62,20 @@ class WrpDataProcessor(Wrapper):
 
 
 class WrpClassifier(Wrapper):
-    def __init__(self, features2process, classifier, name='', test_size=0.2):
+    def __init__(self, features2process, classifier, name='', test_size=0.2, b_train=True):
         """
         分类器的包装器
         :param features2process:
         :param clf:
         :param name:
         :param test_size: 测试集大小
+        :param b_train: 是否训练分类器，可以直接输入训练好的分类器
         """
         if name == '':
             name = 'WrpClf-%s' % classifier.__class__.__name__
         Wrapper.__init__(self, features2process, classifier, name)
         self.test_size = test_size
+        self.b_train = b_train
 
     def fit_transform(self, data):
         """
@@ -82,17 +84,19 @@ class WrpClassifier(Wrapper):
         :return:  ClfResult
         """
         self.starttimer()
-        self.msg('running...')
         if isinstance(data, tuple):
             trainset, testset = data[0], data[1]
             features, label = self._getFeaturesNLabel(trainset)
-            X_train, X_test, y_train, y_test = trainset[features], testset[features], trainset[label], trainset[label]
+            X_train, X_test, y_train, y_test = trainset[features], testset[features], trainset[label], testset[label]
         else:
             features, label = self._getFeaturesNLabel(data)
             X_train, X_test, y_train, y_test = cv.train_test_split(data[features], data[label], test_size=self.test_size, random_state=0)
-
-        self.processor.fit(X_train, y_train)
+        if self.b_train:
+            self.msg('training...')
+            self.processor.fit(X_train, y_train)
+        self.msg('testing on train set...')
         self.trainscore = self.processor.score(X_train, y_train)
+        self.msg('predicting on test set...')
         if hasattr(self.processor, 'predict_proba'):
             y_prob = self.processor.predict_proba(X_test)
             y_pred = self.processor.classes_[y_prob.argmax(axis=1)]
