@@ -1,4 +1,4 @@
-from base import *
+from dataprocessor import RSDataProcessor
 from misc import ConfusionMatrix, ROCCurve
 
 
@@ -61,7 +61,7 @@ class DRBrief(DataReporter):
 
 class ResultReporter(Reporter):
     def __init__(self, name='ResultReporter'):
-        Reporter.__init__(self, name, name)
+        Reporter.__init__(self, None, name)
 
 
 class ClfResult(object):
@@ -80,7 +80,7 @@ class RRConfusionMatrix(ResultReporter):
         ResultReporter.__init__(self, name)
         self.cm = None
 
-    def fit_transform(self, data):
+    def _process(self, data, features, label):
         self.cm = ConfusionMatrix(data.y_true, data.y_pred, data.labels, name='CM of %s' % data.clfname)
         self.cm.plot(2)
         return data
@@ -99,7 +99,7 @@ class RRRocCurve(ResultReporter):
         ResultReporter.__init__(self, name)
         self.roc = None
 
-    def fit_transform(self, data):
+    def _process(self, data, features, label):
         self.roc = ROCCurve(data.y_true, data.y_prob[:, -1], title='ROC of %s' % data.clfname)
         self.roc.plot(label=data.clfname)
         return data

@@ -1,8 +1,8 @@
-from base import *
+from dataprocessor import *
 
 
 class Sampler(RSDataProcessor):
-    def __init__(self, features2process, name='Sampler'):
+    def __init__(self, features2process, name=''):
         RSDataProcessor.__init__(self, features2process, name, 'blue', 'yellow', 'highlight')
 
     def _sample(self, data, features, label):
@@ -27,7 +27,7 @@ class SplUnder(Sampler):
             如果feature_weights==1,则首选空值少的某行
             如果feature_weights==None，则进行随机抽样
         """
-        Sampler.__init__(self, features2process, '向下采样')
+        Sampler.__init__(self, features2process)
         self.feature_weights = feature_weights
 
     def _sample(self, data, features, label):
@@ -52,7 +52,7 @@ class SplUnder(Sampler):
 
 class SplMiddle(Sampler):
     def __init__(self, features2process):
-        Sampler.__init__(self, features2process, '中间采样')
+        Sampler.__init__(self, features2process)
 
     def _sample(self, data, features, label):
         lables, cnts = np.unique(data[label], return_counts=True)
@@ -76,7 +76,7 @@ class SplAppoint(Sampler):
         :param features2process:
         :param sample_count: 采样数
         """
-        Sampler.__init__(self, features2process, '指定采样，样本大小=%.2f' % sample_count)
+        Sampler.__init__(self, features2process)
         self.sample_count = sample_count
 
     def _sample(self, data, features, label):

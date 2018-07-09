@@ -2,7 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9501bde3-92e8-4ba7-b542-eeeac253d76a" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discretevalueencoder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discretor.py" beforeDir="false" afterPath="$PROJECT_DIR$/discretor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/featureclassifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/featureclassifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/featurecombiner.py" beforeDir="false" afterPath="$PROJECT_DIR$/featurecombiner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/featureselector.py" beforeDir="false" afterPath="$PROJECT_DIR$/featureselector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/formatconverter.py" beforeDir="false" afterPath="$PROJECT_DIR$/formatconverter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modeltester.py" beforeDir="false" afterPath="$PROJECT_DIR$/modeltester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanhandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanhandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/normalizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/normalizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/outlierhandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/outlierhandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/reporter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sampler.py" beforeDir="false" afterPath="$PROJECT_DIR$/sampler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/transformer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/wrapper.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -14,11 +29,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="reporter.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/reporter.py">
+      <file leaf-file-name="data.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2910">
-              <caret line="97" column="21" lean-forward="true" selection-start-line="97" selection-start-column="21" selection-end-line="97" selection-end-column="21" />
+            <state relative-caret-position="399">
+              <caret line="100" column="79" selection-start-line="100" selection-start-column="79" selection-end-line="100" selection-end-column="79" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="control.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/control.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="672">
+              <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -26,80 +53,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="featureselector.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/featureselector.py">
+      <file leaf-file-name="transformer.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transformer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="88" column="39" selection-start-line="88" selection-start-column="39" selection-end-line="88" selection-end-column="39" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="modeltester.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/modeltester.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-273">
-              <caret line="30" column="35" lean-forward="true" selection-start-line="30" selection-start-column="35" selection-end-line="30" selection-end-column="35" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="wrapper.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wrapper.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1740">
-              <caret line="98" column="40" lean-forward="true" selection-start-line="98" selection-start-column="40" selection-end-line="98" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="nanhandler.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/nanhandler.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-150">
-              <caret line="13" column="11" lean-forward="true" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="formatconverter.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/formatconverter.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1770">
-              <caret line="60" column="30" selection-start-line="60" selection-start-column="30" selection-end-line="60" selection-end-column="30" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
-              <caret line="22" selection-start-line="22" selection-end-line="22" />
-              <folding>
-                <element signature="e#0#28#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="misc.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/misc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="520">
-              <caret line="70" column="44" selection-start-line="70" selection-start-column="44" selection-end-line="70" selection-end-column="44" />
+            <state relative-caret-position="24">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -107,17 +65,74 @@
       <file leaf-file-name="base.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/base.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4073">
-              <caret line="236" column="4" lean-forward="true" selection-start-line="236" selection-start-column="4" selection-end-line="236" selection-end-column="4" />
+            <state relative-caret-position="597">
+              <caret line="120" column="25" selection-start-line="120" selection-start-column="25" selection-end-line="120" selection-end-column="25" />
+              <folding>
+                <element signature="e#15#26#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="featureclassifier.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/featureclassifier.py">
+      <file leaf-file-name="sampler.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sampler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="990">
-              <caret line="33" column="30" lean-forward="true" selection-start-line="33" selection-start-column="30" selection-end-line="33" selection-end-column="30" />
+            <state relative-caret-position="1872">
+              <caret line="78" column="47" selection-start-line="78" selection-start-column="47" selection-end-line="78" selection-end-column="47" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="dataprocessor.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dataprocessor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="410">
+              <caret line="126" lean-forward="true" selection-start-line="126" selection-end-line="126" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="modeltester.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modeltester.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="reporter.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/reporter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="192">
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+              <folding>
+                <element signature="e#0#41#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="discretor.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/discretor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="621">
+              <caret line="153" column="32" lean-forward="true" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="factorencoder.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/factorencoder.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1320">
+              <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -133,13 +148,9 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>,,,</find>
-      <find>shape</find>
-      <find>'''</find>
       <find>pd.concat</find>
       <find>cv</find>
       <find>__init__</find>
-      <find>sample</find>
       <find>ret = func(self, *arg, **kwargs)</find>
       <find>pydmlib.</find>
       <find>start</find>
@@ -153,12 +164,30 @@
       <find>get_report_title</find>
       <find>get_report</find>
       <find>100</find>
+      <find>self</find>
+      <find>sample</find>
+      <find>base</find>
+      <find>info()</find>
+      <find>class</find>
+      <find>columns</find>
+      <find>self.columns</find>
+      <find>print</find>
+      <find>is_me</find>
+      <find>.iloc</find>
+      <find>class Index</find>
+      <find>DVEOneHot</find>
+      <find>feature2process</find>
+      <find>featues2process</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;&quot;&quot;</replace>
       <replace>_process(self, data, features, label)</replace>
       <replace>$1</replace>
       <replace>9999</replace>
+      <replace>data</replace>
+      <replace>dataprocessor</replace>
+      <replace>FEOneHot</replace>
+      <replace>features2process</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -171,33 +200,39 @@
         <option value="$PROJECT_DIR$/DataReporter.py" />
         <option value="$PROJECT_DIR$/datareporter.py" />
         <option value="$PROJECT_DIR$/abnormalvaluehandler.py" />
-        <option value="$PROJECT_DIR$/normalizer.py" />
-        <option value="$PROJECT_DIR$/discretor.py" />
-        <option value="$PROJECT_DIR$/outlierhandler.py" />
-        <option value="$PROJECT_DIR$/transformer.py" />
-        <option value="$PROJECT_DIR$/featureclassifier.py" />
         <option value="$PROJECT_DIR$/test.txt" />
-        <option value="$PROJECT_DIR$/sampler.py" />
-        <option value="$PROJECT_DIR$/discretevalueencoder.py" />
-        <option value="$PROJECT_DIR$/featurecombiner.py" />
         <option value="$PROJECT_DIR$/stacked_generalization.py" />
-        <option value="$PROJECT_DIR$/formatconverter.py" />
-        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/temp.py" />
+        <option value="$PROJECT_DIR$/ivfdata.py" />
         <option value="$PROJECT_DIR$/misc.py" />
-        <option value="$PROJECT_DIR$/reporter.py" />
+        <option value="$PROJECT_DIR$/control.py" />
+        <option value="$PROJECT_DIR$/discretevalueencoder.py" />
+        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/factorencoder.py" />
+        <option value="$PROJECT_DIR$/discretor.py" />
+        <option value="$PROJECT_DIR$/featureclassifier.py" />
+        <option value="$PROJECT_DIR$/featurecombiner.py" />
+        <option value="$PROJECT_DIR$/formatconverter.py" />
+        <option value="$PROJECT_DIR$/normalizer.py" />
+        <option value="$PROJECT_DIR$/outlierhandler.py" />
+        <option value="$PROJECT_DIR$/sampler.py" />
+        <option value="$PROJECT_DIR$/wrapper.py" />
         <option value="$PROJECT_DIR$/nanhandler.py" />
         <option value="$PROJECT_DIR$/featureselector.py" />
         <option value="$PROJECT_DIR$/base.py" />
+        <option value="$PROJECT_DIR$/transformer.py" />
+        <option value="$PROJECT_DIR$/reporter.py" />
         <option value="$PROJECT_DIR$/modeltester.py" />
-        <option value="$PROJECT_DIR$/wrapper.py" />
+        <option value="$PROJECT_DIR$/dataprocessor.py" />
+        <option value="$PROJECT_DIR$/data.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="374" />
-    <option name="y" value="164" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="364" />
+    <option name="y" value="205" />
     <option name="width" value="1400" />
-    <option name="height" value="743" />
+    <option name="height" value="805" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -220,7 +255,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="IpnbConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -239,7 +274,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.__init__">
     <configuration name="__init__" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="pydmlib" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -258,9 +293,32 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+    <configuration name="base" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="pydmlib" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/base.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.__init__" />
+      <item itemvalue="Python.base" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.__init__" />
+        <item itemvalue="Python.base" />
       </list>
     </recent_temporary>
   </component>
@@ -278,130 +336,56 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="679" y="186" width="1400" height="811" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.09322917" />
       <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Messages" />
+      <window_info anchor="bottom" id="Regex Tester" order="7" weight="0.2410148" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32875264" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.31366906" />
       <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15028901" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15028901" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.31366906" />
+      <window_info anchor="bottom" id="Regex Tester" order="7" weight="0.2410148" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32769555" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3266187" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info anchor="bottom" id="Python Console" order="7" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LAST_COMMIT_MESSAGE" value="" />
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/featureclassifier.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="13" column="62" selection-start-line="13" selection-start-column="62" selection-end-line="13" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modeltester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1170">
-          <caret line="41" column="36" lean-forward="true" selection-end-line="55" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/discretevalueencoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="24" column="59" selection-start-line="24" selection-start-column="59" selection-end-line="24" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/discretor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4560">
-          <caret line="152" column="22" lean-forward="true" selection-start-line="152" selection-start-column="22" selection-end-line="152" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1080">
-          <caret line="39" column="34" selection-start-line="39" selection-start-column="34" selection-end-line="39" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outlierhandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nanhandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="9" column="25" lean-forward="true" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/discretor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4440">
-          <caret line="148" column="26" lean-forward="true" selection-start-line="148" selection-start-column="26" selection-end-line="148" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sampler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1500">
-          <caret line="50" column="22" lean-forward="true" selection-start-line="50" selection-start-column="22" selection-end-line="50" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transformer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/featureselector.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1230">
-          <caret line="46" column="26" lean-forward="true" selection-start-line="46" selection-start-column="26" selection-end-line="46" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/featureclassifier.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="13" column="62" lean-forward="true" selection-start-line="13" selection-start-column="62" selection-end-line="13" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modeltester.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1470">
           <caret line="51" column="40" lean-forward="true" selection-start-line="5" selection-end-line="51" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/discretevalueencoder.py">
+    <entry file="file://$PROJECT_DIR$/factorencoder.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="720">
           <caret line="24" column="59" selection-start-line="24" selection-start-column="59" selection-end-line="24" selection-end-column="59" />
@@ -429,13 +413,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/reshape/concat.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5190">
-          <caret line="20" column="4" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/numpy/lib/arraysetops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-956">
@@ -454,13 +431,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1770">
           <caret line="106" column="6" selection-start-line="106" selection-start-column="6" selection-end-line="106" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/re.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="192" column="4" selection-start-line="192" selection-start-column="4" selection-end-line="192" selection-end-column="4" />
         </state>
       </provider>
     </entry>
@@ -492,62 +462,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/generic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1865">
-          <caret line="158" lean-forward="true" selection-start-line="158" selection-end-line="158" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="405" column="11" lean-forward="true" selection-start-line="405" selection-start-column="11" selection-end-line="405" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/transformer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="23" column="35" selection-start-line="23" selection-start-column="35" selection-end-line="23" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Downloads/AGTLibReversion.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
           <selected id="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/discretevalueencoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="11" column="35" lean-forward="true" selection-start-line="11" selection-start-column="35" selection-end-line="11" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/normalizer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="6" column="41" selection-start-line="6" selection-start-column="41" selection-end-line="6" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outlierhandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1667">
-          <caret line="71" column="38" selection-start-line="71" selection-start-column="38" selection-end-line="71" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/discretor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4397">
-          <caret line="156" column="33" selection-start-line="156" selection-start-column="33" selection-end-line="156" selection-end-column="33" />
         </state>
       </provider>
     </entry>
@@ -558,120 +476,293 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sampler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-747654503/builtins.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="3694" column="8" selection-start-line="3694" selection-start-column="8" selection-end-line="3694" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/skfeature/function/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/skfeature/utility/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/featurecombiner.py">
+    <entry file="file://$PROJECT_DIR$/temp.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/re.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3870">
-          <caret line="130" selection-start-line="130" selection-end-line="130" />
+        <state relative-caret-position="395">
+          <caret line="181" column="40" selection-start-line="181" selection-start-column="40" selection-end-line="181" selection-end-column="40" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/formatconverter.py">
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-747654503/_thread.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1770">
-          <caret line="60" column="30" selection-start-line="60" selection-start-column="30" selection-end-line="60" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="111">
+          <caret line="119" column="27" selection-start-line="119" selection-start-column="27" selection-end-line="119" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../ivfdata.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1504">
+          <caret line="1" column="10" selection-start-line="1" selection-start-column="10" selection-end-line="1" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="398" column="39" selection-start-line="398" selection-start-column="32" selection-end-line="398" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="39">
+          <caret line="235" column="25" lean-forward="true" selection-start-line="235" selection-start-column="25" selection-end-line="235" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/pandas/core/indexes/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-16231">
+          <caret line="106" column="7" lean-forward="true" selection-start-line="106" selection-start-column="7" selection-end-line="106" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/copy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="71" selection-start-line="71" selection-end-line="71" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/prettytable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="1065" selection-start-line="1065" selection-end-line="1065" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/reshape/concat.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="82">
+          <caret line="398" lean-forward="true" selection-start-line="398" selection-end-line="398" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/indexes/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="1742" column="21" lean-forward="true" selection-start-line="1742" selection-start-column="21" selection-end-line="1742" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/generic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="3609" selection-start-line="3609" selection-end-line="3609" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-747654503/pymssql.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-747654503/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="89">
+          <caret line="144" column="4" selection-start-line="144" selection-start-column="4" selection-end-line="144" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/featureclassifier.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="990">
-          <caret line="33" column="30" lean-forward="true" selection-start-line="33" selection-start-column="30" selection-end-line="33" selection-end-column="30" />
+        <state relative-caret-position="1128">
+          <caret line="47" column="79" selection-start-line="47" selection-start-column="79" selection-end-line="47" selection-end-column="79" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/featureselector.py">
+    <entry file="file://$PROJECT_DIR$/featurecombiner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="88" column="39" selection-start-line="88" selection-start-column="39" selection-end-line="88" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-2561">
+          <caret line="5" column="47" selection-start-line="5" selection-start-column="47" selection-end-line="5" selection-end-column="47" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/reporter.py">
+    <entry file="file://$PROJECT_DIR$/formatconverter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2910">
-          <caret line="97" column="21" lean-forward="true" selection-start-line="97" selection-start-column="21" selection-end-line="97" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nanhandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-150">
-          <caret line="13" column="11" lean-forward="true" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-1193">
+          <caret line="5" column="52" selection-start-line="5" selection-start-column="52" selection-end-line="5" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/misc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="70" column="44" selection-start-line="70" selection-start-column="44" selection-end-line="70" selection-end-column="44" />
+        <state relative-caret-position="1104">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/normalizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="744">
+          <caret line="32" selection-start-line="32" selection-end-line="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outlierhandler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1704">
+          <caret line="73" selection-start-line="73" selection-end-line="73" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nanhandler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/featureselector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2232">
+          <caret line="99" selection-start-line="99" selection-end-line="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wrapper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="22" selection-start-line="22" selection-end-line="22" />
+        <state relative-caret-position="168">
+          <caret line="26" column="11" selection-start-line="26" selection-start-column="11" selection-end-line="26" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sampler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1872">
+          <caret line="78" column="47" selection-start-line="78" selection-start-column="47" selection-end-line="78" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/control.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="672">
+          <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
           <folding>
-            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/base.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4073">
-          <caret line="236" column="4" lean-forward="true" selection-start-line="236" selection-start-column="4" selection-end-line="236" selection-end-column="4" />
+        <state relative-caret-position="597">
+          <caret line="120" column="25" selection-start-line="120" selection-start-column="25" selection-end-line="120" selection-end-column="25" />
+          <folding>
+            <element signature="e#15#26#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wrapper.py">
+    <entry file="file://$PROJECT_DIR$/transformer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1740">
-          <caret line="98" column="40" lean-forward="true" selection-start-line="98" selection-start-column="40" selection-end-line="98" selection-end-column="40" />
+        <state relative-caret-position="24">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/factorencoder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1320">
+          <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reporter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/discretor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="621">
+          <caret line="153" column="32" lean-forward="true" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modeltester.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-273">
-          <caret line="30" column="35" lean-forward="true" selection-start-line="30" selection-start-column="35" selection-end-line="30" selection-end-column="35" />
+        <state relative-caret-position="240">
+          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/dataprocessor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="126" lean-forward="true" selection-start-line="126" selection-end-line="126" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="100" column="79" selection-start-line="100" selection-start-column="79" selection-end-line="100" selection-end-column="79" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+  <component name="regexState">
+    <option name="map">
+      <map>
+        <entry key="flags" value="72" />
+        <entry key="mode" value="3" />
+        <entry key="regex" value="," />
+        <entry key="replacement" value=", " />
+        <entry key="text" value="/****** Script for SelectTopNRows command from SSMS  ******/ SELECT TOP 1000 [iET_ID]       ,[iCI_ID]       ,[dET_Date]       ,[sET_BoxNO]       ,[iET_OperaterID]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iET_OperaterID'       ,[iET_ManageID]       ,[dPGD_Date]       ,[iPGDOperaterID]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iPGDOperaterID'       ,[iPGDDiagnoseID]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iPGDDiagnoseID'       ,[iEmbryo_Count]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Count'       ,[iEmbryo_Common]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_More]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_Quit]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_Bad]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_Stop]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_Replant]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_Freeze]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_Send]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Common'       ,[iEmbryo_NoInsem]       ,[iEmbryo_NoAge]       ,[iEmbryo_CloseDown]       ,[iEmbryo_Split]       ,[iEmbryo_Single]       ,[iEmbryo_TrainDay]       ,[sEmbryo_HatchType]       ,[dEmbryo_ExplantDate]       ,[iEmbryo_All]       ,[dET_PreDate]       ,[iEmbryo_SelectPerson]       ,[iEmbryo_Small]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Small'       ,[iEmbryo_SmallShape]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_SmallShape'       ,[iEmbryo_SmallHigh]       ,[iEmbryo_SmallHigh5]       ,[iEmbryo_SmallHigh6]       ,[iEmbryo_SmallHigh7]       ,[iEmbryo_SmallShape5]       ,[iEmbryo_SmallShape6]       ,[iEmbryo_SmallShape7]       ,[iPerson_D1]       ,[iPerson_D2]       ,[iPerson_D3]       ,[iPerson_D5]       ,[iPerson_D6]       ,[iPerson_D7]       ,[dTime_D1]       ,[dTime_D2]       ,[dTime_D3]       ,[dTime_D5]       ,[dTime_D6]       ,[dTime_D7]       ,[iHatchPerson]       ,[iNewValue_184]       ,[iNewValue_185]       ,[iNewValue_186]       ,[iNewValue_187]       ,[iNewValue_188]       ,[iNewValue_189]       ,[iNewValue_190]       ,[fNewValue_191]       ,[fNewValue_192]       ,[fNewValue_193]       ,[iNewValue_194]       ,[iNewValue_195]       ,[iNewValue_196]       ,[iNewValue_197]       ,[iNewValue_198]       ,[iNewValue_199]       ,[iNewValue_200]       ,[iNewValue_201]       ,[iNewValue_202]       ,[iNewValue_203]       ,[iNewValue_204]       ,[iNewValue_205]       ,[iNewValue_206]       ,[iNewValue_207]       ,[iNewValue_208]       ,[iNewValue_209]       ,[iNewValue_210]       ,[iNewValue_211]       ,[iNewValue_212]       ,[iNewValue_213]       ,[iNewValue_214]       ,[iNewValue_215]       ,[iNewValue_216]       ,[iNewValue_217]       ,[iNewValue_218]       ,[iNewValue_219]       ,[iNewValue_220]       ,[iNewValue_221]       ,[iNewValue_222]       ,[sNewValue_223]       ,[sNewValue_224]       ,[sNewValue_225]       ,[sNewValue_226]       ,[iEmbryo_Count1]       ,[iEmbryo_Count2]       ,[iEmbryo_Count3]--exec dbo.info 'IVF_DATA.dbo.EmbryoTrainMain', 'iEmbryo_Count3'       ,[iEmbryo_Count4]       ,[iEmbryo_Count5]       ,[iEmbryo_Count6]       ,[iEmbryo_Count7]       ,[iEmbryo_Count8]       ,[iEmbryo_Count9]       ,[iEmbryo_Count10]       ,[iEmbryo_Count11]       ,[iEmbryo_Count12]       ,[iEmbryo_Count13]       ,[iEmbryo_Count14]       ,[iEmbryo_Count15]       ,[iNewValue_323]       ,[iNewValue_324]       ,[iNewValue_325]       ,[iNewValue_326]       ,[iNewValue_327]       ,[iNewValue_328]       ,[iNewValue_329]       ,[iNewValue_330]       ,[iNewValue_331]       ,[iNewValue_332]       ,[iNewValue_333]       ,[iNewValue_334]       ,[iNewValue_405]       ,[iNewValue_335]       ,[iNewValue_336]       ,[iNewValue_337]       ,[iNewValue_338]       ,[iNewValue_339]       ,[iNewValue_340]       ,[iNewValue_341]       ,[iNewValue_342]       ,[iNewValue_343]       ,[iNewValue_344]       ,[iNewValue_345]       ,[iNewValue_346]       ,[iNewValue_347]       ,[iNewValue_348]       ,[iNewValue_349]       ,[iNewValue_350]       ,[iNewValue_371]       ,[iNewValue_372]       ,[iNewValue_373]       ,[iNewValue_374]       ,[iNewValue_375]       ,[iNewValue_376]       ,[iNewValue_377]       ,[iNewValue_378]       ,[iNewValue_379]       ,[iNewValue_380]       ,[iNewValue_381]       ,[iNewValue_382]       ,[iNewValue_383]       ,[iNewValue_384]       ,[iNewValue_385]       ,[iNewValue_386]       ,[iNewValue_387]       ,[iNewValue_388]       ,[iNewValue_389]       ,[iNewValue_390]       ,[iNewValue_391]       ,[iNewValue_392]       ,[iNewValue_393]       ,[iNewValue_395]       ,[iNewValue_396]       ,[iNewValue_397]       ,[iNewValue_398]       ,[iNewValue_399]       ,[iNewValue_400]       ,[iNewValue_401]       ,[iNewValue_402]       ,[iNewValue_403]       ,[iNewValue_404]       ,[iNewValue_406]       ,[iNewValue_353]       ,[iNewValue_354]       ,[iNewValue_355]       ,[iNewValue_356]       ,[iNewValue_357]       ,[iNewValue_358]       ,[iNewValue_359]       ,[iNewValue_360]       ,[iNewValue_361]       ,[iNewValue_362]       ,[iNewValue_351]       ,[iNewValue_352]       ,[iNewValue_363]       ,[iNewValue_364]       ,[iNewValue_365]       ,[iNewValue_366]       ,[iNewValue_367]       ,[iNewValue_368]       ,[iNewValue_369]       ,[iNewValue_370]       ,[iNewValue_407]       ,[iNewValue_408]       ,[iNewValue_409]       ,[iNewValue_410]       ,[iNewValue_411]       ,[iNewValue_412]       ,[iNewValue_413]       ,[iNewValue_414]       ,[iNewValue_415]       ,[iNewValue_416]       ,[iNewValue_417]       ,[iNewValue_418]       ,[iNewValue_419]       ,[iNewValue_420]       ,[iNewValue_421]       ,[iNewValue_422]       ,[iNewValue_423]       ,[iNewValue_424]       ,[iNewValue_425]       ,[iNewValue_426]       ,[iNewValue_427]       ,[iNewValue_428]       ,[iNewValue_429]       ,[iNewValue_430]       ,[iNewValue_431]       ,[iNewValue_432]       ,[iNewValue_447]       ,[iNewValue_46]       ,[iNewValue_47]       ,[iNewValue_48]       ,[iNewValue_49]       ,[iNewValue_50]       ,[iNewValue_51]       ,[fNewValue_374]       ,[fEmbryo_AverageGrade]       ,[fEmbryo_ReplantAverageGrade]       ,[fNewValue_373]       ,[iEmbryo_Mature]       ,[fNewValue_59]       ,[fTC_Temperature]       ,[fTC_CO]       ,[fTC_PH]       ,[fTC_OFact]       ,[fTC_RT]       ,[fTC_RH]       ,[fTC_CRH]       ,[IsUpdate]       ,[iNewValue_448]       ,[iTC_ID]       ,[iHatchPersonCheck]       ,[iET_OperaterCheck]       ,[iEmbryo_SelectPersonCheck]       ,[iPerson_D4]       ,[dTime_D4]       ,[iGoodSmallCulture]       ,[iRepant_GoodEmbryo]       ,[iUseful_Embryo]       ,[iCheck_D1]       ,[iCheck_D2]       ,[iCheck_D3]       ,[iCheck_D4]       ,[iCheck_D5]       ,[iCheck_D6]       ,[iCheck_D7]   FROM [IVF_DATA].[dbo].[EmbryoTrainMain]" />
+      </map>
+    </option>
   </component>
 </project>

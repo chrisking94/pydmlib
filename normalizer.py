@@ -1,16 +1,16 @@
-from base import *
+from dataprocessor import *
 from transformer import TsfmFunction
 
 
 class Normalizer(RSDataProcessor):
-    def __init__(self, features2process, name='Normalizer', forecolor='black'):
+    def __init__(self, features2process, name='', forecolor='black'):
         RSDataProcessor.__init__(self, features2process, name, forecolor, 'pink', 'highlight')
 
 
 class FeatureNormalizer(Normalizer, TsfmFunction):
-    def __init__(self, features2process, name='FeatureNormalizer'):
-        Normalizer.__init__(self, features2process, name, 'blue')
+    def __init__(self, features2process, name=''):
         TsfmFunction.__init__(self, features2process, self._transform, breplace=True)
+        Normalizer.__init__(self, features2process, name, 'blue')
 
     def _transform(self, X):
         self.error('Not implemented!')
@@ -18,7 +18,7 @@ class FeatureNormalizer(Normalizer, TsfmFunction):
 
 class FNMinMax(FeatureNormalizer):
     def __init__(self, features2process):
-        FeatureNormalizer.__init__(self, features2process, 'MinMax归一')
+        FeatureNormalizer.__init__(self, features2process)
 
     def _transform(self, X):
         return (X - X.min()) / (X.max() - X.min())
@@ -26,15 +26,15 @@ class FNMinMax(FeatureNormalizer):
 
 class FNAtan(FeatureNormalizer):
     def __init__(self, features2process):
-        FeatureNormalizer.__init__(self, features2process, 'Atan归一')
+        FeatureNormalizer.__init__(self, features2process)
 
     def _transform(self, X):
         return np.emath.arctanh(X) * 2 / np.pi
 
 
 class FNZScore(FeatureNormalizer):
-    def __init__(self, feature2process):
-        FeatureNormalizer.__init__(self, feature2process, 'Z-Score标准化')
+    def __init__(self, features2process):
+        FeatureNormalizer.__init__(self, features2process)
 
     def _transform(self, X):
         return (X - X.mean()) / X.std()

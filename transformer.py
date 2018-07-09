@@ -1,9 +1,9 @@
-#coding=utf-8
-from base import *
+# coding=utf-8
+from dataprocessor import *
 
 
 class Transformer(RSDataProcessor):
-    def __init__(self, features2process, name='Transformer'):
+    def __init__(self, features2process, name=''):
         """
         对data[features2process]做变换
         :param features2process:

@@ -2,6 +2,7 @@ from base import *
 from misc import *
 import sklearn.model_selection as cv
 from wrapper import IWrap
+from dataprocessor import RSDataProcessor
 
 
 class ModelTester(RSObject):

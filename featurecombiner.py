@@ -1,9 +1,9 @@
-from base import *
+from dataprocessor import *
 import re
 
 
 class FeatureCombiner(RSDataProcessor):
-    def __init__(self, features2process, name='FeatureCombiner'):
+    def __init__(self, features2process, name=''):
         """
         特征组合
         :param features2process: 
@@ -61,7 +61,7 @@ class FCbArithmetical(FeatureCombiner):
         feat_in_opr = fregex.findall(operation)
         for feat in feat_in_opr[1:]:
             if feat not in features:
-                self.warning('%s\tbad operation, ignored!' % self._opr_to_readable(operation))
+                self.warning('%s bad operation, [%s] not found!' % (self._opr_to_readable(operation), feat))
                 return False
         return True
 

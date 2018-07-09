@@ -1,13 +1,40 @@
-from base import *
+from dataprocessor import *
 
 
 class FeatureClassifier(RSDataProcessor):
-    def __init__(self, features2process, name='FeatureClassifier'):
+    def __init__(self, features2process, contfeats, discfeats, labelfeats, name=''):
+        """
+        把X中的特征分为：continuous, discrete, label
+        :param features2process:
+        :param contfeats: 预设continuous features，且用于存放分到此类的特征名
+        :param discfeats: 预设discrete features, ...
+        :param labelfeats: 预设label features, ...
+        :param name:
+        """
         RSDataProcessor.__init__(self, features2process, name, 'blue', 'white', 'bold')
+        self.presetContFeats = set(contfeats.copy())
+        self.presetDiscFeats = set(discfeats.copy())
+        self.presetLabelFeats = set(labelfeats.copy())
+        self.contfeats = contfeats
+        self.discfeats = discfeats
+        self.labelfeats = labelfeats
+
+    def _classify(self, data, features, label):
+        self.error('Not implemented!')
+
+    def _process(self, data, features, label):
+        self.contfeats.clear()
+        self.discfeats.clear()
+        self.labelfeats.clear()
+        self._classify(data, features, label)
+        self.msg('continuous=%d\tdiscrete=%d\tlabel=%d' %
+                 (self.contfeats.__len__(), self.discfeats.__len__(), self.labelfeats.__len__())
+                 , 'count')
+        return data
 
 
 class FCUniqueItemCountGe(FeatureClassifier):
-    def __init__(self, features2process, cont_feat_threshold, contfeats, discfeats):
+    def __init__(self, features2process, cont_feat_threshold, *args):
         """
         通过特征取值类型的个数来区分连续、离散特征
         :param features2process:
@@ -18,16 +45,10 @@ class FCUniqueItemCountGe(FeatureClassifier):
         :param discfeats: list, 用于存储分类结果中离散特征
                             可以预设离散特征，在fit_transform时此列表中预设的特征不会被划分到contfeats
         """
-        FeatureClassifier.__init__(self, features2process, '值类型数>=%d为连续特征' % ( cont_feat_threshold))
+        FeatureClassifier.__init__(self, features2process, *args, name='值类型数分类')
         self.threshold = cont_feat_threshold
-        self.presetContFeats = contfeats.copy()
-        self.presetDiscFeats = discfeats.copy()
-        self.contfeats = contfeats
-        self.discfeats = discfeats
 
-    def _process(self, data, features, label):
-        self.contfeats.clear()
-        self.discfeats.clear()
+    def _classify(self, data, features, label):
         cntdict = {}
         for col in features:
             cnt = data[col].unique().shape[0]
@@ -42,6 +63,15 @@ class FCUniqueItemCountGe(FeatureClassifier):
                     self.discfeats.append(col)
                 else:
                     self.contfeats.append(col)
-        self.msg('%d continuous features, %d discrete features.' % (self.contfeats.__len__(), self.discfeats.__len__()))
         return data
+
+
+class FCLabel(FeatureClassifier):
+    def __init__(self, features2process, *args):
+        FeatureClassifier.__init__(self, features2process, *args, name='<?>特征分类器')
+
+    def _classify(self, data, features, label):
+        self.contfeats.extend(features['@c'])
+        self.discfeats.extend(features['@d'])
+        self.labelfeats.extend(features['@l'])
 

@@ -1,4 +1,4 @@
-from base import *
+from dataprocessor import *
 from sklearn.feature_selection import SelectKBest
 from scipy.stats import pearsonr
 from sklearn.feature_selection import chi2
@@ -8,42 +8,57 @@ from sklearn.linear_model import LogisticRegression
 
 
 class FeatureSelector(RSDataProcessor):
-    def __init__(self, features2process, threshold=0.2, name='FeatureSelector'):
+    def __init__(self, features2process, feature_count=0.02, name=''):
         """"
         选择最佳特征
-        :param threshold:float, 0~1
+        :param feature_count: 2 types
+                        1. float, 0~1,  feature_count = X.shape[1]*feature_count
+                        2. int, 1~X.shape[0]
         """
         RSDataProcessor.__init__(self, features2process, name, 'pink', 'white', 'highlight')
-        self.threshold = threshold
+        self.feature_count = feature_count
+        self.scores = None
 
     def _process(self, data, features, label):
-        feat_count0 = data.shape[1]
+        feat_count0 = data.shape[1] - 1
         sdata, starget = data[features], data[label]
         scores = self.score(sdata, starget)
-        scores = pd.Series(scores)
+        scores = pd.Series(scores, index=features)
         # normalization
-        scores = (scores - scores.min()) / (scores.max() - scores.min())
-        scores[scores.isnull()] = 0
-        fdata = data.drop(columns=sdata.columns[scores < self.threshold])
-        self.msg('feature count  %d ==> %d' % (feat_count0, fdata.shape[1]))
+        scores = scores / scores.sum()
+        if scores.isnull().sum() != 0:
+            self.error('scores contains null.')
+        self.scores = scores.sort_values(0, ascending=False)
+        if self.feature_count < 1:
+            feature_count = int(self.feature_count * features.__len__())
+        else:
+            feature_count = self.feature_count
+        self.pie(top=feature_count)
+        fdata = data.drop(columns=scores.nsmallest(features.__len__()-feature_count).index)
+        self.msg('%d ==> %d' % (feat_count0, fdata.shape[1] - 1), 'feature count')
         return fdata
 
     def score(self, data, target):
         self.error('Not implemented!')
 
+    def pie(self, top=10):
+        part = self.scores.iloc[:top]
+        part = part.append(pd.Series([1-part.sum()], index=['其他']))
+        labels = part.index
+        fracs = part.values * 100
+        figsize = 10
+        plt.figure(figsize=(figsize, figsize))
+        plt.subplot()
+        plt.pie(fracs, labels=labels, autopct='%1.1f%%', pctdistance=0.9, shadow=False, rotatelabels=True)
+        plt.show()
 
-class FSNone(FeatureSelector):
-    def __init__(self, features2process):
-        FeatureSelector.__init__(self, features2process, name='不做特征选择')
-
-    def _process(self, data, features, label):
-        self.msgtime()
-        return data.copy()
+    def __str__(self):
+        return '%s: \n%s' % (self.coloredname, RSTable(self.scores).__str__())
 
 
 class FSChi2(FeatureSelector):
-    def __init__(self, features2process, threshold=0.2):
-        FeatureSelector.__init__(self, features2process, threshold, name='χ²特征选择')
+    def __init__(self, features2process, feature_count=0.2):
+        FeatureSelector.__init__(self, features2process, feature_count, name='χ²特征选择')
 
     def score(self, data, target):
         skb = SelectKBest(chi2, k='all')
@@ -52,8 +67,8 @@ class FSChi2(FeatureSelector):
 
 
 class FSRFC(FeatureSelector):
-    def __init__(self, features2process, threshold=0.2):
-        FeatureSelector.__init__(self, features2process, threshold, name='rfc特征选择')
+    def __init__(self, features2process, feature_count=0.2):
+        FeatureSelector.__init__(self, features2process, feature_count, name='rfc特征选择')
 
     def score(self, data, target):
         clf = RandomForestClassifier()
@@ -62,8 +77,8 @@ class FSRFC(FeatureSelector):
 
 
 class FSmRMR(FeatureSelector):
-    def __init__(self, features2process, threshold=0.2):
-        FeatureSelector.__init__(self, features2process, threshold, name='mRMR特征选择')
+    def __init__(self, features2process, feature_count=0.2):
+        FeatureSelector.__init__(self, features2process, feature_count, name='mRMR特征选择')
 
     def score(self, data, target):
         F = mrmr(data.values, target)
@@ -73,14 +88,14 @@ class FSmRMR(FeatureSelector):
 
 
 class FSManual(FeatureSelector):
-    def __init__(self, features2process, name='手动特征选择', b_except=False):
+    def __init__(self, features2process, b_except=False):
         """
         select feature manually
         :param features2process:
         :param b_except: if True, select features who are not in features2process
         :param name:
         """
-        FeatureSelector.__init__(self, features2process, name=name)
+        FeatureSelector.__init__(self, features2process)
         self.b_except = b_except
 
     def _process(self, data, features, label):
@@ -98,7 +113,7 @@ class FSL1Regularization(FeatureSelector):
         :param features2process:
         :param C:
         """
-        FeatureSelector.__init__(self, features2process, threshold=0.001, name='L1正则化特征选择')
+        FeatureSelector.__init__(self, features2process, feature_count=0.001, name='L1正则化特征选择')
         self.C = C
 
     def _score(self, data, target):

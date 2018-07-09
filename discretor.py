@@ -1,8 +1,8 @@
-from base import *
+from dataprocessor import *
 
 
 class Discretor(RSDataProcessor):
-    def __init__(self, features2process, name='Discretor'):
+    def __init__(self, features2process, name=''):
         RSDataProcessor.__init__(self, features2process, name, 'red', 'white')
 
 
@@ -130,7 +130,7 @@ class DsctMonospace(Discretor):
         等宽离散
         :param bin_amount:默认分10桶
         """
-        Discretor.__init__(self, features2process, '等宽离散，bin_amount=%d' % bin_amount)
+        Discretor.__init__(self, features2process, '等宽离散')
         self.bin_amount = bin_amount
 
     def _process(self, data, features, label):
