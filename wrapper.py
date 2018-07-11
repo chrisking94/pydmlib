@@ -2,7 +2,9 @@ from dataprocessor import *
 import sklearn.model_selection as cv
 from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection._split import BaseCrossValidator
 from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
+from sklearn.ensemble import RandomForestClassifier
 
 
 class Wrapper(RSDataProcessor):
@@ -78,6 +80,7 @@ class WrpClassifier(Wrapper):
         Wrapper.__init__(self, features2process, classifier, name)
         self.test_size = test_size
         self.b_train = b_train
+        self.plots = None
 
     def _process(self, data, features, label):
         """
@@ -91,6 +94,10 @@ class WrpClassifier(Wrapper):
         else:
             X_train, X_test, y_train, y_test = cv.train_test_split(data[features], data[label], test_size=self.test_size, random_state=0)
         X_train, X_test = X_train.values, X_test.values
+        self._run(X_train, y_train, X_test, y_test)
+        self.show_result()
+
+    def _run(self, X_train, y_train, X_test, y_test):
         if self.b_train:
             self.msg('training...')
             self.processor.fit(X_train, y_train)
@@ -103,40 +110,34 @@ class WrpClassifier(Wrapper):
         else:
             y_prob = None
             y_pred = self.processor.predict(X_test)
+        self.y_pred = y_pred
         self.testscore = (y_pred == y_test).sum() / y_test.shape[0]
+        self.cm = ConfusionMatrix(y_test, y_pred, self.processor.classes_, name='CM of %s' % self.name)
+        self.fbs = FBetaScore(y_test, y_pred, 'FBS of %s' % self.name)
+        self.plots = [self.cm, self.fbs]
+        if y_prob is not None:
+            self.roc = ROCCurve(y_test, y_prob[:, -1], title='ROC of %s' % self.name)
+            self.pr = PRCurve(y_test, y_prob[:, -1], title='PR of %s' % self.name)
+            self.plots.extend([self.roc, self.pr])
+        else:
+            self.roc = None
+            self.pr = None
+
+    def show_result(self):
         self.msg('%f' % (self.trainscore * 100), '训练集得分')
         self.msg('%f' % (self.testscore * 100), '测试集得分')
-        # display result
-        naxes = 4
+        # plots
+        naxes = self.plots.__len__()
         apr = 3  # axes per row
         if naxes % apr != 0 and naxes % 2 == 0:
             apr = 2
-        if y_prob is None:
-            naxes -= 2
         nrows, ncols = divmod(naxes, apr)
         nrows += 1
         ncols = apr if nrows > 1 else ncols
         fig = plt.figure(figsize=(5.5*ncols, 5*nrows))
-        i = 1
-        # --Confusion Matrix
-        self.cm = ConfusionMatrix(y_test, y_pred, self.processor.classes_, name='CM of %s' % self.name)
-        self.cm.plot(fig.add_subplot(nrows, ncols, i))
-        i += 1
-        # --FBetaScore
-        self.fbs = FBetaScore(y_test, y_pred, 'FBS of %s' % self.name)
-        self.fbs.plot(fig.add_subplot(nrows, ncols, i))
-        i += 1
-        if y_prob is not None:
-            # --ROC Curve
-            self.roc = ROCCurve(y_test, y_prob[:, -1], title='ROC of %s' % self.name)
-            self.roc.plot(fig.add_subplot(nrows, ncols, i))
-            i += 1
-            # --PR Curve
-            self.pr = PRCurve(y_test, y_prob[:, -1], title='PR of %s' % self.name)
-            self.pr.plot(fig.add_subplot(nrows, ncols, i))
-            i += 1
+        for i, axe in enumerate(self.plots):
+            axe.plot(fig.add_subplot(nrows, ncols, i+1))
         plt.show()
-        return data
 
     def get_report_title(self, *args):
         return ['训练集得分', '测试集得分']
@@ -202,6 +203,48 @@ class WrpCluster(Wrapper):
         pass
 
 
+class WrpCrossValidator(WrpClassifier, pd.DataFrame):
+    def __init__(self, features2process, validator, estimator=None, name=''):
+        """
+        Wrapper for Cross Validator
+        :param features2process:
+        :param validator:
+        :param estimator: default RandomForestClassifier
+        :param name:
+        """
+        if name == '':
+            name = validator.__class__.__name__
+        name = 'WrpCV-%s' % name
+        if estimator is None:
+            estimator = RandomForestClassifier()
+        pd.DataFrame.__init__(self)
+        WrpClassifier.__init__(self, features2process, estimator, name=name)
+        self.cv = validator
+
+    def _process(self, data, features, label):
+        X, y = data[features].values, data[label].values
+        train_scores, test_scores, roc_aucs = [], [], []
+        good_samples, bad_samples = np.array([]), np.array([])
+        n = self.cv.get_n_splits()
+        for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
+            self.msg('running...', '%d/%d' % (i+1, n))
+            train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
+            self._run(train_X, train_y, test_X, test_y)
+            train_scores.append(self.trainscore)
+            test_scores.append(self.testscore)
+            if self.roc is not None:
+                roc_aucs.append(self.roc.auc())
+            good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
+            bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
+        self.good_samples = data.iloc[good_samples, ]
+        self.bad_samples = data.iloc[bad_samples, ]
+        pd.DataFrame.__init__(self, data={'train_score': train_scores,
+                                          'test_score': test_scores,
+                                          'roc_auc': roc_aucs})
+        self.msg('\n%s' % RSTable(self.mean()), 'mean')
+        return data
+
+
 class WrpUnknown(Wrapper):
     def __init__(self, features2process, obj):
         Wrapper.__init__(self, features2process, obj, name='WrpUk-%s' % obj.__class__.__name__)
@@ -227,6 +270,8 @@ def IWrap(features2process, processor):
         return WrpDataProcessor(features2process, processor, bXonly=False)
     elif isinstance(processor, GridSearchCV):
         return WrpValidator(features2process, processor)
+    elif isinstance(processor, BaseCrossValidator):
+        return WrpCrossValidator(features2process, processor)
     else:
         return WrpUnknown(features2process, processor)
 
