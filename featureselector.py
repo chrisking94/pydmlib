@@ -33,7 +33,7 @@ class FeatureSelector(RSDataProcessor):
             feature_count = int(self.feature_count * features.__len__())
         else:
             feature_count = self.feature_count
-        self.pie(top=feature_count)
+        self.bar(top=feature_count)
         fdata = data.drop(columns=scores.nsmallest(features.__len__()-feature_count).index)
         self.msg('%d ==> %d' % (feat_count0, fdata.shape[1] - 1), 'feature count')
         return fdata
@@ -41,15 +41,34 @@ class FeatureSelector(RSDataProcessor):
     def score(self, data, target):
         self.error('Not implemented!')
 
+    def _get_score_part(self, top):
+        part = self.scores[self.scores > 0.01]
+        if part.shape[0] > top:
+            part = self.scores[:top]
+        part = part.append(pd.Series([1 - part.sum()], index=['其他']))
+        part.sort_values(ascending=True, inplace=True)
+        return part
+
     def pie(self, top=10):
-        part = self.scores.iloc[:top]
-        part = part.append(pd.Series([1-part.sum()], index=['其他']))
+        part = self._get_score_part(top)
         labels = part.index
         fracs = part.values * 100
-        figsize = 10
+        figsize = part.shape[0] / 6
         plt.figure(figsize=(figsize, figsize))
         plt.subplot()
         plt.pie(fracs, labels=labels, autopct='%1.1f%%', pctdistance=0.9, shadow=False, rotatelabels=True)
+        plt.show()
+
+    def bar(self, top=10):
+        part = self._get_score_part(top)
+        labels = part.index
+        fracs = part.values * 100
+        y_pos = np.arange(len(fracs))
+        plt.figure(figsize=(5, part.shape[0]/5))
+        plt.subplot()
+        plt.barh(y_pos, fracs, alpha=.8)
+        plt.yticks(y_pos, labels)
+        plt.title('Feature importance percentage.')
         plt.show()
 
     def __str__(self):

@@ -5,7 +5,7 @@ from wrapper import IWrap
 from dataprocessor import RSDataProcessor
 
 
-class ModelTester(RSObject):
+class Integrator(RSObject):
     def __init__(self, name='ModelTester'):
         RSObject.__init__(self, name, 'red', 'default', 'highlight')
 
@@ -16,7 +16,7 @@ class ModelTester(RSObject):
 class ProcessorSequence(RSDataProcessor, RSList):
     def __init__(self, copyfrom=()):
         self.checkpoints = CheckPointList()
-        RSList.__init__(self, [self._wrapProcr(x) for x in copyfrom])
+        RSList.__init__(self, [self._wrap_procr(x) for x in copyfrom])
         RSDataProcessor.__init__(self, None, 'ProcessorSequence', 'random', 'random')
         self.report_line = []
         self.report_title = []
@@ -58,7 +58,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
         self.report_table = pd.DataFrame(self.report_line, index=self.report_title)
         return data
 
-    def _wrapProcr(self, procr):
+    def _wrap_procr(self, procr):
         if isinstance(procr, RSDataProcessor):
             if isinstance(procr, TCCheckPoint):
                 self.checkpoints.append(procr)
@@ -105,7 +105,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
         """
         index = self.get_index(key)
         self.reset(index+1)
-        RSList.__setitem__(self, key, self._wrapProcr(value))
+        RSList.__setitem__(self, key, self._wrap_procr(value))
 
     def remove(self, id_index):
         """
@@ -128,24 +128,24 @@ class ProcessorSequence(RSDataProcessor, RSList):
         """
         index = self.get_index(index)
         self.reset(index)
-        RSList.insert(self, index, self._wrapProcr(object))
+        RSList.insert(self, index, self._wrap_procr(object))
 
     def append(self, object):
-        RSList.append(self, self._wrapProcr(object))
+        RSList.append(self, self._wrap_procr(object))
 
     def extend(self, iterable):
-        RSList.extend(self, [self._wrapProcr(x) for x in iterable])
+        RSList.extend(self, [self._wrap_procr(x) for x in iterable])
 
     def __str__(self):
         return self.info()
 
     def __add__(self, other):
-        if isinstance(other, ProcessorSequence):
-            ret = self[:-1]
-            ret.extend(other[1:])
-            return ret
+        ret = self.copy()
+        if isinstance(other, list):
+            ret.extend(other)
         else:
-            self.error('cannot add with %s object' % other.__class__.__name__)
+            ret.append(other)
+        return ret
 
 
 class CheckPointList(RSList):
@@ -157,7 +157,7 @@ class CheckPointList(RSList):
                             columns=['id', 'strid', 'name', 'info'])
 
 
-class MTAutoGrid(ModelTester, RSList):
+class MTAutoGrid(Integrator, RSList):
     def __init__(self, data_procr_grid=None, copyfrom=()):
         """
         自动化网格测试
@@ -170,7 +170,7 @@ class MTAutoGrid(ModelTester, RSList):
                              [procrn1, procrn2, ...]]
         """
         RSList.__init__(self, copyfrom)
-        ModelTester.__init__(self, 'AutoGridModelTester')
+        Integrator.__init__(self, 'AutoGridModelTester')
         if data_procr_grid is not None:
             #  format processor grid
             if data_procr_grid.__len__() == 0 or not isinstance(data_procr_grid[-1], TCEnd):
@@ -291,7 +291,7 @@ class TesterController(RSDataProcessor):
 
 
 class TCCheckPoint(TesterController):
-    def __init__(self, name = '', data=None):
+    def __init__(self, name='', data=None):
         if name == '':
             TesterController.__init__(self, 'TCCP')
             self.name = 'TCCP-%d' % self.id
@@ -304,9 +304,12 @@ class TCCheckPoint(TesterController):
         self.copy_count = 0
 
     def fit_transform(self, data):
-        self.msgtime(self.colorstr('++check+point' * 8, 0, self.msgforecolor, self.msgbackcolor))
-        if self.data is None:
+        self.msgtime(self.colorstr('👆check-point' * 5, 0, self.msgforecolor, self.msgbackcolor))
+        if data is not None:
             self.data = data
+            self.msg('input data saved.')
+        elif self.data is not None:
+            self.msg('data exported.')
         return self.data
 
     def is_me(self, id_name):
@@ -318,7 +321,7 @@ class TCCheckPoint(TesterController):
     def is_available(self):
         return self.data is not None
 
-    def copy(self):
+    def copy(self, deep=False):
         if self.strid == '':
             obj = self.__class__()
         else:
@@ -335,6 +338,12 @@ class TCCheckPoint(TesterController):
 
     def reset(self):
         self.data = None
+
+    def __rshift__(self, other):
+        if self.data is not None:
+            return TCCheckPoint(data=IWrap(None, other)(self.data))
+        else:
+            self.error('No data held in by this check point.')
 
 
 class TCBreak(TCCheckPoint):

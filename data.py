@@ -1,7 +1,6 @@
 from base import pd, time, RSObject, re, np
 import pymssql
 from collections import Iterable
-from wrapper import IWrap
 
 
 class RSDataMetaclass(type):
@@ -207,13 +206,13 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
             item = pd.DataFrame.__getitem__(self, item)
             return item
 
-    # def __gt__(self, processor):
-    #     """
-    #     transfer self to processor
-    #     :param processor: object which can process RSData instance
-    #     :return:
-    #     """
-    #     return IWrap(None, processor)(self)
+    def __rshift__(self, other):
+        from wrapper import IWrap, WrpUnknown
+        wrp = IWrap(None, other)
+        if isinstance(wrp, WrpUnknown):
+            pd.DataFrame.__rshift__(self, other)
+        else:
+            return wrp(self)
 
 
 class MSSqlData(RSData):

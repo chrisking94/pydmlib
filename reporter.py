@@ -1,5 +1,5 @@
 from dataprocessor import RSDataProcessor
-from misc import ConfusionMatrix, ROCCurve
+from base import np
 
 
 class Reporter(RSDataProcessor):
@@ -51,64 +51,5 @@ class DRBrief(DataReporter):
                 else:
                     self.msg('%s -> %s' % (col, dict(zip(items,cnts)).__str__()))
         return data
-
-    def get_report_title(self, *args):
-        return ['data.shape']
-
-    def get_report(self):
-        return [self.data_shape.__str__()]
-
-
-class ResultReporter(Reporter):
-    def __init__(self, name='ResultReporter'):
-        Reporter.__init__(self, None, name)
-
-
-class ClfResult(object):
-    def __init__(self, classes, trainscore, testscore, y_prob, y_pred, y_true, clfname):
-        self.labels = classes
-        self.trainscore = trainscore
-        self.testscore = testscore
-        self.y_prob = y_prob
-        self.y_pred = y_pred
-        self.y_true = y_true
-        self.clfname = clfname
-
-
-class RRConfusionMatrix(ResultReporter):
-    def __init__(self, name='RR-ConfusionMatrix'):
-        ResultReporter.__init__(self, name)
-        self.cm = None
-
-    def _process(self, data, features, label):
-        self.cm = ConfusionMatrix(data.y_true, data.y_pred, data.labels, name='CM of %s' % data.clfname)
-        self.cm.plot(2)
-        return data
-
-    def get_report_title(self, *args):
-        titles = ['c%s正确率' % str(int(x)) for x in self.cm.columns]
-        return titles
-
-    def get_report(self):
-        scores = [self.cm.normalized()[i, i] for i in range(self.cm.shape[0])]
-        return scores
-
-
-class RRRocCurve(ResultReporter):
-    def __init__(self, name='RR-RocCurve'):
-        ResultReporter.__init__(self, name)
-        self.roc = None
-
-    def _process(self, data, features, label):
-        self.roc = ROCCurve(data.y_true, data.y_prob[:, -1], title='ROC of %s' % data.clfname)
-        self.roc.plot(label=data.clfname)
-        return data
-
-    def get_report_title(self, *args):
-        return ['roc-auc']
-
-    def get_report(self):
-        return [self.roc.auc()]
-
 
 

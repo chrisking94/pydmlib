@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9501bde3-92e8-4ba7-b542-eeeac253d76a" name="Default" comment="" />
+    <list default="true" id="9501bde3-92e8-4ba7-b542-eeeac253d76a" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataprocessor.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataprocessor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/factorencoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/factorencoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/featureselector.py" beforeDir="false" afterPath="$PROJECT_DIR$/featureselector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/misc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modeltester.py" beforeDir="false" afterPath="$PROJECT_DIR$/integration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/reporter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/wrapper.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,8 +25,8 @@
       <file leaf-file-name="data.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="567">
-              <caret line="113" column="40" lean-forward="true" selection-start-line="113" selection-start-column="40" selection-end-line="113" selection-end-column="40" />
+            <state relative-caret-position="24">
+              <caret line="211" column="39" selection-start-line="211" selection-start-column="39" selection-end-line="211" selection-end-column="39" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -23,11 +34,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="control.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/control.py">
+      <file leaf-file-name="dataprocessor.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dataprocessor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="672">
-              <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
+            <state relative-caret-position="1848">
+              <caret line="78" column="46" selection-start-line="78" selection-start-column="46" selection-end-line="78" selection-end-column="46" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -38,53 +49,38 @@
       <file leaf-file-name="transformer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/transformer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="24">
+            <state relative-caret-position="72">
               <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="base.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/base.py">
+      <file leaf-file-name="featureselector.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/featureselector.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="597">
-              <caret line="120" column="25" selection-start-line="120" selection-start-column="25" selection-end-line="120" selection-end-column="25" />
+            <state relative-caret-position="1392">
+              <caret line="64" column="33" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wrapper.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wrapper.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="311">
+              <caret line="92" column="8" selection-start-line="92" selection-start-column="8" selection-end-line="92" selection-end-column="55" />
               <folding>
-                <element signature="e#15#26#0" expanded="true" />
+                <element signature="e#0#27#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sampler.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sampler.py">
+      <file leaf-file-name="nanhandler.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/nanhandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1872">
-              <caret line="78" column="47" selection-start-line="78" selection-start-column="47" selection-end-line="78" selection-end-column="47" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dataprocessor.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/dataprocessor.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-772">
-              <caret line="77" column="21" lean-forward="true" selection-start-line="77" selection-start-column="21" selection-end-line="77" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="modeltester.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modeltester.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="456">
+              <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -92,8 +88,8 @@
       <file leaf-file-name="reporter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/reporter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="192">
-              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+            <state relative-caret-position="696">
+              <caret line="30" column="11" selection-start-line="30" selection-start-column="11" selection-end-line="30" selection-end-column="11" />
               <folding>
                 <element signature="e#0#41#0" expanded="true" />
               </folding>
@@ -101,20 +97,26 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="discretor.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/discretor.py">
+      <file leaf-file-name="misc.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/misc.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
-              <caret line="153" column="32" lean-forward="true" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
+            <state relative-caret-position="288">
+              <caret line="14" column="32" selection-start-line="14" selection-start-column="32" selection-end-line="14" selection-end-column="32" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="factorencoder.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/factorencoder.py">
+      <file leaf-file-name="integration.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/integration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1320">
-              <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
+            <state relative-caret-position="7680">
+              <caret line="324" column="28" selection-start-line="324" selection-start-column="28" selection-end-line="324" selection-end-column="28" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -130,10 +132,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>pd.concat</find>
-      <find>cv</find>
-      <find>__init__</find>
-      <find>ret = func(self, *arg, **kwargs)</find>
       <find>pydmlib.</find>
       <find>start</find>
       <find>_process(self, data, features, label)</find>
@@ -160,6 +158,10 @@
       <find>DVEOneHot</find>
       <find>feature2process</find>
       <find>featues2process</find>
+      <find>([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 3])</find>
+      <find>3</find>
+      <find>RSPlot\.__init__\(self\, name\=title\)\n        \# y_score can be the probability of the POSITIVE class\,\.\.\.\n\n    def _draw\(self\, ax\, \*\*kwargs\)\:\n        ax\.set_title\(self\.name\)\n        ax\.set_xlabel\(\'FP Rate\'\)\n        ax\.set_ylabel\(\'TP Rate\'\)\n        ax\.set_xlim\(0\, 1\.01\)\n        ax\.set_ylim\(0\, 1\.01\)\n        \# ax\.legend\(loc\=\&quot;lower right\&quot;\)\n        ax\.plot\(self\.fpr\, self\.tpr\, lw\=1\, \*\*kwargs\)\n        ax\.plot\(\[0\, 1\]\, \[0\, 1\]\, linestyle\=\'\-\-\'\)\n        \# ax\.plot\(self\.thresholds\, self\.tpr\)\n        \# ax\.plot\(self\.fpr\, self\.thresholds\)\n        ax\.text\(0\.7\, 0\.1\, \'AUC\=\%\.3f\' \% self\.auc\(\)\, horizontalalignment\=\'center\'\,\n                verticalalignment\=\'center\'\, fontdict\=\{\'size\'\:20\}\)\n\n    def auc\(self\)\:\n        return auc\(self\.fpr\, self\.tpr\)</find>
+      <find>def __init__\(self\, y_true\, y_score\, pos_label\=None\, title\=\'ROC\-Curve\'\)\:\n        fpr\, tpr\, thresholds \= precision_recall_curve\(y_true\, y_score\, pos_label\=pos_label\)\n        pd\.DataFrame\.__init__\(self\, data\=\{\'fpr\'\: fpr\, \'tpr\'\: tpr\, \'thresholds\'\: thresholds\}\)\n        RSPlot\.__init__\(self\, name\=title\)\n        \# y_score can be the probability of the POSITIVE class\,\.\.\.\n\n    def _draw\(self\, ax\, \*\*kwargs\)\:\n        ax\.set_title\(self\.name\)\n        ax\.set_xlabel\(\'FP Rate\'\)\n        ax\.set_ylabel\(\'TP Rate\'\)\n        ax\.set_xlim\(0\, 1\.01\)\n        ax\.set_ylim\(0\, 1\.01\)\n        \# ax\.legend\(loc\=\&quot;lower right\&quot;\)\n        ax\.plot\(self\.fpr\, self\.tpr\, lw\=1\, \*\*kwargs\)\n        ax\.plot\(\[0\, 1\]\, \[0\, 1\]\, linestyle\=\'\-\-\'\)\n        \# ax\.plot\(self\.thresholds\, self\.tpr\)\n        \# ax\.plot\(self\.fpr\, self\.thresholds\)\n        ax\.text\(0\.7\, 0\.1\, \'AUC\=\%\.3f\' \% self\.auc\(\)\, horizontalalignment\=\'center\'\,\n                verticalalignment\=\'center\'\, fontdict\=\{\'size\'\:20\}\)\n\n    def auc\(self\)\:\n        return auc\(self\.fpr\, self\.tpr\)</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;&quot;&quot;</replace>
@@ -170,6 +172,8 @@
       <replace>dataprocessor</replace>
       <replace>FEOneHot</replace>
       <replace>features2process</replace>
+      <replace>precision</replace>
+      <replace>recall</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -186,11 +190,9 @@
         <option value="$PROJECT_DIR$/stacked_generalization.py" />
         <option value="$PROJECT_DIR$/temp.py" />
         <option value="$PROJECT_DIR$/ivfdata.py" />
-        <option value="$PROJECT_DIR$/misc.py" />
         <option value="$PROJECT_DIR$/control.py" />
         <option value="$PROJECT_DIR$/discretevalueencoder.py" />
         <option value="$PROJECT_DIR$/__init__.py" />
-        <option value="$PROJECT_DIR$/factorencoder.py" />
         <option value="$PROJECT_DIR$/discretor.py" />
         <option value="$PROJECT_DIR$/featureclassifier.py" />
         <option value="$PROJECT_DIR$/featurecombiner.py" />
@@ -198,22 +200,25 @@
         <option value="$PROJECT_DIR$/normalizer.py" />
         <option value="$PROJECT_DIR$/outlierhandler.py" />
         <option value="$PROJECT_DIR$/sampler.py" />
-        <option value="$PROJECT_DIR$/wrapper.py" />
         <option value="$PROJECT_DIR$/nanhandler.py" />
-        <option value="$PROJECT_DIR$/featureselector.py" />
         <option value="$PROJECT_DIR$/base.py" />
         <option value="$PROJECT_DIR$/transformer.py" />
-        <option value="$PROJECT_DIR$/reporter.py" />
         <option value="$PROJECT_DIR$/modeltester.py" />
         <option value="$PROJECT_DIR$/dataprocessor.py" />
+        <option value="$PROJECT_DIR$/integration.py" />
+        <option value="$PROJECT_DIR$/factorencoder.py" />
+        <option value="$PROJECT_DIR$/reporter.py" />
+        <option value="$PROJECT_DIR$/featureselector.py" />
+        <option value="$PROJECT_DIR$/misc.py" />
         <option value="$PROJECT_DIR$/data.py" />
+        <option value="$PROJECT_DIR$/wrapper.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="364" />
-    <option name="y" value="205" />
-    <option name="width" value="1400" />
+    <option name="x" value="297" />
+    <option name="y" value="188" />
+    <option name="width" value="1398" />
     <option name="height" value="805" />
   </component>
   <component name="ProjectView">
@@ -318,38 +323,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="364" y="205" width="1400" height="805" extended-state="0" />
+    <frame x="297" y="188" width="1398" height="805" extended-state="0" />
     <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15050651" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Regex Tester" order="7" weight="0.2410148" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.31366906" />
-      <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15028901" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.42670536" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15028901" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.31366906" />
-      <window_info anchor="bottom" id="Regex Tester" order="7" weight="0.2410148" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Messages" order="7" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.3266187" />
-      <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32656023" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -359,52 +353,10 @@
     <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/modeltester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1470">
-          <caret line="51" column="40" lean-forward="true" selection-start-line="5" selection-end-line="51" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/factorencoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="24" column="59" selection-start-line="24" selection-start-column="59" selection-end-line="24" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/utils/multiclass.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="42" column="4" selection-start-line="42" selection-start-column="4" selection-end-line="42" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/metrics/classification.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5550">
-          <caret line="203" column="16" selection-start-line="203" selection-start-column="16" selection-end-line="203" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-747654503/numpy/core/multiarray.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="23" column="20" selection-start-line="23" selection-start-column="20" selection-end-line="23" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/numpy/lib/arraysetops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-956">
           <caret line="112" column="4" selection-start-line="112" selection-start-column="4" selection-end-line="112" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/metrics/ranking.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="452" column="29" selection-start-line="452" selection-start-column="14" selection-end-line="452" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -426,13 +378,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="297">
           <caret line="127" column="48" lean-forward="true" selection-start-line="127" selection-start-column="48" selection-end-line="127" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="175" column="6" selection-start-line="175" selection-start-column="6" selection-end-line="175" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -489,13 +434,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="189">
           <caret line="398" column="39" selection-start-line="398" selection-start-column="32" selection-end-line="398" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="39">
-          <caret line="235" column="25" lean-forward="true" selection-start-line="235" selection-start-column="25" selection-end-line="235" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -569,20 +507,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/formatconverter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1193">
-          <caret line="5" column="52" selection-start-line="5" selection-start-column="52" selection-end-line="5" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/misc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1104">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/normalizer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="744">
@@ -594,30 +518,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1704">
           <caret line="73" selection-start-line="73" selection-end-line="73" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nanhandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="456">
-          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/featureselector.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2232">
-          <caret line="99" selection-start-line="99" selection-end-line="99" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wrapper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -640,17 +540,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/control.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="672">
-          <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="864">
+          <caret line="37" column="23" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/base.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="597">
+        <state relative-caret-position="872">
           <caret line="120" column="25" selection-start-line="120" selection-start-column="25" selection-end-line="120" selection-end-column="25" />
           <folding>
             <element signature="e#15#26#0" expanded="true" />
@@ -658,41 +555,136 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/transformer.py">
+    <entry file="file://$PROJECT_DIR$/formatconverter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="24">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        <state relative-caret-position="96">
+          <caret line="5" column="52" selection-start-line="5" selection-start-column="52" selection-end-line="5" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/discretor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="591">
+          <caret line="153" column="32" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/factorencoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1320">
-          <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
+        <state relative-caret-position="432">
+          <caret line="18" column="41" lean-forward="true" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/cluster/k_means_.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="16416">
+          <caret line="706" column="33" selection-start-line="706" selection-start-column="33" selection-end-line="706" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="13296">
+          <caret line="562" selection-start-line="562" selection-end-line="562" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/externals/six.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="434">
+          <caret line="563" column="4" selection-start-line="563" selection-start-column="4" selection-end-line="563" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/model_selection/_search.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="296">
+          <caret line="385" column="6" selection-start-line="385" selection-start-column="6" selection-end-line="385" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/grid_search.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-8092" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transformer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/matplotlib/pyplot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="3852" column="4" selection-start-line="3852" selection-start-column="4" selection-end-line="3852" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/featureselector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1392">
+          <caret line="64" column="33" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="39">
+          <caret line="6138" column="4" selection-start-line="6138" selection-start-column="4" selection-end-line="6138" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nanhandler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dataprocessor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1848">
+          <caret line="78" column="46" selection-start-line="78" selection-start-column="46" selection-end-line="78" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/reporter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        <state relative-caret-position="696">
+          <caret line="30" column="11" selection-start-line="30" selection-start-column="11" selection-end-line="30" selection-end-column="11" />
           <folding>
             <element signature="e#0#41#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/discretor.py">
+    <entry file="file://$USER_HOME$/PycharmProjects/test/venv/Lib/site-packages/sklearn/metrics/ranking.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="153" column="32" lean-forward="true" selection-start-line="153" selection-start-column="32" selection-end-line="153" selection-end-column="32" />
+        <state relative-caret-position="305">
+          <caret line="38" column="21" selection-start-line="38" selection-start-column="14" selection-end-line="38" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modeltester.py">
+    <entry file="file://$PROJECT_DIR$/integration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+        <state relative-caret-position="7680">
+          <caret line="324" column="28" selection-start-line="324" selection-start-column="28" selection-end-line="324" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/misc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="14" column="32" selection-start-line="14" selection-start-column="32" selection-end-line="14" selection-end-column="32" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -701,20 +693,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="567">
-          <caret line="113" column="40" lean-forward="true" selection-start-line="113" selection-start-column="40" selection-end-line="113" selection-end-column="40" />
+        <state relative-caret-position="24">
+          <caret line="211" column="39" selection-start-line="211" selection-start-column="39" selection-end-line="211" selection-end-column="39" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dataprocessor.py">
+    <entry file="file://$PROJECT_DIR$/wrapper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-772">
-          <caret line="77" column="21" lean-forward="true" selection-start-line="77" selection-start-column="21" selection-end-line="77" selection-end-column="21" />
+        <state relative-caret-position="311">
+          <caret line="92" column="8" selection-start-line="92" selection-start-column="8" selection-end-line="92" selection-end-column="55" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#27#0" expanded="true" />
           </folding>
         </state>
       </provider>

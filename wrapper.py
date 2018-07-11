@@ -1,6 +1,8 @@
 from dataprocessor import *
 import sklearn.model_selection as cv
-from reporter import ClfResult
+from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, RegressorMixin
+from sklearn.model_selection import GridSearchCV
+from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
 
 
 class Wrapper(RSDataProcessor):
@@ -88,6 +90,7 @@ class WrpClassifier(Wrapper):
             X_train, X_test, y_train, y_test = trainset[features], testset[features], trainset[label], testset[label]
         else:
             X_train, X_test, y_train, y_test = cv.train_test_split(data[features], data[label], test_size=self.test_size, random_state=0)
+        X_train, X_test = X_train.values, X_test.values
         if self.b_train:
             self.msg('training...')
             self.processor.fit(X_train, y_train)
@@ -103,7 +106,37 @@ class WrpClassifier(Wrapper):
         self.testscore = (y_pred == y_test).sum() / y_test.shape[0]
         self.msg('%f' % (self.trainscore * 100), '训练集得分')
         self.msg('%f' % (self.testscore * 100), '测试集得分')
-        return ClfResult(self.processor.classes_, self.trainscore, self.testscore, y_prob, y_pred, y_test, self.name)
+        # display result
+        naxes = 4
+        apr = 3  # axes per row
+        if naxes % apr != 0 and naxes % 2 == 0:
+            apr = 2
+        if y_prob is None:
+            naxes -= 2
+        nrows, ncols = divmod(naxes, apr)
+        nrows += 1
+        ncols = apr if nrows > 1 else ncols
+        fig = plt.figure(figsize=(5.5*ncols, 5*nrows))
+        i = 1
+        # --Confusion Matrix
+        self.cm = ConfusionMatrix(y_test, y_pred, self.processor.classes_, name='CM of %s' % self.name)
+        self.cm.plot(fig.add_subplot(nrows, ncols, i))
+        i += 1
+        # --FBetaScore
+        self.fbs = FBetaScore(y_test, y_pred, 'FBS of %s' % self.name)
+        self.fbs.plot(fig.add_subplot(nrows, ncols, i))
+        i += 1
+        if y_prob is not None:
+            # --ROC Curve
+            self.roc = ROCCurve(y_test, y_prob[:, -1], title='ROC of %s' % self.name)
+            self.roc.plot(fig.add_subplot(nrows, ncols, i))
+            i += 1
+            # --PR Curve
+            self.pr = PRCurve(y_test, y_prob[:, -1], title='PR of %s' % self.name)
+            self.pr.plot(fig.add_subplot(nrows, ncols, i))
+            i += 1
+        plt.show()
+        return data
 
     def get_report_title(self, *args):
         return ['训练集得分', '测试集得分']
@@ -141,20 +174,61 @@ class WrpFunction(Wrapper):
         return self.processor(**param_dict)
 
 
+class WrpValidator(Wrapper):
+    def __init__(self, features2process, validator, name=''):
+        if name == '':
+            name = validator.__class__.__name__
+        name = 'WrpVld-%s' % name
+        Wrapper.__init__(self, features2process, validator, name)
+
+    def _process(self, data, features, label):
+        return self.processor.fit(data[features], data[label])
+
+
+class WrpCluster(Wrapper):
+    def __init__(self, features2process, cluster, name=''):
+        """
+        Wrapper for cluster
+        :param features2process:
+        :param cluster:
+        :param name:
+        """
+        if name == '':
+            name = cluster.__class__.__name__
+        name = 'WrpClu-%s' % name
+        Wrapper.__init__(self, features2process, cluster, name)
+
+    def _process(self, data, features, label):
+        pass
+
+
+class WrpUnknown(Wrapper):
+    def __init__(self, features2process, obj):
+        Wrapper.__init__(self, features2process, obj, name='WrpUk-%s' % obj.__class__.__name__)
+
+    def _process(self, data, features, label):
+        self.warning('No operation occurred.')
+        return data
+
+
 def IWrap(features2process, processor):
     """
     intelligently wrapping， select wrapping type automatically
     """
     if isinstance(processor, RSDataProcessor):
         return processor
+    if isinstance(processor, ClusterMixin):
+        return WrpCluster(features2process, processor)
     elif isinstance(processor, IWrap.__class__):
         return WrpFunction(features2process, processor)
-    elif hasattr(processor, 'predict'):
+    elif isinstance(processor, ClassifierMixin):
         return WrpClassifier(features2process, processor)
-    elif hasattr(processor, 'fit_transform'):
+    elif isinstance(processor, TransformerMixin):
         return WrpDataProcessor(features2process, processor, bXonly=False)
+    elif isinstance(processor, GridSearchCV):
+        return WrpValidator(features2process, processor)
     else:
-        raise Exception('IWrap failed, invalid processor %s object.' % processor.__class__.__name__)
+        return WrpUnknown(features2process, processor)
 
 
 def test():

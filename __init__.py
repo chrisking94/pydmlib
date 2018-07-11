@@ -5,7 +5,7 @@ from featureclassifier import *
 from featurecombiner import *
 from featureselector import *
 from misc import *
-from modeltester import *
+from integration import *
 from nanhandler import *
 from normalizer import *
 from sampler import *
@@ -20,8 +20,8 @@ import wrapper
 import data
 
 base.test()
-import modeltester
-modeltester.test()
+import integration
+integration.test()
 misc.test()
 wrapper.test()
 data.test()

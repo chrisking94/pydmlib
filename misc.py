@@ -1,16 +1,34 @@
 from base import *
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_curve
+from sklearn.metrics import fbeta_score
 
 
-class ConfusionMatrix(pd.DataFrame, RSObject):
+class RSPlot(RSObject):
+    def __init__(self, name=''):
+        RSObject.__init__(self, name=name)
+
+    def plot(self, ax=None, **kwargs):
+        if ax is None:
+            ax = plt.gca()
+        ax.set_title(self.name)
+        ax.set_label(self.name)
+        self._draw(ax, **kwargs)
+
+    def _draw(self, ax, **kwargs):
+        self.error('Not implemented!')
+
+    def _size(self):
+        return 5, 5
+
+
+class ConfusionMatrix(RSPlot, pd.DataFrame):
     def __init__(self, y_test, y_pred, labels=None, name='ConfusionMatrix', **kwargs):
         if 'data' in kwargs.keys():
             cm = kwargs['data']
         else:
             cm = confusion_matrix(y_test, y_pred, labels)
         pd.DataFrame.__init__(self, cm, index=labels, columns=labels)
-        RSObject.__init__(self, name, 'blue', 'default', 'bold')
+        RSPlot.__init__(self, name)
 
     def normalized(self):
         return ConfusionMatrix(self.index, self.columns, labels=None, data=self.div(self.sum(axis=1), axis=0))
@@ -21,69 +39,109 @@ class ConfusionMatrix(pd.DataFrame, RSObject):
         else:
             self.msg('Without normalizing\n%s' % self.__str__())
 
-    def plot(self, size=1):
+    def _size(self):
+        size = 5
         class_count = self.shape[0]
-        bsize = size
         size *= class_count
-        fig = plt.figure(figsize=(size, size))
-        fig.suptitle(self.name)
-        ax = fig.add_subplot(111)
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
+        return size, size
+
+    def _draw(self, ax, **kwargs):
+        class_count = self.shape[0]
+        # ax.set_xlim(0, 1)
+        # ax.set_ylim(0, 1)
         nmcm = self.normalized()
-        blocksize = 1 / class_count
-        halfbs = blocksize / 2
+        ax.set_title('%s\n' % self.name)
         ax.xaxis.set_ticks_position('top')
         ax.invert_yaxis()
-        ax.set_xticks(np.arange(halfbs, 1, blocksize))
+        ax.set_xticks(np.arange(0, class_count, 1))
         ax.set_xticklabels(self.columns)
-        ax.set_yticks(np.arange(halfbs, 1, blocksize))
+        ax.set_yticks(np.arange(0, class_count, 1))
         ax.set_yticklabels(self.columns)
         for x in range(class_count):
             for y in range(class_count):
-                ax.text(halfbs + x * blocksize, halfbs + y * blocksize, round(nmcm[y, x], 3),
+                ax.text(x, y, round(nmcm[y, x], 3),
                         horizontalalignment='center',
-                        verticalalignment='center', fontsize=15 * bsize, color='orange')
-        ax.imshow(self.normalized().values, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.show()
+                        verticalalignment='center', fontsize=30, color='orange')
+        ax.imshow(nmcm.values, interpolation='nearest', cmap=plt.cm.Blues)
 
     def __getitem__(self, item):
-        return super(ConfusionMatrix, self).values[item]
+        return self.values[item]
+
+    def __str__(self):
+        return pd.DataFrame.__str__(self)
 
 
-class ROCCurve(RSObject):
-    def __init__(self, y_true, y_score, title='ROC-Curve'):
-        RSObject.__init__(self, title, 'white', 'black', 'bold')
-        self.fpr, self.tpr, self.thresholds = roc_curve(y_true,
-                                                        y_score)  # y_score can be the probability of the POSITIVE class,...
+class ROCCurve(RSPlot, pd.DataFrame):
+    def __init__(self, y_true, y_score, pos_label=None, title='ROC-Curve'):
+        fpr, tpr, thresholds = roc_curve(y_true, y_score, pos_label=pos_label)
+        pd.DataFrame.__init__(self, data={'fpr': fpr, 'tpr': tpr, 'thresholds': thresholds})
+        RSPlot.__init__(self, name=title)
+        # y_score can be the probability of the POSITIVE class,...
 
-    def plot(self, ax=None, label=''):
-        if ax is None:
-            fig = plt.figure(figsize=(5, 5))
-            ax = fig.add_subplot(111)
-        plt.title(self.name)
-        plt.xlabel('FP Rate')
-        plt.ylabel('TP Rate')
-        plt.xlim(0, 1.01)
-        plt.ylim(0, 1.01)
-        plt.legend(loc="lower right")
-        plt.plot(self.fpr, self.tpr, lw=1, label=label)
+    def _draw(self, ax, **kwargs):
+        ax.set_xlabel('FP Rate')
+        ax.set_ylabel('TP Rate')
+        ax.set_xlim(0, 1.01)
+        ax.set_ylim(0, 1.01)
+        # ax.legend(loc="lower right")
+        ax.plot(self.fpr, self.tpr, lw=1, **kwargs)
+        ax.plot([0, 1], [0, 1], linestyle='--')
         # ax.plot(self.thresholds, self.tpr)
         # ax.plot(self.fpr, self.thresholds)
-        plt.text(0.7, 0.1, 'AUC=%.3f' % self.auc(), horizontalalignment='center',
-          verticalalignment='center', fontdict={'size':20})
-        plt.show()
+        ax.text(0.7, 0.1, 'AUC=%.3f' % self.auc(), horizontalalignment='center',
+                verticalalignment='center', fontdict={'size':20})
 
     def auc(self):
         return auc(self.fpr, self.tpr)
 
 
+class PRCurve(RSPlot, pd.DataFrame):
+    def __init__(self, y_true, y_score, pos_label=None, title='PR-Curve'):
+        precision, recall, thresholds = precision_recall_curve(y_true, y_score, pos_label=pos_label)
+        thresholds = np.concatenate((np.array([0]), thresholds))
+        pd.DataFrame.__init__(self, data={'precision': precision, 'recall': recall, 'thresholds': thresholds})
+        RSPlot.__init__(self, name=title)
+        # y_score can be the probability of the POSITIVE class,...
+
+    def _draw(self, ax, **kwargs):
+        ax.set_xlabel('Recall')
+        ax.set_ylabel('Precision')
+        ax.set_xlim(0, 1.01)
+        ax.set_ylim(0, 1.01)
+        # ax.legend(loc="lower right")
+        ax.plot(self.precision, self.recall, lw=1, **kwargs)
+        # ax.plot([0, 1], [0, 1], linestyle='--')
+        # ax.text(0.7, 0.1, 'AUC=%.3f' % self.auc(), horizontalalignment='center',
+        #         verticalalignment='center', fontdict={'size':20})
+
+    def auc(self):
+        return auc(self.precision, self.recall, reorder=True)
+
+
+class FBetaScore(RSPlot, pd.DataFrame):
+    def __init__(self, y_true, y_pred, name='FBetaScore'):
+        betas = np.arange(0.0001, 1, 0.01)
+        scores = betas.copy()
+        for i, beta in enumerate(betas):
+            scores[i] = fbeta_score(y_true, y_pred, beta, average='binary')
+        pd.DataFrame.__init__(self, {'betas': betas, 'scores': scores})
+        RSPlot.__init__(self, name)
+
+    def _draw(self, ax, **kwargs):
+        ax.set_xlabel('Beta')
+        ax.set_ylabel('FScore')
+        ax.set_xlim(0, 1.01)
+        ax.set_ylim(0, 1.01)
+        ax.plot(self.betas, self.scores, lw=1, **kwargs)
+
+
 def test():
-    # cm = ConfusionMatrix([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 3])
+    # cm = ConfusionMatrix([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 5])
     # print(cm)
     # print(cm[1, 1])
     # cm.show(True)
-    # cm.plot()
+    # fig = plt.figure(figsize=(10, 5))
+    # cm.plot(fig.add_subplot(121))
     # from sklearn.datasets import load_iris
     # X, y = load_iris(True)
     # X, y = X[y!=2], y[y!=2]
@@ -91,6 +149,7 @@ def test():
     # clf = RandomForestClassifier()
     # clf.fit(X, y)
     # prob = clf.predict_proba(X)[:,1]
-    # ROCCurve(y, prob).plot()
+    # ROCCurve(y, prob).plot(fig.add_subplot(122))
+    # plt.show()
     # print(prob)
     pass

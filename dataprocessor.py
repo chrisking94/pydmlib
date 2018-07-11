@@ -102,7 +102,7 @@ class RSDataProcessor(RSObject):
                 if value.__len__() < 10:
                     pl.append('%s=%s' % (name, value))
         if pl.__len__() > 0:
-            self.msg(' '.join(pl), 'params')
+            self.msg(', '.join(pl), 'params')
 
     def get_report_title(self, *args):
         """
@@ -124,5 +124,9 @@ class RSDataProcessor(RSObject):
 
     def __call__(self, *args, **kwargs):
         return self.fit_transform(*args)
+
+    def __add__(self, other):
+        from integration import ProcessorSequence
+        return ProcessorSequence([self, other])
 
 
