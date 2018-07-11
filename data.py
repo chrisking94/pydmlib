@@ -87,7 +87,7 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                 if item[0] == '@':  # @@使用正则表达式
                     if item[1] == '@':
                         regx = re.compile(item[2:])
-                        cols = [x for x in self if regx.match(x) is not None]
+                        cols = [x for x in self if regx.search(x) is not None]
                     else:  # @xc 使用标签匹配，返回带x,c标签的列
                         item = set(item[1:])
                         rgx_label = re.compile(r'<([^>]+)>')
