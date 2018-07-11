@@ -60,7 +60,7 @@ class WrpDataProcessor(Wrapper):
             self.error('processor\'s return value type must be np.ndarray!')
         colsname = ['%s_%d' % (self.name, x) for x in range(X.shape[1])]
         data = data.drop(columns=features)
-        X = pd.DataFrame(X, columns=colsname)
+        X = data.__class__(pd.DataFrame(X, columns=colsname))
         data = pd.concat([X, data], axis=1)
         return data
 
@@ -226,6 +226,7 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         train_scores, test_scores, roc_aucs = [], [], []
         good_samples, bad_samples = np.array([]), np.array([])
         n = self.cv.get_n_splits()
+        self.msg(self.processor.__class__.__name__, 'estimator')
         for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
             self.msg('running...', '%d/%d' % (i+1, n))
             train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
@@ -254,7 +255,7 @@ class WrpUnknown(Wrapper):
         return data
 
 
-def IWrap(features2process, processor):
+def wrap(features2process, processor):
     """
     intelligently wrapping， select wrapping type automatically
     """
@@ -262,7 +263,7 @@ def IWrap(features2process, processor):
         return processor
     if isinstance(processor, ClusterMixin):
         return WrpCluster(features2process, processor)
-    elif isinstance(processor, IWrap.__class__):
+    elif isinstance(processor, wrap.__class__):
         return WrpFunction(features2process, processor)
     elif isinstance(processor, ClassifierMixin):
         return WrpClassifier(features2process, processor)
@@ -278,4 +279,4 @@ def IWrap(features2process, processor):
 
 def test():
     return
-    pro = IWrap(None, lambda self, data, features:data*2)(123)
+    pro = wrap(None, lambda self, data, features: data * 2)(123)

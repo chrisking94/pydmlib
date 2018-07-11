@@ -1,7 +1,7 @@
 from base import *
 from misc import *
 import sklearn.model_selection as cv
-from wrapper import IWrap
+from wrapper import wrap
 from dataprocessor import RSDataProcessor
 
 
@@ -64,7 +64,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
                 self.checkpoints.append(procr)
             return procr
         else:
-            return IWrap(None, procr)
+            return wrap(None, procr)
 
     def reset(self, from_=0):
         """
@@ -341,7 +341,7 @@ class TCCheckPoint(TesterController):
 
     def __rshift__(self, other):
         if self.data is not None:
-            return TCCheckPoint(data=IWrap(None, other)(self.data))
+            return TCCheckPoint(data=wrap(None, other)(self.data))
         else:
             self.error('No data held in by this check point.')
 

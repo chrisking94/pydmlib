@@ -207,8 +207,8 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
             return item
 
     def __rshift__(self, other):
-        from wrapper import IWrap, WrpUnknown
-        wrp = IWrap(None, other)
+        from wrapper import wrap, WrpUnknown
+        wrp = wrap(None, other)
         if isinstance(wrp, WrpUnknown):
             pd.DataFrame.__rshift__(self, other)
         else:

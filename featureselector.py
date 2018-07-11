@@ -1,6 +1,5 @@
 from dataprocessor import *
 from sklearn.feature_selection import SelectKBest
-from scipy.stats import pearsonr
 from sklearn.feature_selection import chi2
 from sklearn.ensemble import RandomForestClassifier
 from skfeature.function.information_theoretical_based.MRMR import mrmr
@@ -25,10 +24,10 @@ class FeatureSelector(RSDataProcessor):
         scores = self.score(sdata, starget)
         scores = pd.Series(scores, index=features)
         # normalization
-        scores = scores / scores.sum()
+        scores /= scores.sum()
+        self.scores = scores.sort_values(0, ascending=False)
         if scores.isnull().sum() != 0:
             self.error('scores contains null.')
-        self.scores = scores.sort_values(0, ascending=False)
         if self.feature_count < 1:
             feature_count = int(self.feature_count * features.__len__())
         else:
@@ -40,6 +39,7 @@ class FeatureSelector(RSDataProcessor):
 
     def score(self, data, target):
         self.error('Not implemented!')
+        return np.array([])
 
     def _get_score_part(self, top):
         part = self.scores[self.scores > 0.01]
@@ -100,9 +100,8 @@ class FSmRMR(FeatureSelector):
         FeatureSelector.__init__(self, features2process, feature_count, name='mRMR特征选择')
 
     def score(self, data, target):
-        F = mrmr(data.values, target)
-        scores = pd.Series(F)
-        scores[pd.Index(F)] = np.arange(1, 0, float(-1) / F.shape[0])
+        scores = mrmr(data.values, target)  # scores[0] is the most important feature
+        scores = scores.max() - scores
         return scores
 
 
