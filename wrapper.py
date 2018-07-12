@@ -92,11 +92,12 @@ class WrpClassifier(Wrapper):
             self.train_set, self.test_set = data[0], data[1]
         else:
             self.train_set, self.test_set = cv.train_test_split(data, test_size=self.test_size)
-        X_train, X_test, y_train, y_test = self.train_set[features], self.test_set[features]\
-            , self.train_set[label], self.test_set[label]
+        X_train, X_test, y_train, y_test = self.train_set[features], self.test_set[features], \
+                                           self.train_set[label], self.test_set[label]
         X_train, X_test = X_train.values, X_test.values
         self._run(X_train, y_train, X_test, y_test)
         self.show_result()
+        return data
 
     def _run(self, X_train, y_train, X_test, y_test):
         if self.b_train:

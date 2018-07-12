@@ -26,14 +26,14 @@ class TsfmFunction(Transformer):
         self.breplace = breplace
 
     def _process(self, data, features, label):
-        if self.breplace:
-            data[features] = self.transform(data[features])
-        else:
-            ts = self.transform(data[features])
-            modified = data[features].columns[(ts!=data[features]).sum()>0]
-            ts = ts[modified]
-            if modified.shape[0] != 0:
-                ts = ts.rename(dict(zip(modified, modified + '_' + self.name)), axis=1)
-                data = pd.concat([data[data.columns[:-1]], ts, data[label]], axis=1)
+        ts = self.transform(data[features])
+        modified = data[features].columns[(ts != data[features]).sum() > 0]
+        ts = ts[modified]
+        if modified.shape[0] != 0:
+            if self.breplace:
+                data = data.copy()
+                data.drop(columns=modified)
+            ts = ts.rename(dict(zip(modified, modified + '_' + self.name)), axis=1)
+            data = pd.concat([data[data.columns[:-1]], ts, data[label]], axis=1)
         return data
 
