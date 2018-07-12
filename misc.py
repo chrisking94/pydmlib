@@ -133,6 +133,11 @@ class FBetaScore(RSPlot, pd.DataFrame):
         ax.set_xlim(0, 1.01)
         ax.set_ylim(0, 1.01)
         ax.plot(self.betas, self.scores, lw=1, **kwargs)
+        ax.text(0.5, 0.1, 'F1Score=%.3f' % self.f1score(), horizontalalignment='center',
+                verticalalignment='center', fontdict={'size':20})
+
+    def f1score(self):
+        return self['scores'].iloc[-1]
 
 
 def test():

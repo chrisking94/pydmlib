@@ -6,7 +6,7 @@ from dataprocessor import RSDataProcessor
 
 
 class Integrator(RSObject):
-    def __init__(self, name='ModelTester'):
+    def __init__(self, name=''):
         RSObject.__init__(self, name, 'red', 'default', 'highlight')
 
     def report(self):
@@ -17,13 +17,14 @@ class ProcessorSequence(RSDataProcessor, RSList):
     def __init__(self, copyfrom=()):
         self.checkpoints = CheckPointList()
         RSList.__init__(self, [self._wrap_procr(x) for x in copyfrom])
-        RSDataProcessor.__init__(self, None, 'ProcessorSequence', 'random', 'random')
+        RSDataProcessor.__init__(self, None, '', 'random', 'random')
         self.report_line = []
         self.report_title = []
         self.b_contains_continue = False
         self.report_table = None
 
     def fit_transform(self, data=None):
+        self.starttimer()
         self.report_line = []
         self.report_title = []
         #  从后往前找到第一个可用检查点
@@ -55,6 +56,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
                 self.report_line.extend(procr.get_report())
                 self.report_title.extend(procr.get_report_title())
                 procr.msg('skipped.')
+        self.msgtimecost()
         self.report_table = pd.DataFrame(self.report_line, index=self.report_title)
         return data
 
@@ -304,12 +306,13 @@ class TCCheckPoint(TesterController):
         self.copy_count = 0
 
     def fit_transform(self, data):
-        self.msgtime(self.colorstr('👆check-point' * 5, 0, self.msgforecolor, self.msgbackcolor))
+        msg = self.colorstr('⚪check-point', 0, 6, 8)
         if data is not None:
             self.data = data
-            self.msg('input data saved.')
+            msg = '%s%s' % (msg, '👈input data saved.')
         elif self.data is not None:
-            self.msg('data exported.')
+            msg = '%s%s' % (msg, '👉data exported.')
+        self.msgtime(msg)
         return self.data
 
     def is_me(self, id_name):

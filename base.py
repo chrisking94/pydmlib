@@ -42,12 +42,14 @@ class RSObject(object):
     def _submsg(self, title, title_color, msg):
         csubtitle = self.colorstr(title, 0, title_color, 48)
         msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
-        print(msg)
+        import control
+        control.RSControl.print(msg)
 
     def msg(self, msg, title=''):
         if title == '':
             msg = '%s: %s' % (self.coloredname, msg)
-            print(msg)
+            import control
+            control.RSControl.print(msg)
         else:
             self._submsg(title, 'blue', msg)
 

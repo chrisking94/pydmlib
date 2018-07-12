@@ -1,12 +1,13 @@
 from base import *
-from control import CStandbyCursor, CTimer
+from control import CStandbyCursor, CTimer, CLabel
 
 
 class RSDataProcessor(RSObject):
-    cursor = CStandbyCursor()
-    timer = CTimer()
-    cursor.visible = False
-    timer.visible = False
+    cursor = CStandbyCursor(visible=False)
+    timer = CTimer(visible=False)
+    label = CLabel(visible=False)
+    involatile_msg = [''] * 10  # 0~9
+    b_multi_line_msg = False  # output each message in a new line
 
     def __init__(self, features2process=None, name='', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
@@ -21,6 +22,7 @@ class RSDataProcessor(RSObject):
         RSObject.__init__(self, name, 'random', 'default', 'underline')
         self.features2process = features2process
         self.state = 'on'  # turn off this processor by set state to 'off'
+        self.messages = {}
 
     def turn(self, state):
         """
@@ -30,7 +32,8 @@ class RSDataProcessor(RSObject):
                                 also get_report ...
                         'off': opposite to 'on'
                         'disable': when disabled, it can't be turned 'on' or 'off'
-                        'enable': opposite to 'disable', self will be turned 'on' when state changed from 'disable' to 'enable'
+                        'enable': opposite to 'disable', self will be turned 'on' when
+                        state changed from 'disable' to 'enable'
         :return:
         """
         if self.state == 'disable':
@@ -40,6 +43,37 @@ class RSDataProcessor(RSObject):
                 self.warning('processor was disabled.')
                 return
         self.state = state
+
+    def msg(self, msg, title=''):
+        if title == '':
+            if len(msg) > 1 and msg[0] == '@':
+                RSDataProcessor.involatile_msg[int(msg[1])] = msg[2:]
+            s_involatile = ''.join(RSDataProcessor.involatile_msg)
+            RSDataProcessor.label.text = lambda: '%s<%s%s>: %s%s' % \
+                                                 (self.coloredname,
+                                                  self.colorstr(RSDataProcessor.cursor.__str__(), 0, 6, 8),
+                                                  self.colorstr(RSDataProcessor.timer.__str__(), 0, 2, 8),
+                                                  s_involatile,
+                                                  msg)
+        else:
+            RSObject.msg(self, msg, title)
+
+    def _submsg(self, title, title_color, msg):
+        if RSDataProcessor.b_multi_line_msg:
+            RSObject._submsg(self, title, title_color, msg)
+        else:
+            title = self.colorstr(title, 0, title_color, 8)
+            if title not in self.messages.keys():
+                self.messages[title] = []
+            self.messages[title].append(msg)
+
+    def msgtimecost(self, start=None, msg=''):
+        RSObject.msgtimecost(self, start, msg)
+        if not RSDataProcessor.b_multi_line_msg:
+            # out put messages
+            sl = ['[%s] %s' % (x[0], ', '.join(x[1])) for x in self.messages.items()]
+            RSObject.msg(self, '  '.join(sl))
+            self.messages = {}
 
     def _process(self, data, features, label):
         self.error('Not implemented!')
@@ -56,12 +90,10 @@ class RSDataProcessor(RSObject):
         """
         if self.state == 'on':
             if isinstance(data, pd.DataFrame):
-                if RSDataProcessor.cursor is not None:
-                    RSDataProcessor.cursor.visible = True
-                    RSDataProcessor.timer.reset()
-                    RSDataProcessor.timer.visible = True
                 self.starttimer()
-                self.msgtime('running...')
+                RSDataProcessor.label.visible = True
+                RSDataProcessor.timer.reset()
+                self.msg('running...')
                 self.print_params()
                 # 筛选处理特征：
                 # 如果self.features2process为None则设置成data.columns
@@ -82,9 +114,7 @@ class RSDataProcessor(RSObject):
                     self.warning('No feature to process.')
                 else:
                     data = self._process(data, features, label)
-                if RSDataProcessor.cursor is not None:
-                    RSDataProcessor.cursor.visible = False
-                    RSDataProcessor.timer.visible = False
+                RSDataProcessor.label.visible = False
             else:
                 data = self._process(data, None, None)
             self.msgtimecost()

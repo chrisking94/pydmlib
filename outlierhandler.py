@@ -15,7 +15,7 @@ class OutlierHandler(RSDataProcessor):
         # 优化
         X[todrop] = np.nan
         data[features] = X
-        self.msg('totally dropped %d items.' % (todrop.sum().sum()))
+        self.msg(str(todrop.sum().sum()), 'dropped item quantity')
         return data
 
     def _detect(self, X):

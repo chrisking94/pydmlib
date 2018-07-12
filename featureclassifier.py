@@ -27,7 +27,7 @@ class FeatureClassifier(RSDataProcessor):
         self.discfeats.clear()
         self.labelfeats.clear()
         self._classify(data, features, label)
-        self.msg('continuous=%d\tdiscrete=%d\tlabel=%d' %
+        self.msg('continuous=%d, discrete=%d, label=%d' %
                  (self.contfeats.__len__(), self.discfeats.__len__(), self.labelfeats.__len__())
                  , 'count')
         return data

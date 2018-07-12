@@ -8,14 +8,16 @@ class RSControl(RSObject):
     buffer = []
     interval = 20  # ms
     iTimer = 0  # ms
+    s_out = ''
 
-    def __init__(self, name):
-        if name in RSControl.controls.keys():
-            name = '%s_%d' % (name, RSObject.id_count)
-        RSObject.__init__(self, name)
+    def __init__(self, **kwargs):
+        RSObject.__init__(self)
         self.visible = True
         self.t_until = -1  # ms
         RSControl.controls[self.name] = self
+        self.__dict__.update(kwargs)
+        if self.name in RSControl.controls.keys():
+            self.name = '%s_%d' % (self.name, self.id)
 
     def refresh(self):
         """
@@ -28,7 +30,7 @@ class RSControl(RSObject):
         """
         wait for a while
         :param t: ms
-        :return: boolean, can go on
+        :return: boolean, whether can go on
         """
         if self.t_until == -1:
             self.t_until = RSControl.iTimer + t
@@ -40,7 +42,8 @@ class RSControl(RSObject):
             return False
 
     def _destroy(self):
-        RSControl.controls.pop(self.name)
+        if self.name in RSControl.controls.keys():
+            RSControl.controls.pop(self.name)
 
     def destroy(self):
         self._destroy()
@@ -48,10 +51,18 @@ class RSControl(RSObject):
     def __del__(self):
         self._destroy()
 
+    def __str__(self):
+        return self.refresh()
+
     @staticmethod
     def init():
         if RSControl.thread is None:
             RSControl.thread = _thread.start_new_thread(RSControl._process_refresh, ())
+
+    @staticmethod
+    def print(s, **kwargs):
+        print(' ' * len(RSControl.s_out), end='\r')  # 清行
+        print(s, **kwargs)
 
     @staticmethod
     def _process_refresh():
@@ -64,8 +75,9 @@ class RSControl(RSObject):
                     RSControl.buffer.append(ctrl.refresh())
             s = ''.join(RSControl.buffer)
             if s != last_s:
-                print(s, end='\r')
+                RSControl.print(s, end='\r')
                 last_s = s
+                RSControl.s_out = s
             time.sleep(RSControl.interval / 1000.0)
             RSControl.iTimer += RSControl.interval
 
@@ -74,8 +86,8 @@ RSControl.init()
 
 
 class CStandbyCursor(RSControl):
-    def __init__(self, name=''):
-        RSControl.__init__(self, name)
+    def __init__(self, **kwargs):
+        RSControl.__init__(self, **kwargs)
         self._char = '-'
 
     def refresh(self):
@@ -92,8 +104,8 @@ class CStandbyCursor(RSControl):
 
 
 class CTimer(RSControl):
-    def __init__(self, name=''):
-        RSControl.__init__(self, name)
+    def __init__(self, **kwargs):
+        RSControl.__init__(self, **kwargs)
         self.t = time.time()
         self.st = '0s'
 
@@ -103,9 +115,21 @@ class CTimer(RSControl):
             m, s = divmod(t, 60)
             h, m = divmod(m, 60)
             st = '%02d:%02d:%02d' % (h, m, s)
-            self.st = 'time: %s' % st
+            self.st = st
         return self.st
 
     def reset(self):
         self.t = time.time()
+
+
+class CLabel(RSControl):
+    def __init__(self, **kwargs):
+        self.text = ''
+        RSControl.__init__(self, **kwargs)
+
+    def refresh(self):
+        if callable(self.text):
+            return self.text()
+        else:
+            return self.text
 

@@ -59,7 +59,7 @@ class WrpDataProcessor(Wrapper):
         if not isinstance(X, np.ndarray):
             self.error('processor\'s return value type must be np.ndarray!')
         colsname = ['%s_%d' % (self.name, x) for x in range(X.shape[1])]
-        data = data.drop(columns=features)
+        data.drop(columns=features, inplace=True)
         X = data.__class__(pd.DataFrame(X, columns=colsname))
         data = pd.concat([X, data], axis=1)
         return data
@@ -89,10 +89,11 @@ class WrpClassifier(Wrapper):
         :return:  ClfResult
         """
         if isinstance(data, tuple):
-            trainset, testset = data[0], data[1]
-            X_train, X_test, y_train, y_test = trainset[features], testset[features], trainset[label], testset[label]
+            self.train_set, self.test_set = data[0], data[1]
         else:
-            X_train, X_test, y_train, y_test = cv.train_test_split(data[features], data[label], test_size=self.test_size, random_state=0)
+            self.train_set, self.test_set = cv.train_test_split(data, test_size=self.test_size)
+        X_train, X_test, y_train, y_test = self.train_set[features], self.test_set[features]\
+            , self.train_set[label], self.test_set[label]
         X_train, X_test = X_train.values, X_test.values
         self._run(X_train, y_train, X_test, y_test)
         self.show_result()
@@ -105,19 +106,18 @@ class WrpClassifier(Wrapper):
         self.trainscore = self.processor.score(X_train, y_train)
         self.msg('predicting test X...')
         if hasattr(self.processor, 'predict_proba'):
-            y_prob = self.processor.predict_proba(X_test)
-            y_pred = self.processor.classes_[y_prob.argmax(axis=1)]
+            self.y_prob = self.processor.predict_proba(X_test)
+            self.y_pred = self.processor.classes_[self.y_prob.argmax(axis=1)]
         else:
-            y_prob = None
-            y_pred = self.processor.predict(X_test)
-        self.y_pred = y_pred
-        self.testscore = (y_pred == y_test).sum() / y_test.shape[0]
-        self.cm = ConfusionMatrix(y_test, y_pred, self.processor.classes_, name='CM of %s' % self.name)
-        self.fbs = FBetaScore(y_test, y_pred, 'FBS of %s' % self.name)
+            self.y_prob = None
+            self.y_pred = self.processor.predict(X_test)
+        self.testscore = (self.y_pred == y_test).sum() / y_test.shape[0]
+        self.cm = ConfusionMatrix(y_test, self.y_pred, self.processor.classes_, name='CM of %s' % self.name)
+        self.fbs = FBetaScore(y_test, self.y_pred, 'FBS of %s' % self.name)
         self.plots = [self.cm, self.fbs]
-        if y_prob is not None:
-            self.roc = ROCCurve(y_test, y_prob[:, -1], title='ROC of %s' % self.name)
-            self.pr = PRCurve(y_test, y_prob[:, -1], title='PR of %s' % self.name)
+        if self.y_prob is not None:
+            self.roc = ROCCurve(y_test, self.y_prob[:, -1], title='ROC of %s' % self.name)
+            self.pr = PRCurve(y_test, self.y_prob[:, -1], title='PR of %s' % self.name)
             self.plots.extend([self.roc, self.pr])
         else:
             self.roc = None
@@ -228,7 +228,7 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         n = self.cv.get_n_splits()
         self.msg(self.processor.__class__.__name__, 'estimator')
         for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
-            self.msg('running...', '%d/%d' % (i+1, n))
+            self.msg('@1%d/%d ' % (i+1, n))
             train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
             self._run(train_X, train_y, test_X, test_y)
             train_scores.append(self.trainscore)
@@ -237,6 +237,7 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
                 roc_aucs.append(self.roc.auc())
             good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
             bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
+        self.msg('@1')  # clear involatile message
         self.good_samples = data.iloc[good_samples, ]
         self.bad_samples = data.iloc[bad_samples, ]
         pd.DataFrame.__init__(self, data={'train_score': train_scores,
