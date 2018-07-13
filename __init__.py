@@ -20,6 +20,7 @@ import wrapper
 import data
 import control
 import integration
+import costestimator
 
 base.test()
 integration.test()
@@ -27,4 +28,5 @@ misc.test()
 wrapper.test()
 data.test()
 control.test()
+costestimator.test()
 

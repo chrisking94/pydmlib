@@ -4,7 +4,7 @@ from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, Regres
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection import BaseCrossValidator
 from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
-from sklearn.ensemble import RandomForestClassifier
+from costestimator import TimeCostEstimator
 
 
 class Wrapper(RSDataProcessor):
@@ -16,6 +16,55 @@ class Wrapper(RSDataProcessor):
         """
         RSDataProcessor.__init__(self, features2process, name, 'random', 'random', 'blink')
         self.processor = processor
+        # set(str)，在进行_process之前会对这里面的参数进行非None检查
+        # 如果任一其中的参数值为None，则抛出异常
+        # 可以通过 << 运算符依次传入参数
+        self.not_none_attrs = set()
+        self.data = None
+
+    def fit_transform(self, data):
+        """
+        首先检查self.not_none_attrs，如果其中包含None则1，否则2
+        :param data:
+        :return: 1.将数据存入self.data, 不做任何处理并返回self
+                 2.处理self.data，返回处理过后的data，并将self.data设置为None
+        """
+        b_process = True
+        for attr in self.not_none_attrs:
+            if getattr(self, attr) is None:
+                b_process = False
+                break
+        if b_process:
+            self.data = None
+            return RSDataProcessor.fit_transform(self, data)
+        else:
+            self.data = data
+            return self
+
+    def __rshift__(self, other):
+        """
+        not_none_attrs中的attr存在值为None时会出现误调用此运算符
+        :param other:
+        :return:
+        """
+        none_attrs = []
+        for attr in self.not_none_attrs:
+            if getattr(self, attr) is None:
+                none_attrs.append(attr)
+        self.error('invoke of >> is forbidden,\
+params %s are None whereas they are not allowed to be None.You may use << to fill they up.' % none_attrs.__str__())
+
+    def __lshift__(self, other):
+        """
+        赋值other到not_none_attrs中第一个为None的attr
+        :param other: 输入参数
+        :return:
+        """
+        for attr in self.not_none_attrs:
+            if getattr(self, attr) is None:
+                setattr(self, attr, other)
+                break
+        return self.fit_transform(self.data)
 
 
 class WrpDataProcessor(Wrapper):
@@ -219,10 +268,9 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         if name == '':
             name = validator.__class__.__name__
         name = 'WrpCV-%s' % name
-        if estimator is None:
-            estimator = None
         pd.DataFrame.__init__(self)
         WrpClassifier.__init__(self, features2process, estimator, name=name)
+        self.not_none_attrs = {'processor'}
         self.cv = validator
 
     def _process(self, data, features, label):
@@ -233,52 +281,37 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         :param label:
         :return:
         """
-        if self.processor is None:
-            self.data = data
-            return self
-        else:
-            X, y = data[features].values, data[label].values
-            train_scores, test_scores, roc_aucs = [], [], []
-            good_samples, bad_samples = np.array([]), np.array([])
-            n = self.cv.get_n_splits()
-            self.progressbar.width = 2 + n
-            self.msg(self.processor.__class__.__name__, 'estimator')
-            for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
-                self.msg('@1%d/%d ' % (i+1, n))
-                train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
-                self._run(train_X, train_y, test_X, test_y)
-                train_scores.append(self.trainscore)
-                test_scores.append(self.testscore)
-                if self.roc is not None:
-                    roc_aucs.append(self.roc.auc())
-                good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
-                bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
-                self.progressbar.percentage = (100.0 * (i+1) / n)
-            self.msg('@1')  # clear involatile message
-            self.progressbar.width = 0
-            self.good_samples = data.iloc[good_samples, ]
-            self.bad_samples = data.iloc[bad_samples, ]
-            pd.DataFrame.__init__(self, data={'train_score': train_scores,
-                                              'test_score': test_scores,
-                                              'roc_auc': roc_aucs})
-            self.msg('\n%s' % RSTable(self.mean()), 'mean')
-            return data
-
-    def __lshift__(self, other):
-        """
-        使用 << 输入一个estimator
-        :param other: estimator
-        :return:
-        """
-        self.processor = other
-        ret = self(self.data)
-        delattr(self, 'data')
-        return ret
+        X, y = data[features].values, data[label].values
+        train_scores, test_scores, roc_aucs = [], [], []
+        good_samples, bad_samples = np.array([]), np.array([])
+        n = self.cv.get_n_splits()
+        self.progressbar.width = 2 + n
+        self.msg(self.processor.__class__.__name__, 'estimator')
+        for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
+            self.msg('@1%d/%d ' % (i+1, n))
+            train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
+            self._run(train_X, train_y, test_X, test_y)
+            train_scores.append(self.trainscore)
+            test_scores.append(self.testscore)
+            if self.roc is not None:
+                roc_aucs.append(self.roc.auc())
+            good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
+            bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
+            self.progressbar.percentage = (100.0 * (i+1) / n)
+        self.msg('@1')  # clear involatile message
+        self.progressbar.width = 0
+        self.good_samples = data.iloc[good_samples, ]
+        self.bad_samples = data.iloc[bad_samples, ]
+        pd.DataFrame.__init__(self, data={'train_score': train_scores,
+                                          'test_score': test_scores,
+                                          'roc_auc': roc_aucs})
+        self.msg('\n%s' % RSTable(self.mean()), 'mean')
+        return data
 
 
 class WrpUnknown(Wrapper):
     def __init__(self, features2process, obj):
-        Wrapper.__init__(self, features2process, obj, name='WrpUk-%s' % obj.__class__.__name__)
+        Wrapper.__init__(self, features2process, obj, name='WrpUnknown-%s' % obj.__class__.__name__)
 
     def _process(self, data, features, label):
         self.warning('No operation occurred.')

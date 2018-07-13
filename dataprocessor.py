@@ -6,7 +6,7 @@ class RSDataProcessor(RSObject):
     cursor = CStandbyCursor(visible=False)
     timer = CTimer(visible=False)
     label = CLabel(visible=False)
-    progressbar = CProgressBar(visible=False, width=10)
+    progressbar = CProgressBar(visible=False, width=0)
     involatile_msg = [''] * 10  # 0~9
     b_multi_line_msg = False  # output each message in a new line
 

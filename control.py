@@ -161,6 +161,9 @@ class CProgressBar(RSControl):
 
     @percentage.setter
     def percentage(self, value):
+        if self._width == 0:
+            self._s = ''
+            return
         if 0 <= value <= 100:
             if value != self._percentage:
                 self._percentage = value
