@@ -182,6 +182,7 @@ class RSList(RSObject, list):
 class RSTable(pt.PrettyTable, RSObject):
     def __init__(self, copy_from=None):
         pt.PrettyTable.__init__(self)
+        self.max_width = 200
         if copy_from is None:
             pass
         elif isinstance(copy_from, pd.DataFrame):

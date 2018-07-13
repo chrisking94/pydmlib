@@ -1,8 +1,8 @@
 from dataprocessor import *
 import sklearn.model_selection as cv
 from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, RegressorMixin
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection._split import BaseCrossValidator
+from sklearn.model_selection._search import BaseSearchCV
+from sklearn.model_selection import BaseCrossValidator
 from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
 from sklearn.ensemble import RandomForestClassifier
 
@@ -176,15 +176,18 @@ class WrpFunction(Wrapper):
         return self.processor(**param_dict)
 
 
-class WrpValidator(Wrapper):
+class WrpSearchCV(Wrapper):
     def __init__(self, features2process, validator, name=''):
         if name == '':
             name = validator.__class__.__name__
-        name = 'WrpVld-%s' % name
+        name = 'WrpSCV-%s' % name
         Wrapper.__init__(self, features2process, validator, name)
 
     def _process(self, data, features, label):
-        return self.processor.fit(data[features], data[label])
+        self.processor.fit(data[features].values, data[label].values)
+        self.msg('\n%s' % RSTable(pd.DataFrame(data=self.processor.best_params_, index=['value'])), 'best params')
+        self.msg('%.3f' % self.processor.best_score_, 'best score')
+        return data
 
 
 class WrpCluster(Wrapper):
@@ -201,7 +204,7 @@ class WrpCluster(Wrapper):
         Wrapper.__init__(self, features2process, cluster, name)
 
     def _process(self, data, features, label):
-        pass
+        return data
 
 
 class WrpCrossValidator(WrpClassifier, pd.DataFrame):
@@ -217,35 +220,60 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
             name = validator.__class__.__name__
         name = 'WrpCV-%s' % name
         if estimator is None:
-            estimator = RandomForestClassifier()
+            estimator = None
         pd.DataFrame.__init__(self)
         WrpClassifier.__init__(self, features2process, estimator, name=name)
         self.cv = validator
 
     def _process(self, data, features, label):
-        X, y = data[features].values, data[label].values
-        train_scores, test_scores, roc_aucs = [], [], []
-        good_samples, bad_samples = np.array([]), np.array([])
-        n = self.cv.get_n_splits()
-        self.msg(self.processor.__class__.__name__, 'estimator')
-        for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
-            self.msg('@1%d/%d ' % (i+1, n))
-            train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
-            self._run(train_X, train_y, test_X, test_y)
-            train_scores.append(self.trainscore)
-            test_scores.append(self.testscore)
-            if self.roc is not None:
-                roc_aucs.append(self.roc.auc())
-            good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
-            bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
-        self.msg('@1')  # clear involatile message
-        self.good_samples = data.iloc[good_samples, ]
-        self.bad_samples = data.iloc[bad_samples, ]
-        pd.DataFrame.__init__(self, data={'train_score': train_scores,
-                                          'test_score': test_scores,
-                                          'roc_auc': roc_aucs})
-        self.msg('\n%s' % RSTable(self.mean()), 'mean')
-        return data
+        """
+        _process will not run until self.estimator is not None
+        :param data:
+        :param features:
+        :param label:
+        :return:
+        """
+        if self.processor is None:
+            self.data = data
+            return self
+        else:
+            X, y = data[features].values, data[label].values
+            train_scores, test_scores, roc_aucs = [], [], []
+            good_samples, bad_samples = np.array([]), np.array([])
+            n = self.cv.get_n_splits()
+            self.progressbar.width = 2 + n
+            self.msg(self.processor.__class__.__name__, 'estimator')
+            for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
+                self.msg('@1%d/%d ' % (i+1, n))
+                train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
+                self._run(train_X, train_y, test_X, test_y)
+                train_scores.append(self.trainscore)
+                test_scores.append(self.testscore)
+                if self.roc is not None:
+                    roc_aucs.append(self.roc.auc())
+                good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
+                bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
+                self.progressbar.percentage = (100.0 * (i+1) / n)
+            self.msg('@1')  # clear involatile message
+            self.progressbar.width = 0
+            self.good_samples = data.iloc[good_samples, ]
+            self.bad_samples = data.iloc[bad_samples, ]
+            pd.DataFrame.__init__(self, data={'train_score': train_scores,
+                                              'test_score': test_scores,
+                                              'roc_auc': roc_aucs})
+            self.msg('\n%s' % RSTable(self.mean()), 'mean')
+            return data
+
+    def __lshift__(self, other):
+        """
+        使用 << 输入一个estimator
+        :param other: estimator
+        :return:
+        """
+        self.processor = other
+        ret = self(self.data)
+        delattr(self, 'data')
+        return ret
 
 
 class WrpUnknown(Wrapper):
@@ -257,7 +285,7 @@ class WrpUnknown(Wrapper):
         return data
 
 
-def wrap(features2process, processor):
+def wrap(features2process, processor, *args, **kwargs):
     """
     intelligently wrapping， select wrapping type automatically
     """
@@ -271,10 +299,10 @@ def wrap(features2process, processor):
         return WrpClassifier(features2process, processor)
     elif isinstance(processor, TransformerMixin):
         return WrpDataProcessor(features2process, processor, bXonly=False)
-    elif isinstance(processor, GridSearchCV):
-        return WrpValidator(features2process, processor)
+    elif isinstance(processor, BaseSearchCV):
+        return WrpSearchCV(features2process, processor)
     elif isinstance(processor, BaseCrossValidator):
-        return WrpCrossValidator(features2process, processor)
+        return WrpCrossValidator(features2process, processor, *args, **kwargs)
     else:
         return WrpUnknown(features2process, processor)
 

@@ -87,7 +87,7 @@ class SplAppoint(Sampler):
         else:
             sample_count = self.sample_count
         avg_size = int(sample_count / labels.shape[0])
-        sample_ret = pd.DataFrame(columns=data.columns)
+        sample_ret = data.sample(0)
         for label in labels:
             sample_ret = sample_ret.append(data[y == label].sample(avg_size))
         return sample_ret

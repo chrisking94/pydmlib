@@ -1,11 +1,12 @@
 from base import *
-from control import CStandbyCursor, CTimer, CLabel
+from control import CStandbyCursor, CTimer, CLabel, CProgressBar
 
 
 class RSDataProcessor(RSObject):
     cursor = CStandbyCursor(visible=False)
     timer = CTimer(visible=False)
     label = CLabel(visible=False)
+    progressbar = CProgressBar(visible=False, width=10)
     involatile_msg = [''] * 10  # 0~9
     b_multi_line_msg = False  # output each message in a new line
 
@@ -49,10 +50,11 @@ class RSDataProcessor(RSObject):
             if len(msg) > 1 and msg[0] == '@':
                 RSDataProcessor.involatile_msg[int(msg[1])] = msg[2:]
             s_involatile = ''.join(RSDataProcessor.involatile_msg)
-            RSDataProcessor.label.text = lambda: '%s<%s%s>: %s%s' % \
+            RSDataProcessor.label.text = lambda: '%s<%s%s>: %s %s%s' % \
                                                  (self.coloredname,
                                                   self.colorstr(RSDataProcessor.cursor.__str__(), 0, 6, 8),
                                                   self.colorstr(RSDataProcessor.timer.__str__(), 0, 2, 8),
+                                                  self.progressbar.__str__(),
                                                   s_involatile,
                                                   msg)
         else:
@@ -153,7 +155,7 @@ class RSDataProcessor(RSObject):
         return []
 
     def __call__(self, *args, **kwargs):
-        return self.fit_transform(*args)
+        return self.fit_transform(*args, **kwargs)
 
     def __add__(self, other):
         from integration import ProcessorSequence

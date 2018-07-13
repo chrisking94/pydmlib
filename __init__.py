@@ -18,11 +18,13 @@ import base
 import misc
 import wrapper
 import data
+import control
+import integration
 
 base.test()
-import integration
 integration.test()
 misc.test()
 wrapper.test()
 data.test()
+control.test()
 

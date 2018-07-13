@@ -24,7 +24,7 @@ class RSControl(RSObject):
         refresh
         :return: str
         """
-        self.error('Must implement refresh()!')
+        return self.__str__()
 
     def wait(self, t):
         """
@@ -50,9 +50,6 @@ class RSControl(RSObject):
 
     def __del__(self):
         self._destroy()
-
-    def __str__(self):
-        return self.refresh()
 
     @staticmethod
     def init():
@@ -88,19 +85,16 @@ RSControl.init()
 class CStandbyCursor(RSControl):
     def __init__(self, **kwargs):
         RSControl.__init__(self, **kwargs)
-        self._char = '-'
+        self._i = 0
+        self._chars = '-\\|/'
 
-    def refresh(self):
+    def __str__(self):
         if self.wait(400):
-            if self._char == '-':
-                self._char = '\\'
-            elif self._char == '\\':
-                self._char = '|'
-            elif self._char == '|':
-                self._char = '/'
+            if self._i < len(self._chars)-1:
+                self._i += 1
             else:
-                self._char = '-'
-        return self._char
+                self._i = 0
+        return self._chars[self._i]
 
 
 class CTimer(RSControl):
@@ -109,7 +103,10 @@ class CTimer(RSControl):
         self.t = time.time()
         self.st = '0s'
 
-    def refresh(self):
+    def reset(self):
+        self.t = time.time()
+
+    def __str__(self):
         if self.wait(1000):
             t = int(time.time() - self.t)
             m, s = divmod(t, 60)
@@ -118,18 +115,85 @@ class CTimer(RSControl):
             self.st = st
         return self.st
 
-    def reset(self):
-        self.t = time.time()
-
 
 class CLabel(RSControl):
     def __init__(self, **kwargs):
-        self.text = ''
+        self._text = ''
         RSControl.__init__(self, **kwargs)
 
-    def refresh(self):
-        if callable(self.text):
-            return self.text()
+    ##############
+    # Properties #
+    ##############
+    @property
+    def text(self):
+        if callable(self._text):
+            return self._text()
         else:
-            return self.text
+            return self._text
+
+    @text.setter
+    def text(self, text):
+        self._text = text
+
+    def __str__(self):
+        return self.text
+
+
+class CProgressBar(RSControl):
+    fill_char = '■'
+    null_char = '□'
+
+    def __init__(self, **kwargs):
+        self._width = 0
+        self._s = ''
+        self._percentage = 1
+        self.percentage = 0
+        self.width = 20  # unit:char
+        RSControl.__init__(self, **kwargs)
+
+    ##############
+    # Properties #
+    ##############
+
+    @property
+    def percentage(self):
+        return self._percentage
+
+    @percentage.setter
+    def percentage(self, value):
+        if 0 <= value <= 100:
+            if value != self._percentage:
+                self._percentage = value
+                i = int(self._width * self._percentage / 100.0)
+                self._s = '[%s%s]' % (CProgressBar.fill_char * i,
+                                      CProgressBar.null_char * (self._width - i))
+        else:
+            self.error('invalid percentage %s.' % value)
+
+    @property
+    def width(self):
+        return self._width + 2
+
+    @width.setter
+    def width(self, value):
+        if value < 2:
+            self._width = 0
+            self._s = ''
+        else:
+            self._width = value - 2
+            self._percentage -= 1
+            self.percentage = self._percentage + 1
+
+    def __str__(self):
+        return self._s
+
+
+def test():
+    return
+    RSControl.init()
+    t = CTimer(visible=True)
+    p = CProgressBar(percentage=50, visible=True)
+    while 1:
+        pass
+    pass
 
