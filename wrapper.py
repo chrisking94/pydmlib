@@ -4,7 +4,7 @@ from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, Regres
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection import BaseCrossValidator
 from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
-from costestimator import TimeCostEstimator
+from control import RSControl
 
 
 class Wrapper(RSDataProcessor):
@@ -23,19 +23,12 @@ class Wrapper(RSDataProcessor):
         self.data = None
 
     def fit_transform(self, data):
-        """
-        首先检查self.not_none_attrs，如果其中包含None则1，否则2
-        :param data:
-        :return: 1.将数据存入self.data, 不做任何处理并返回self
-                 2.处理self.data，返回处理过后的data，并将self.data设置为None
-        """
-        b_process = True
-        for attr in self.not_none_attrs:
-            if getattr(self, attr) is None:
-                b_process = False
+        b_fit = True
+        for x in self.not_none_attrs:
+            if getattr(self, x) is None:
+                b_fit = False
                 break
-        if b_process:
-            self.data = None
+        if b_fit:
             return RSDataProcessor.fit_transform(self, data)
         else:
             self.data = data
@@ -43,16 +36,20 @@ class Wrapper(RSDataProcessor):
 
     def __rshift__(self, other):
         """
-        not_none_attrs中的attr存在值为None时会出现误调用此运算符
+        not_none_attrs中的attr存在值为None时抛出异常
         :param other:
         :return:
         """
-        none_attrs = []
-        for attr in self.not_none_attrs:
-            if getattr(self, attr) is None:
-                none_attrs.append(attr)
-        self.error('invoke of >> is forbidden,\
+        none_attrs = [x for x in self.not_none_attrs if getattr(self, x) is None]
+        if len(none_attrs) > 0:
+            self.error('invoke of >> is forbidden,\
 params %s are None whereas they are not allowed to be None.You may use << to fill they up.' % none_attrs.__str__())
+        else:
+            data = self.fit_transform(self.data)
+            if not isinstance(other, int):
+                data = data >> other
+            self.data = None
+            return data
 
     def __lshift__(self, other):
         """
@@ -60,11 +57,14 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
         :param other: 输入参数
         :return:
         """
-        for attr in self.not_none_attrs:
-            if getattr(self, attr) is None:
-                setattr(self, attr, other)
-                break
-        return self.fit_transform(self.data)
+        if isinstance(other, dict):
+            self.__dict__.update(other)
+        else:
+            for attr in self.not_none_attrs:
+                if getattr(self, attr) is None:
+                    setattr(self, attr, other)
+                    break
+        return self
 
 
 class WrpDataProcessor(Wrapper):
@@ -91,6 +91,7 @@ class WrpDataProcessor(Wrapper):
             name = name % (processor.__class__.__name__)
         Wrapper.__init__(self, features2process, processor, name)
         self.bXonly = bXonly
+        self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [processor])
 
     def _process(self, data, features, label):
         """
@@ -130,6 +131,8 @@ class WrpClassifier(Wrapper):
         self.test_size = test_size
         self.b_train = b_train
         self.plots = None
+        if self.processor is not None:
+            self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [self.processor])
 
     def _process(self, data, features, label):
         """
@@ -187,7 +190,7 @@ class WrpClassifier(Wrapper):
         fig = plt.figure(figsize=(5.5*ncols, 5*nrows))
         for i, axe in enumerate(self.plots):
             axe.plot(fig.add_subplot(nrows, ncols, i+1))
-        plt.show()
+        RSControl.show()
 
     def get_report_title(self, *args):
         return ['训练集得分', '测试集得分']
@@ -208,6 +211,7 @@ class WrpFunction(Wrapper):
             name = func.__name__
         name = 'WrpFunc-%s' % name
         Wrapper.__init__(self, features2process, func, name)
+        self.cost_estimator = TimeCostEstimator.get_estimator(func)
 
     def _process(self, data, features, label):
         param_names = self.processor.__code__.co_varnames
@@ -231,6 +235,7 @@ class WrpSearchCV(Wrapper):
             name = validator.__class__.__name__
         name = 'WrpSCV-%s' % name
         Wrapper.__init__(self, features2process, validator, name)
+        self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [validator])
 
     def _process(self, data, features, label):
         self.processor.fit(data[features].values, data[label].values)
@@ -272,6 +277,8 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         WrpClassifier.__init__(self, features2process, estimator, name=name)
         self.not_none_attrs = {'processor'}
         self.cv = validator
+        if self.processor is not None:
+            self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [self.processor, self.cv])
 
     def _process(self, data, features, label):
         """
@@ -285,7 +292,6 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         train_scores, test_scores, roc_aucs = [], [], []
         good_samples, bad_samples = np.array([]), np.array([])
         n = self.cv.get_n_splits()
-        self.progressbar.width = 2 + n
         self.msg(self.processor.__class__.__name__, 'estimator')
         for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
             self.msg('@1%d/%d ' % (i+1, n))
@@ -297,9 +303,7 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
                 roc_aucs.append(self.roc.auc())
             good_samples = np.concatenate([good_samples, test_i[self.y_pred == test_y]])
             bad_samples = np.concatenate([bad_samples, test_i[self.y_pred != test_y]])
-            self.progressbar.percentage = (100.0 * (i+1) / n)
         self.msg('@1')  # clear involatile message
-        self.progressbar.width = 0
         self.good_samples = data.iloc[good_samples, ]
         self.bad_samples = data.iloc[bad_samples, ]
         pd.DataFrame.__init__(self, data={'train_score': train_scores,
@@ -307,6 +311,12 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
                                           'roc_auc': roc_aucs})
         self.msg('\n%s' % RSTable(self.mean()), 'mean')
         return data
+
+    def __lshift__(self, other):
+        ret = Wrapper.__lshift__(self, other)
+        if self.processor is not None:
+            self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [self.processor, self.cv])
+        return ret
 
 
 class WrpUnknown(Wrapper):

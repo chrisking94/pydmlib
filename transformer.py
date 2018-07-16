@@ -24,6 +24,7 @@ class TsfmFunction(Transformer):
         Transformer.__init__(self, features2process, name)
         self.transform = transform
         self.breplace = breplace
+        self.cost_estimator = TimeCostEstimator.get_estimator(transform)
 
     def _process(self, data, features, label):
         ts = self.transform(data[features])

@@ -1,5 +1,5 @@
 from base import *
-import _thread
+from threading import Thread
 
 
 class RSControl(RSObject):
@@ -9,6 +9,40 @@ class RSControl(RSObject):
     interval = 20  # ms
     iTimer = 0  # ms
     s_out = ''
+
+    class RSControlThread(Thread):
+        def __init__(self, *args, **kwargs):
+            Thread.__init__(self, *args, **kwargs)
+            self.state = 'running'  # running
+
+        def pause(self):
+            self.state = 'pause'
+
+        def resume(self):
+            self.state = 'running'
+
+        def terminate(self):
+            self.state = 'terminated'
+
+        def run(self):
+            last_s = ''
+            while self.state != 'terminated':
+                if self.state == 'running':
+                    RSControl.buffer = []
+                    for ctrl in RSControl.controls.values():
+                        if ctrl.visible:
+                            RSControl.buffer.append(ctrl.refresh())
+                    s = ''.join(RSControl.buffer)
+                    if s != last_s:
+                        len_diff = len(last_s) - len(s)
+                        if len_diff > 0:
+                            print('%s%s' % (s, ' ' * len_diff), end='\r')
+                        else:
+                            print(s, end='\r')
+                        last_s = s
+                        RSControl.s_out = s
+                time.sleep(RSControl.interval / 1000.0)
+                RSControl.iTimer += RSControl.interval
 
     def __init__(self, **kwargs):
         RSObject.__init__(self)
@@ -54,7 +88,8 @@ class RSControl(RSObject):
     @staticmethod
     def init():
         if RSControl.thread is None:
-            RSControl.thread = _thread.start_new_thread(RSControl._process_refresh, ())
+            RSControl.thread = RSControl.RSControlThread()
+            RSControl.thread.start()
 
     @staticmethod
     def print(s, **kwargs):
@@ -62,21 +97,11 @@ class RSControl(RSObject):
         print(s, **kwargs)
 
     @staticmethod
-    def _process_refresh():
-        s = ''
-        last_s = ''
-        while True:
-            RSControl.buffer = []
-            for ctrl in RSControl.controls.values():
-                if ctrl.visible:
-                    RSControl.buffer.append(ctrl.refresh())
-            s = ''.join(RSControl.buffer)
-            if s != last_s:
-                RSControl.print(s, end='\r')
-                last_s = s
-                RSControl.s_out = s
-            time.sleep(RSControl.interval / 1000.0)
-            RSControl.iTimer += RSControl.interval
+    def show():
+        RSControl.thread.pause()
+        print(' ' * len(RSControl.s_out), end='\r')  # 清行
+        plt.show()
+        RSControl.thread.resume()
 
 
 RSControl.init()
@@ -140,15 +165,15 @@ class CLabel(RSControl):
 
 
 class CProgressBar(RSControl):
-    fill_char = '■'
-    null_char = '□'
+    fill_char = '❚'
+    null_char = '⌷'
 
     def __init__(self, **kwargs):
         self._width = 0
         self._s = ''
         self._percentage = 1
         self.percentage = 0
-        self.width = 20  # unit:char
+        self.width = 40  # unit:char
         RSControl.__init__(self, **kwargs)
 
     ##############
@@ -164,31 +189,56 @@ class CProgressBar(RSControl):
         if self._width == 0:
             self._s = ''
             return
-        if 0 <= value <= 100:
-            if value != self._percentage:
-                self._percentage = value
-                i = int(self._width * self._percentage / 100.0)
-                self._s = '[%s%s]' % (CProgressBar.fill_char * i,
-                                      CProgressBar.null_char * (self._width - i))
-        else:
-            self.error('invalid percentage %s.' % value)
+        if value < 0:
+            value = 0
+        elif value > 100:
+            value = 100
+        if value != self._percentage:
+            self._percentage = value
+            i = int(self._width * self._percentage / 100.0)
+            self._s = '[%s%s%d%%]' % (CProgressBar.fill_char * i,
+                                      self.colorstr(CProgressBar.fill_char * (self._width - i), 0, 7, 8),
+                                      self.percentage)
 
     @property
     def width(self):
-        return self._width + 2
+        return self._width
 
     @width.setter
     def width(self, value):
-        if value < 2:
+        if value < 0:
             self._width = 0
             self._s = ''
         else:
-            self._width = value - 2
+            self._width = value
             self._percentage -= 1
             self.percentage = self._percentage + 1
 
     def __str__(self):
         return self._s
+
+
+class CTimeProgressBar(CProgressBar):
+    def __init__(self, time_=0, **kwargs):
+        """
+
+        :param time: s
+        :param kwargs:
+        """
+        CProgressBar.__init__(self, **kwargs)
+        self.time_ = time_
+        self.start_ = time.time()
+
+    def reset(self, time_):
+        self.start_ = time.time()
+        self.time_ = time_
+
+    def __str__(self):
+        if self.time_ == 0:
+            self.percentage = 100
+        else:
+            self.percentage = (time.time() - self.start_) * 100 / self.time_
+        return CProgressBar.__str__(self)
 
 
 def test():

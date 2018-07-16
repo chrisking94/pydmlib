@@ -1,12 +1,13 @@
 from base import *
-from control import CStandbyCursor, CTimer, CLabel, CProgressBar
+from control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
+from costestimator import TimeCostEstimator
 
 
 class RSDataProcessor(RSObject):
     cursor = CStandbyCursor(visible=False)
     timer = CTimer(visible=False)
     label = CLabel(visible=False)
-    progressbar = CProgressBar(visible=False, width=0)
+    progressbar = CTimeProgressBar(visible=False, width=40)
     involatile_msg = [''] * 10  # 0~9
     b_multi_line_msg = False  # output each message in a new line
 
@@ -24,6 +25,7 @@ class RSDataProcessor(RSObject):
         self.features2process = features2process
         self.state = 'on'  # turn off this processor by set state to 'off'
         self.messages = {}
+        self.cost_estimator = TimeCostEstimator.get_estimator(self.__class__.__name__)
 
     def turn(self, state):
         """
@@ -115,8 +117,17 @@ class RSDataProcessor(RSObject):
                 if features.__len__() == 0:
                     self.warning('No feature to process.')
                 else:
+                    self.cost_estimator.factors.extend([len(features), data.shape[0]])
+                    tcp = self.cost_estimator.predict()
+                    if tcp > 1:
+                        self.progressbar.width = 40
+                        self.progressbar.reset(tcp)
+                    else:
+                        self.progressbar.width = 0
                     data = self._process(data, features, label)
                 RSDataProcessor.label.visible = False
+                self.progressbar.width = 0
+                self.cost_estimator.memorize_experience()
             else:
                 data = self._process(data, None, None)
             self.msgtimecost()

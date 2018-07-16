@@ -4,6 +4,7 @@ from sklearn.feature_selection import chi2
 from sklearn.ensemble import RandomForestClassifier
 from skfeature.function.information_theoretical_based.MRMR import mrmr
 from sklearn.linear_model import LogisticRegression
+from control import RSControl
 
 
 class FeatureSelector(RSDataProcessor):
@@ -57,7 +58,7 @@ class FeatureSelector(RSDataProcessor):
         plt.figure(figsize=(figsize, figsize))
         plt.subplot()
         plt.pie(fracs, labels=labels, autopct='%1.1f%%', pctdistance=0.9, shadow=False, rotatelabels=True)
-        plt.show()
+        RSControl.show()
 
     def bar(self, top=10):
         part = self._get_score_part(top)
@@ -69,7 +70,7 @@ class FeatureSelector(RSDataProcessor):
         plt.barh(y_pos, fracs, alpha=.8)
         plt.yticks(y_pos, labels)
         plt.title('Feature importance percentage.')
-        plt.show()
+        RSControl.show()
 
     def __str__(self):
         return '%s: \n%s' % (self.coloredname, RSTable(self.scores).__str__())
