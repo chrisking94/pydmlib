@@ -1,6 +1,6 @@
 from base import *
 from control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
-from costestimator import TimeCostEstimator
+from costestimator import CETime
 
 
 class RSDataProcessor(RSObject):
@@ -25,7 +25,7 @@ class RSDataProcessor(RSObject):
         self.features2process = features2process
         self.state = 'on'  # turn off this processor by set state to 'off'
         self.messages = {}
-        self.cost_estimator = TimeCostEstimator.get_estimator(self.__class__.__name__)
+        self.cost_estimator = CETime.get_estimator(self.__class__.__name__)
 
     def turn(self, state):
         """

@@ -91,7 +91,7 @@ class WrpDataProcessor(Wrapper):
             name = name % (processor.__class__.__name__)
         Wrapper.__init__(self, features2process, processor, name)
         self.bXonly = bXonly
-        self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [processor])
+        self.cost_estimator = CETime.get_estimator(self.name, [processor])
 
     def _process(self, data, features, label):
         """
@@ -132,7 +132,7 @@ class WrpClassifier(Wrapper):
         self.b_train = b_train
         self.plots = None
         if self.processor is not None:
-            self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [self.processor])
+            self.cost_estimator = CETime.get_estimator(self.name, [self.processor])
 
     def _process(self, data, features, label):
         """
@@ -211,7 +211,7 @@ class WrpFunction(Wrapper):
             name = func.__name__
         name = 'WrpFunc-%s' % name
         Wrapper.__init__(self, features2process, func, name)
-        self.cost_estimator = TimeCostEstimator.get_estimator(func)
+        self.cost_estimator = CETime.get_estimator(func)
 
     def _process(self, data, features, label):
         param_names = self.processor.__code__.co_varnames
@@ -235,7 +235,7 @@ class WrpSearchCV(Wrapper):
             name = validator.__class__.__name__
         name = 'WrpSCV-%s' % name
         Wrapper.__init__(self, features2process, validator, name)
-        self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [validator])
+        self.cost_estimator = CETime.get_estimator(self.name, [validator])
 
     def _process(self, data, features, label):
         self.processor.fit(data[features].values, data[label].values)
@@ -270,15 +270,23 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         :param estimator: default RandomForestClassifier
         :param name:
         """
-        if name == '':
-            name = validator.__class__.__name__
-        name = 'WrpCV-%s' % name
         pd.DataFrame.__init__(self)
         WrpClassifier.__init__(self, features2process, estimator, name=name)
         self.not_none_attrs = {'processor'}
         self.cv = validator
-        if self.processor is not None:
-            self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [self.processor, self.cv])
+        self._get_estimator()
+
+    def _get_estimator(self):
+        if self.processor is not None and self.cv is not None:
+            name = self.name
+            if name == '':
+                name = '%s-%s' % (self.cv.__class__.__name__,
+                                  self.processor.__class__.__name__)
+            name = 'WrpCV-%s' % name
+            self.name = name
+            self.cost_estimator = CETime.get_estimator(self.name, [self.processor, self.cv])
+        else:
+            self.name = ''
 
     def _process(self, data, features, label):
         """
@@ -314,8 +322,7 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
 
     def __lshift__(self, other):
         ret = Wrapper.__lshift__(self, other)
-        if self.processor is not None:
-            self.cost_estimator = TimeCostEstimator.get_estimator(self.name, [self.processor, self.cv])
+        self._get_estimator()
         return ret
 
 

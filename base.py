@@ -204,6 +204,25 @@ class RSTable(pt.PrettyTable, RSObject):
         RSObject.__init__(self)
 
 
+last_len = -1
+
+
+def printf(s, *args, **kwargs):
+    global last_len
+    if last_len > 0:
+        print(' ' * last_len, end='\r')  # 清行
+    print(s % args, **kwargs)
+    if 'end' in kwargs.keys() and kwargs['end'] == '\r':
+        last_len = len(s)
+    else:
+        last_len = -1
+
+
+def show(*args, **kwargs):
+    import control
+    control.RSControl.show(*args, **kwargs)
+
+
 def test():
     return
     pass

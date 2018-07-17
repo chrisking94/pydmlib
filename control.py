@@ -97,10 +97,10 @@ class RSControl(RSObject):
         print(s, **kwargs)
 
     @staticmethod
-    def show():
+    def show(*args, **kwargs):
         RSControl.thread.pause()
         print(' ' * len(RSControl.s_out), end='\r')  # 清行
-        plt.show()
+        plt.show(*args, **kwargs)
         RSControl.thread.resume()
 
 

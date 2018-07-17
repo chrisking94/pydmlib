@@ -5,7 +5,7 @@ import hashlib
 import inspect
 
 
-class CostEstimator(RSObject):
+class RSCostEstimator(RSObject):
     save_folder = '%s/pydm/estimator/' % os.path.expanduser('~')
     if not os.path.exists(save_folder):
         try:
@@ -19,23 +19,69 @@ class CostEstimator(RSObject):
     def __init__(self, project_name, **kwargs):
         RSObject.__init__(self, project_name)
         self.project_name = project_name
-        self.filepath = '%s%s.csv' % (self.save_folder, self.project_name)
+        self.file_path = '%s%s.csv' % (self.save_folder, self.project_name)
         self.data = None
         self.load()
+        self.new_experience = None
 
     def load(self):
-        if os.path.exists(self.filepath):
-            self.data = pd.read_csv(self.filepath)
+        if os.path.exists(self.file_path):
+            self.data = pd.read_csv(self.file_path)
 
     def save(self):
         if self.data.shape[0] > self.max_rows_saved:
-            data = self.data.iloc[-1000:, :]
+            data = self.data.iloc[-self.max_rows_saved:, :]
         else:
             data = self.data
-        data.to_csv(self.filepath, index=False)
+        data.to_csv(self.file_path, index=False)
+
+    def save_new_exp(self):
+        if self.new_experience is not None:
+            if self.data is not None and len(self.new_experience) != self.data.shape[0]:
+                # overwrite
+                self.save()
+            else:
+                # append
+                s_out = ','.join(self.new_experience)
+                s_out = '%s\r\n' % s_out
+                with open(self.file_path) as f:
+                    f.write(s_out)
+
+    @staticmethod
+    def init():
+        thread = Thread(target=RSCostEstimator._thread_init())
+        thread.start()
+
+    @staticmethod
+    def _thread_init():
+        """
+        initialize subclasses here
+        :return:
+        """
+        # manage experience files
+        f_info = pd.DataFrame(columns=['file', 'size', 'delta_acc_day'])
+        for f_name in os.listdir(RSCostEstimator.save_folder):
+            if f_name.endswith('.csv'):
+                f_path = '%s%s' % (RSCostEstimator.save_folder, f_name)
+                f_access_time = datetime.datetime.fromtimestamp(os.path.getatime(f_path))
+                f_size = os.path.getsize(f_path)
+                now_time = datetime.datetime.now()
+                delta_at = now_time - f_access_time
+                if f_name.startswith('_'):  # function experience file
+                    f_info.loc[f_info.shape[0], ] = [f_name, f_size, delta_at.days]
+        # delete some functional experience files which are too old
+        series_dad = f_info['delta_acc_day']
+        f_del = f_info['file'][(series_dad-series_dad.mean()) > 3*series_dad.std()]
+        for f_name in f_del.iteritems():
+            f_path = '%s%s' % (RSCostEstimator.save_folder, f_name)
+            print('%s was removed.' % f_path)
+            os.remove(f_path)
 
 
-class TimeCostEstimator(CostEstimator):
+RSCostEstimator.init()  # initialize statically
+
+
+class CETime(RSCostEstimator):
     class Factors(list):
         # 对于非简单（非int, float, ...）因子，会展开__init__中的参数
         # 展开时会再次遇到非简单因子，如此递归，max_depth决定递归的深度，=1表示只展开第一层__init__
@@ -77,9 +123,9 @@ class TimeCostEstimator(CostEstimator):
         :param factor_names: list
         :param kwargs:
         """
-        CostEstimator.__init__(self, project_name, **kwargs)
-        self.time = 0
-        self.factors = TimeCostEstimator.Factors(immutable_factors)
+        RSCostEstimator.__init__(self, project_name, **kwargs)
+        self.start_time = 0
+        self.factors = CETime.Factors(immutable_factors)
         self.predictor = None
         self.train()
         self.end_data = None
@@ -94,13 +140,13 @@ class TimeCostEstimator(CostEstimator):
         return machine_info
 
     def predict(self):
-        self.time = time.time()
+        self.start_time = time.time()
         self.factors.extend(self._get_machine_info())
         if self.predictor is not None:
             x = self.factors + [-1]
             if len(x) == self.data.shape[1]:
                 self.data.loc[self.data.shape[0], :] = x
-                data = self._get_dummies()
+                data = self._get_processed_data()
                 x = data.iloc[-1, :-1]
                 self.data.drop(self.data.shape[0] - 1, axis=0, inplace=True)
                 try:
@@ -114,16 +160,18 @@ class TimeCostEstimator(CostEstimator):
         memorize时才会清空factors
         :return:
         """
-        cost = time.time() - self.time
+        cost = time.time() - self.start_time
         if cost > 1:
-            new_experience = self.factors + [cost]
-            if self.data is None or self.data.shape[0] == 0 or len(new_experience) != self.data.shape[1]:
+            self.new_experience = self.factors + [cost]
+            if self.data is None or \
+                    self.data.shape[0] == 0 or \
+                    len(self.new_experience) != self.data.shape[1]:
                 # factors发生变化，丢弃原来的数据
-                self.data = pd.DataFrame(data=[new_experience])
+                self.data = pd.DataFrame(data=[self.new_experience])
             else:
-                self.data.loc[self.data.shape[0], :] = new_experience
+                self.data.loc[self.data.shape[0], :] = self.new_experience
+            self.save_new_exp()
             self.factors.clear()  # 重置factors
-            self.save()
             self.train()
 
     def train(self, time_out=0):
@@ -134,43 +182,54 @@ class TimeCostEstimator(CostEstimator):
         """
         if self.data is None:
             return False
-        elif self.data.shape[0] < 2 or self.data.shape[1] < 2:
+        elif self.data.shape[0] < 1 or self.data.shape[1] < 2:
             return False
         t = Thread(target=self._thread_train)
         t.start()
         t.join(time_out)
         return not t.isAlive()
 
-    def _get_dummies(self):
-        fact = self.data.columns[self.data.dtypes == 'object']
+    def _get_processed_data(self):
+        data = self.data
+        # if data.shape[0] > 2:
+        #     # 去掉单值列
+        #     data = data[data.columns[
+        #         pd.Series([len(data[x].unique()) > 1 for x in data.columns[:-1]]+[True])]]
+        # 编码factors
+        fact = data.columns[data.dtypes == 'object']
         if len(fact) > 0:
-            data = self.data.drop(columns=fact)
-            data = pd.concat([pd.get_dummies(self.data[fact]), data], axis=1)
-        else:
-            data = self.data
+            encoded = pd.get_dummies(data[fact])
+            data = data.drop(columns=fact)
+            data = pd.concat([encoded, data], axis=1)
         return data
 
     def _thread_train(self):
-        data = self._get_dummies()
+        data = self._get_processed_data()
         X, y = data.iloc[:, :-1], data.iloc[:, -1]
         if self.predictor is None:
             self.predictor = DecisionTreeRegressor()
         self.predictor.fit(X, y)
+        if self.data.shape[0] > self.max_rows_saved:
+            self.data = self.data[-self.max_rows_saved+20, :]
+            self.save()
 
     @staticmethod
     def get_estimator(character, immutable_factors=()):
-        if isinstance(character, TimeCostEstimator.get_estimator.__class__):
+        if isinstance(character, CETime.get_estimator.__class__):
             s = inspect.getsource(character)
+            rgx = re.compile(r'\s')
+            s = rgx.sub('', s)
             character = hashlib.sha224(s.encode('utf-8')).hexdigest()
-        if character in TimeCostEstimator.estimators.keys():
-            return TimeCostEstimator.estimators.keys()
+            character = '_%s' % character
+        if character in CETime.estimators.keys():
+            return CETime.estimators.keys()
         else:
-            return TimeCostEstimator(character, immutable_factors)
+            return CETime(character, immutable_factors)
 
 
 def test():
     return
-    e = TimeCostEstimator('test')
+    e = CETime('test')
     for i in range(1, 10):
         print(e.predict(i))
         time.sleep(i)
