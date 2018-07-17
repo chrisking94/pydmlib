@@ -1,4 +1,4 @@
-from base import *
+﻿from base import *
 from sklearn.tree import DecisionTreeRegressor
 from threading import Thread
 import hashlib
@@ -17,7 +17,7 @@ class RSCostEstimator(RSObject):
     estimators = {}
 
     def __init__(self, project_name, **kwargs):
-        RSObject.__init__(self, project_name)
+        RSObject.__init__(self, 'CE-%s' % project_name)
         self.load_file = True
         self.project_name = project_name
         self.file_path = '%s%s.csv' % (self.save_folder, self.project_name)
@@ -110,7 +110,7 @@ class CETime(RSCostEstimator):
                     if hasattr(obj, var_name):
                         self._append(getattr(obj, var_name), depth+1)
             else:
-                list.append(self, -1)  # 设为缺省
+                list.append(self, 0)  # 设为缺省
 
         def append(self, obj):
             self._append(obj, 0)
@@ -158,7 +158,8 @@ class CETime(RSCostEstimator):
                 self.data.drop(self.data.shape[0] - 1, axis=0, inplace=True)
                 try:
                     return self.predictor.predict(x.reshape(1, -1)) - 1
-                except RuntimeError:
+                except ValueError as e:
+                    self.warning('prediction failed! %s' % e.__str__())
                     return -1
         return -1
 

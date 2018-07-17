@@ -66,6 +66,11 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
                     break
         return self
 
+    def __str__(self):
+        return self.processor.__str__()
+
+    __repr__ = __str__
+
 
 class WrpDataProcessor(Wrapper):
     def __init__(self, features2process, processor, name=''):
@@ -100,10 +105,11 @@ class WrpDataProcessor(Wrapper):
         if X.shape == X_.shape:
             data[features] = X_
         else:
-            colsname = ['%s_%d' % (self.name, x) for x in range(X.shape[1])]
+            colsname = ['%s_%d' % (self.name, x) for x in range(X_.shape[1])]
             data.drop(columns=features, inplace=True)
-            X = data.__class__(pd.DataFrame(X_, columns=colsname))
+            X = data.__class__(pd.DataFrame(X_, columns=colsname, index=data.index))
             data = pd.concat([X, data], axis=1)
+            # !concat以index相等为条件来进行join
         return data
 
 

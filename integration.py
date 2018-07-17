@@ -312,6 +312,8 @@ class TCCheckPoint(TesterController):
             msg = '%s%s' % (msg, '👈input data saved.')
         elif self.data is not None:
             msg = '%s%s' % (msg, '👉data exported.')
+        else:
+            self.warning('No data held in by this check point.')
         self.msgtime(msg)
         self.msgtimecost()
         return self.data
@@ -344,10 +346,7 @@ class TCCheckPoint(TesterController):
         self.data = None
 
     def __rshift__(self, other):
-        if self.data is not None:
-            return self.data >> other
-        else:
-            self.error('No data held in by this check point.')
+        return self(None) >> other
 
 
 class TCBreak(TCCheckPoint):
