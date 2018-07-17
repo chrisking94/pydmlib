@@ -42,9 +42,9 @@ class RSCostEstimator(RSObject):
                 self.save()
             else:
                 # append
-                s_out = ','.join(self.new_experience)
+                s_out = ','.join([str(x) for x in self.new_experience])
                 s_out = '%s\r\n' % s_out
-                with open(self.file_path) as f:
+                with open(self.file_path, 'a') as f:
                     f.write(s_out)
 
     @staticmethod

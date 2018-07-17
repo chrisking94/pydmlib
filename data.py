@@ -84,12 +84,9 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
         # 2.其他情况的实参，则直接调用基类__init__并传入实参
         def __getitem__(self, item):
             if isinstance(item, str):
-                if item[0] == '@':  # @@使用正则表达式
-                    if item[1] == '@':
-                        regx = re.compile(item[2:])
-                        cols = [x for x in self if regx.search(x) is not None]
-                    else:  # @xc 使用标签匹配，返回带x,c标签的列
-                        item = set(item[1:])
+                if item[0] == '@':
+                    if len(item) > 2 and item[1] == '@':  # @@xc 使用标签匹配，返回带x,c标签的列
+                        item = set(item[2:])
                         rgx_label = re.compile(r'<([^>]+)>')
                         cols = []
                         for col in self:
@@ -105,6 +102,9 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                                 labels = 'cx'  # 默认为cx标签
                             if item.issubset(set(labels)):
                                 cols.append(col)
+                    else:  # @使用正则表达式
+                        regx = re.compile(item[1:])
+                        cols = [x for x in self if regx.search(x) is not None]
                     item = cols
             elif isinstance(item, tuple):
                 # 可以进行集合运算
@@ -187,14 +187,14 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
         return data
 
     def data(self, label):
-        Y = self.columns['@y']
+        Y = self.columns['@@y']
         rgx = re.compile('%s$' % label)
         y = ''
         for y_ in Y:
             if rgx.search(y_) is not None:
                 y = y_
                 break
-        ret = pd.concat([self['@x'], self[y]], axis=1)
+        ret = pd.concat([self['@@x'], self[y]], axis=1)
         ret.rename({y: 'label'}, axis=1, inplace=True)
         return ret
 

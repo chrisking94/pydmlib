@@ -313,6 +313,7 @@ class TCCheckPoint(TesterController):
         elif self.data is not None:
             msg = '%s%s' % (msg, '👉data exported.')
         self.msgtime(msg)
+        self.msgtimecost()
         return self.data
 
     def is_me(self, id_name):
@@ -344,7 +345,7 @@ class TCCheckPoint(TesterController):
 
     def __rshift__(self, other):
         if self.data is not None:
-            return TCCheckPoint(data=wrap(None, other)(self.data))
+            return self.data >> other
         else:
             self.error('No data held in by this check point.')
 

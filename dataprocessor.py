@@ -125,9 +125,9 @@ class RSDataProcessor(RSObject):
                     else:
                         self.progressbar.width = 0
                     data = self._process(data, features, label)
+                    self.cost_estimator.memorize_experience()
                 RSDataProcessor.label.visible = False
                 self.progressbar.width = 0
-                self.cost_estimator.memorize_experience()
             else:
                 data = self._process(data, None, None)
             self.msgtimecost()

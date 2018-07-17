@@ -68,7 +68,7 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
 
 
 class WrpDataProcessor(Wrapper):
-    def __init__(self, features2process, processor, name='', bXonly=True):
+    def __init__(self, features2process, processor, name=''):
         """
         包装数据处理器，处理器的格式必须为
         class DP:
@@ -81,16 +81,11 @@ class WrpDataProcessor(Wrapper):
         :param features2process:
         :param processor: 处理器
         :param name:
-        :param bXonly: processor是否只用输入X，默认True
         """
         if name == '':
-            if bXonly:
-                name = 'WrpDPX-%s'
-            else:
-                name = 'WrpDPXy-%s'
-            name = name % (processor.__class__.__name__)
+            name = 'WrpDP-%s'
+            name = name % processor.__class__.__name__
         Wrapper.__init__(self, features2process, processor, name)
-        self.bXonly = bXonly
         self.cost_estimator = CETime.get_estimator(self.name, [processor])
 
     def _process(self, data, features, label):
@@ -99,19 +94,16 @@ class WrpDataProcessor(Wrapper):
         :param data:
         :return:
         """
-        self.msg('running...')
         data = data.copy()
         X, y = data[features], data[label]
-        if self.bXonly:
-            X = self.processor.fit_transform(X)
+        X_ = self.processor.fit_transform(X, y)
+        if X.shape == X_.shape:
+            data[features] = X_
         else:
-            X = self.processor.fit_transform(X, y)
-        if not isinstance(X, np.ndarray):
-            self.error('processor\'s return value type must be np.ndarray!')
-        colsname = ['%s_%d' % (self.name, x) for x in range(X.shape[1])]
-        data.drop(columns=features, inplace=True)
-        X = data.__class__(pd.DataFrame(X, columns=colsname))
-        data = pd.concat([X, data], axis=1)
+            colsname = ['%s_%d' % (self.name, x) for x in range(X.shape[1])]
+            data.drop(columns=features, inplace=True)
+            X = data.__class__(pd.DataFrame(X_, columns=colsname))
+            data = pd.concat([X, data], axis=1)
         return data
 
 
@@ -285,6 +277,7 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
             name = 'WrpCV-%s' % name
             self.name = name
             self.cost_estimator = CETime.get_estimator(self.name, [self.processor, self.cv])
+            self.coloredname = self.colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
         else:
             self.name = ''
 
@@ -348,7 +341,7 @@ def wrap(features2process, processor, *args, **kwargs):
     elif isinstance(processor, ClassifierMixin):
         return WrpClassifier(features2process, processor)
     elif isinstance(processor, TransformerMixin):
-        return WrpDataProcessor(features2process, processor, bXonly=False)
+        return WrpDataProcessor(features2process, processor)
     elif isinstance(processor, BaseSearchCV):
         return WrpSearchCV(features2process, processor)
     elif isinstance(processor, BaseCrossValidator):

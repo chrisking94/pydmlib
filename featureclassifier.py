@@ -71,7 +71,7 @@ class FCLabel(FeatureClassifier):
         FeatureClassifier.__init__(self, features2process, *args, name='<?>特征分类器')
 
     def _classify(self, data, features, label):
-        self.contfeats.extend(features['@c'])
-        self.discfeats.extend(features['@d'])
-        self.labelfeats.extend(features['@l'])
+        self.contfeats.extend(features['@@c'])
+        self.discfeats.extend(features['@@d'])
+        self.labelfeats.extend(features['@@l'])
 
