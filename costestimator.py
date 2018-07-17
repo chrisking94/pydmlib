@@ -18,11 +18,14 @@ class RSCostEstimator(RSObject):
 
     def __init__(self, project_name, **kwargs):
         RSObject.__init__(self, project_name)
+        self.load_file = True
         self.project_name = project_name
         self.file_path = '%s%s.csv' % (self.save_folder, self.project_name)
         self.data = None
-        self.load()
         self.new_experience = None
+        self.__dict__.update(kwargs)
+        if self.load_file:
+            self.load()
 
     def load(self):
         if os.path.exists(self.file_path):
@@ -30,17 +33,19 @@ class RSCostEstimator(RSObject):
 
     def save(self):
         if self.data.shape[0] > self.max_rows_saved:
-            data = self.data.iloc[-self.max_rows_saved:, :]
-        else:
-            data = self.data
-        data.to_csv(self.file_path, index=False)
+            self.data.drop(index=range(self.data.shape[0] - 40, self.data.shape[0]), inplace=True)
+        self.data.to_csv(self.file_path, index=False)
 
     def save_new_exp(self):
         if self.new_experience is not None:
-            if self.data is not None and len(self.new_experience) != self.data.shape[0]:
+            if self.data is None or \
+                    self.data.shape[0] == 0 or \
+                    len(self.new_experience) != self.data.shape[1]:
                 # overwrite
+                self.data = pd.DataFrame(data=[self.new_experience])
                 self.save()
             else:
+                self.data.loc[self.data.shape[0], :] = self.new_experience
                 # append
                 s_out = ','.join([str(x) for x in self.new_experience])
                 s_out = '%s\r\n' % s_out
@@ -104,6 +109,8 @@ class CETime(RSCostEstimator):
                 for var_name in obj.__init__.__code__.co_varnames[1:]:  # 不包含self
                     if hasattr(obj, var_name):
                         self._append(getattr(obj, var_name), depth+1)
+            else:
+                list.append(self, -1)  # 设为缺省
 
         def append(self, obj):
             self._append(obj, 0)
@@ -163,13 +170,6 @@ class CETime(RSCostEstimator):
         cost = time.time() - self.start_time
         if cost > 1:
             self.new_experience = self.factors + [cost]
-            if self.data is None or \
-                    self.data.shape[0] == 0 or \
-                    len(self.new_experience) != self.data.shape[1]:
-                # factors发生变化，丢弃原来的数据
-                self.data = pd.DataFrame(data=[self.new_experience])
-            else:
-                self.data.loc[self.data.shape[0], :] = self.new_experience
             self.save_new_exp()
             self.factors.clear()  # 重置factors
             self.train()
@@ -210,7 +210,6 @@ class CETime(RSCostEstimator):
             self.predictor = DecisionTreeRegressor()
         self.predictor.fit(X, y)
         if self.data.shape[0] > self.max_rows_saved:
-            self.data = self.data[-self.max_rows_saved+20, :]
             self.save()
 
     @staticmethod
@@ -222,9 +221,12 @@ class CETime(RSCostEstimator):
             character = hashlib.sha224(s.encode('utf-8')).hexdigest()
             character = '_%s' % character
         if character in CETime.estimators.keys():
-            return CETime.estimators.keys()
+            estimator = CETime(character, immutable_factors, load_file=False)
+            estimator.data = CETime.estimators[character].data  # share data
         else:
-            return CETime(character, immutable_factors)
+            estimator = CETime(character, immutable_factors)
+            CETime.estimators[character] = estimator
+        return estimator
 
 
 def test():

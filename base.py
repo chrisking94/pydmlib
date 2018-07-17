@@ -211,7 +211,10 @@ def printf(s, *args, **kwargs):
     global last_len
     if last_len > 0:
         print(' ' * last_len, end='\r')  # 清行
-    print(s % args, **kwargs)
+    if isinstance(s, str):
+        print(s % args, **kwargs)
+    else:
+        print(str(s), **kwargs)
     if 'end' in kwargs.keys() and kwargs['end'] == '\r':
         last_len = len(s)
     else:
