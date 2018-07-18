@@ -14,6 +14,7 @@ from reporter import *
 from formatconverter import *
 from wrapper import *
 from data import *
+from costestimator import RSCostEstimator
 import base
 import misc
 import wrapper
@@ -21,6 +22,9 @@ import data
 import control
 import integration
 import costestimator
+
+RSControl.init()
+RSCostEstimator.init()  # initialize statically
 
 base.test()
 integration.test()

@@ -17,6 +17,8 @@ class RSControl(RSObject):
 
         def pause(self):
             self.state = 'pause'
+            while self.state != 'paused':
+                pass
 
         def resume(self):
             self.state = 'running'
@@ -27,8 +29,8 @@ class RSControl(RSObject):
         def run(self):
             last_s = ''
             while self.state != 'terminated':
-                t = time.time()
                 if self.state == 'running':
+                    t = time.time()
                     RSControl.buffer = []
                     for ctrl in RSControl.controls.values():
                         if ctrl.visible:
@@ -42,12 +44,20 @@ class RSControl(RSObject):
                             print(s, end='\r')
                         last_s = s
                         RSControl.s_out = s
-                interval_s = RSControl.interval / 1000.0  # unit:s
-                delta_t = time.time() - t
-                if delta_t < interval_s:
-                    time.sleep(interval_s - delta_t)
-                delta_t = time.time() - t
-                RSControl.iTimer += int(delta_t * 1000)
+                    interval_s = RSControl.interval / 1000.0  # unit:s
+                    delta_t = time.time() - t
+                    if delta_t < interval_s:
+                        time.sleep(interval_s - delta_t)
+                    delta_t = time.time() - t
+                    RSControl.iTimer += int(delta_t * 1000)
+                elif self.state == 'pause':
+                    n = len(last_s)
+                    if n > 0:
+                        print(' ' * n, end='\r')
+                        last_s = ''
+                    self.state = 'paused'
+                elif self.state == 'paused':
+                    continue
 
     def __init__(self, **kwargs):
         RSObject.__init__(self)
@@ -101,18 +111,15 @@ class RSControl(RSObject):
 
     @staticmethod
     def print(s, **kwargs):
-        print(' ' * len(RSControl.s_out), end='\r')  # 清行
+        RSControl.thread.pause()
         print(s, **kwargs)
+        RSControl.thread.resume()
 
     @staticmethod
     def show(*args, **kwargs):
         RSControl.thread.pause()
-        print(' ' * len(RSControl.s_out), end='\r')  # 清行
         plt.show(*args, **kwargs)
         RSControl.thread.resume()
-
-
-RSControl.init()
 
 
 class CStandbyCursor(RSControl):

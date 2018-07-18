@@ -83,9 +83,6 @@ class RSCostEstimator(RSObject):
             os.remove(f_path)
 
 
-RSCostEstimator.init()  # initialize statically
-
-
 class CETime(RSCostEstimator):
     class Factors(list):
         # 对于非简单（非int, float, ...）因子，会展开__init__中的参数
@@ -159,7 +156,7 @@ class CETime(RSCostEstimator):
                 try:
                     return self.predictor.predict(x.reshape(1, -1)) - 1
                 except ValueError as e:
-                    self.warning('prediction failed! %s' % e.__str__())
+                    # self.warning('prediction failed! %s' % e.__str__())
                     return -1
         return -1
 
