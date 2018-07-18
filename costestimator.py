@@ -72,7 +72,7 @@ class RSCostEstimator(RSObject):
                 f_size = os.path.getsize(f_path)
                 now_time = datetime.datetime.now()
                 delta_at = now_time - f_access_time
-                if f_name.startswith('_'):  # function experience file
+                if '#' in f_name:  # temp experience file
                     f_info.loc[f_info.shape[0], ] = [f_name, f_size, delta_at.days]
         # delete some functional experience files which are too old
         series_dad = f_info['delta_acc_day']
@@ -202,6 +202,8 @@ class CETime(RSCostEstimator):
             encoded = pd.get_dummies(data[fact])
             data = data.drop(columns=fact)
             data = pd.concat([encoded, data], axis=1)
+        if data.shape[1] < 2:
+            data = self.data.iloc[:, -2:]
         return data
 
     def _thread_train(self):
@@ -220,7 +222,7 @@ class CETime(RSCostEstimator):
             rgx = re.compile(r'\s')
             s = rgx.sub('', s)
             character = hashlib.sha224(s.encode('utf-8')).hexdigest()
-            character = '_%s' % character
+            character = '#%s' % character
         if character in CETime.estimators.keys():
             # 各个estimator的immutable_factors一般不同
             estimator = CETime(character, immutable_factors, load_file=False,

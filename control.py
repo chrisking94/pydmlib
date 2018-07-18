@@ -1,4 +1,4 @@
-from base import *
+﻿from base import *
 from threading import Thread
 
 
@@ -116,10 +116,11 @@ RSControl.init()
 
 
 class CStandbyCursor(RSControl):
+    _chars = '-\\|/'
+    
     def __init__(self, **kwargs):
         RSControl.__init__(self, **kwargs)
         self._i = 0
-        self._chars = '-\\|/'
 
     def __str__(self):
         if self.wait(400):
@@ -209,10 +210,10 @@ class CProgressBar(RSControl):
         if value != self._percentage:
             self._percentage = value
             i = int(self._width * self._percentage / 100.0)
-            null_block = CProgressBar.null_char * (self._width - i)
-            if CProgressBar.fill_char == CProgressBar.null_char:
+            null_block = self.null_char * (self._width - i)
+            if self.fill_char == self.null_char:
                 null_block = self.colorstr(null_block, 0, 7, 8)
-            self._s = '[%s%s%d%%]' % (CProgressBar.fill_char * i,
+            self._s = '[%s%s%d%%]' % (self.fill_char * i,
                                       null_block,
                                       self.percentage)
 
