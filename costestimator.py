@@ -134,7 +134,7 @@ class CETime(RSCostEstimator):
         self.start_time = 0
         self.factors = CETime.Factors(immutable_factors)
         self.predictor = None
-        self.train()
+        self.train(1)
         self.end_data = None
 
     def _get_machine_info(self):
@@ -192,10 +192,10 @@ class CETime(RSCostEstimator):
 
     def _get_processed_data(self):
         data = self.data
-        # if data.shape[0] > 2:
-        #     # 去掉单值列
-        #     data = data[data.columns[
-        #         pd.Series([len(data[x].unique()) > 1 for x in data.columns[:-1]]+[True])]]
+        if data.shape[0] > 2:
+            # 去掉单值列
+            data = data[data.columns[
+                pd.Series([len(data[x].unique()) > 1 for x in data.columns[:-1]]+[True])]]
         # 编码factors
         fact = data.columns[data.dtypes == 'object']
         if len(fact) > 0:
@@ -222,8 +222,9 @@ class CETime(RSCostEstimator):
             character = hashlib.sha224(s.encode('utf-8')).hexdigest()
             character = '_%s' % character
         if character in CETime.estimators.keys():
-            estimator = CETime(character, immutable_factors, load_file=False)
-            estimator.data = CETime.estimators[character].data  # share data
+            # 各个estimator的immutable_factors一般不同
+            estimator = CETime(character, immutable_factors, load_file=False,
+                               data=CETime.estimators[character].data)  # share data
         else:
             estimator = CETime(character, immutable_factors)
             CETime.estimators[character] = estimator

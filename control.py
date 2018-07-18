@@ -27,6 +27,7 @@ class RSControl(RSObject):
         def run(self):
             last_s = ''
             while self.state != 'terminated':
+                t = time.time()
                 if self.state == 'running':
                     RSControl.buffer = []
                     for ctrl in RSControl.controls.values():
@@ -41,13 +42,17 @@ class RSControl(RSObject):
                             print(s, end='\r')
                         last_s = s
                         RSControl.s_out = s
-                time.sleep(RSControl.interval / 1000.0)
-                RSControl.iTimer += RSControl.interval
+                interval_s = RSControl.interval / 1000.0  # unit:s
+                delta_t = time.time() - t
+                if delta_t < interval_s:
+                    time.sleep(interval_s - delta_t)
+                delta_t = time.time() - t
+                RSControl.iTimer += int(delta_t * 1000)
 
     def __init__(self, **kwargs):
         RSObject.__init__(self)
         self.visible = True
-        self.t_until = -1  # ms
+        self.wait_interval_index_dict = {}  # unit:ms
         RSControl.controls[self.name] = self
         self.__dict__.update(kwargs)
         if self.name in RSControl.controls.keys():
@@ -63,17 +68,20 @@ class RSControl(RSObject):
     def wait(self, t):
         """
         wait for a while
+        firstly run in 2nd wait invoking
         :param t: ms
         :return: boolean, whether can go on
         """
-        if self.t_until == -1:
-            self.t_until = RSControl.iTimer + t
-            return False
-        elif RSControl.iTimer >= self.t_until:
-            self.t_until = -1
+        if t == 0:
             return True
+        t_index = int(self.iTimer / t)
+        if t in self.wait_interval_index_dict.keys():
+            if t_index > self.wait_interval_index_dict[t]:
+                self.wait_interval_index_dict[t] = t_index
+                return True
         else:
-            return False
+            self.wait_interval_index_dict[t] = t_index
+        return False
 
     def _destroy(self):
         if self.name in RSControl.controls.keys():
@@ -166,7 +174,7 @@ class CLabel(RSControl):
 
 class CProgressBar(RSControl):
     fill_char = '❚'
-    null_char = '⌷'
+    null_char = '❚'
 
     def __init__(self, **kwargs):
         self._width = 0
@@ -186,6 +194,11 @@ class CProgressBar(RSControl):
 
     @percentage.setter
     def percentage(self, value):
+        """
+        set percentage
+        :param value: float
+        :return:
+        """
         if self._width == 0:
             self._s = ''
             return
@@ -196,8 +209,11 @@ class CProgressBar(RSControl):
         if value != self._percentage:
             self._percentage = value
             i = int(self._width * self._percentage / 100.0)
+            null_block = CProgressBar.null_char * (self._width - i)
+            if CProgressBar.fill_char == CProgressBar.null_char:
+                null_block = self.colorstr(null_block, 0, 7, 8)
             self._s = '[%s%s%d%%]' % (CProgressBar.fill_char * i,
-                                      self.colorstr(CProgressBar.fill_char * (self._width - i), 0, 7, 8),
+                                      null_block,
                                       self.percentage)
 
     @property
@@ -211,7 +227,7 @@ class CProgressBar(RSControl):
             self._s = ''
         else:
             self._width = value
-            self._percentage -= 1
+            self._percentage -= 1  # refresh
             self.percentage = self._percentage + 1
 
     def __str__(self):
@@ -230,6 +246,11 @@ class CTimeProgressBar(CProgressBar):
         self.start_ = time.time()
 
     def reset(self, time_):
+        """
+        reset time
+        :param time_:
+        :return:
+        """
         self.start_ = time.time()
         self.time_ = time_
 
