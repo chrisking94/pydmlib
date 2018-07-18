@@ -119,7 +119,6 @@ class RSDataProcessor(RSObject):
                 else:
                     self.cost_estimator.factors.extend([len(features), data.shape[0]])
                     tcp = self.cost_estimator.predict()
-                    self.msg('%s' % tcp, 'tcp')
                     if tcp > 1:
                         self.progressbar.width = 40
                         self.progressbar.reset(tcp)
@@ -135,6 +134,8 @@ class RSDataProcessor(RSObject):
                         self.progressbar.width = 0
             else:
                 data = self._process(data, None, None)
+            RSDataProcessor.label.visible = False
+            self.progressbar.width = 0
             self.msgtimecost()
         else:
             self.msg(self.state, 'state')
