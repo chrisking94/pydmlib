@@ -207,12 +207,20 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
             return item
 
     def __rshift__(self, other):
-        from wrapper import wrap, WrpUnknown
-        wrp = wrap(None, other)
-        if isinstance(wrp, WrpUnknown):
-            pd.DataFrame.__rshift__(self, other)
+        if isinstance(other, int):
+            if other == 0:
+                return None
+            else:
+                return self
         else:
-            return wrp(self)
+            from wrapper import wrap, WrpUnknown
+            wrp = wrap(None, other)
+            if isinstance(wrp, WrpUnknown):
+                pd.DataFrame.__rshift__(self, other)
+            else:
+                if hasattr(wrp, 'b_fit'):
+                    wrp.b_fit = False  # step delay for wrapper
+                return wrp(self)
 
 
 class MSSqlData(RSData):

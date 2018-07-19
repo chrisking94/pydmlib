@@ -5,9 +5,12 @@ from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection import BaseCrossValidator
 from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
 from control import RSControl
+from threading import Thread
 
 
 class Wrapper(RSDataProcessor):
+    delay_fit_time_gap = 0.1  # s
+
     def __init__(self, features2process, processor, name=''):
         """
         包装器，负责把其他数据处理器包装成DataProcess，如包装sklearn.svm.SVC成DataProcessor
@@ -21,18 +24,20 @@ class Wrapper(RSDataProcessor):
         # 可以通过 << 运算符依次传入参数
         self.not_none_attrs = set()
         self.data = None
+        # delay one step of fit_transform
+        self.b_fit = True
 
     def fit_transform(self, data):
-        b_fit = True
-        for x in self.not_none_attrs:
-            if getattr(self, x) is None:
-                b_fit = False
-                break
-        if b_fit:
+        if self.b_fit:
+            self.data = None
             return RSDataProcessor.fit_transform(self, data)
         else:
-            self.data = data
-            return self
+            self.b_fit = True
+            if self.data is None:
+                self.data = data
+                return self
+            else:
+                self.error('inflict occurred in delay fitting multi thread.')
 
     def __rshift__(self, other):
         """
@@ -48,15 +53,20 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
             data = self.fit_transform(self.data)
             if not isinstance(other, int):
                 data = data >> other
-            self.data = None
+            else:
+                if other == 0:
+                    data = None
             return data
 
     def __lshift__(self, other):
         """
-        赋值other到not_none_attrs中第一个为None的attr
-        :param other: 输入参数
+        :param other: input params, they could be:
+                        1.none dict, other will be filled in the first null
+                          attribute of self in self.not_none_attrs
+                        2.dict, self.__dict___.update(other)
         :return:
         """
+        self.delay_start = time.time()
         if isinstance(other, dict):
             self.__dict__.update(other)
         else:
@@ -260,12 +270,12 @@ class WrpCluster(Wrapper):
 
 
 class WrpCrossValidator(WrpClassifier, pd.DataFrame):
-    def __init__(self, features2process, validator, estimator=None, name=''):
+    def __init__(self, features2process, validator, estimator, name=''):
         """
         Wrapper for Cross Validator
         :param features2process:
-        :param validator:
-        :param estimator: default RandomForestClassifier
+        :param validator: not None
+        :param estimator: not None
         :param name:
         """
         pd.DataFrame.__init__(self)
@@ -351,7 +361,7 @@ def wrap(features2process, processor, *args, **kwargs):
     elif isinstance(processor, BaseSearchCV):
         return WrpSearchCV(features2process, processor)
     elif isinstance(processor, BaseCrossValidator):
-        return WrpCrossValidator(features2process, processor, *args, **kwargs)
+        return WrpCrossValidator(features2process, processor, None, *args, **kwargs)
     else:
         return WrpUnknown(features2process, processor)
 

@@ -102,17 +102,23 @@ class RSDataProcessor(RSObject):
                 # 筛选处理特征：
                 # 如果self.features2process为None则设置成data.columns
                 # 否则为features2process∩data.columns
+                features = data.columns[:-1]
                 if self.features2process is None:
-                    features = data.columns[:-1]
+                    pass
                 elif isinstance(self.features2process, str):
-                    features = data.columns[:-1][self.features2process]
-                    if self.features2process[1] == '@':
-                        self.msg(features.__str__(), self.features2process)
+                    if self.features2process == '':
+                        pass
+                    elif self.features2process[0] == '@':
+                        features = features[self.features2process]
+                        if len(self.features2process) > 1 and self.features2process[1] != '@':
+                            self.msg(features.__str__(), self.features2process)
+                    else:
+                        features = features[[self.features2process]]
                 elif isinstance(self.features2process, tuple):
-                    features = data.columns[:-1][self.features2process]
+                    features = features[self.features2process]
                     self.msg(features.__str__(), self.features2process[0])
                 else:
-                    features = data.columns[self.features2process]
+                    features = features[self.features2process]
                 label = data.columns[-1]
                 if features.__len__() == 0:
                     self.warning('No feature to process.')

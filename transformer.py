@@ -28,13 +28,16 @@ class TsfmFunction(Transformer):
 
     def _process(self, data, features, label):
         ts = self.transform(data[features])
-        modified = data[features].columns[(ts != data[features]).sum() > 0]
+        modified = features[(ts != data[features]).sum() > 0]
         ts = ts[modified]
         if modified.shape[0] != 0:
+            self.msg('expected: %d, actual: %d' % (features.shape[0], modified.shape[0]),
+                     'columns modified')
             if self.breplace:
-                data = data.copy()
-                data.drop(columns=modified)
+                data = data.drop(columns=modified)
             ts = ts.rename(dict(zip(modified, modified + '_' + self.name)), axis=1)
-            data = pd.concat([data[data.columns[:-1]], ts, data[label]], axis=1)
+            data = pd.concat([ts, data], axis=1)
+        else:
+            self.warning('no column affected.')
         return data
 

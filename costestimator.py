@@ -154,7 +154,7 @@ class CETime(RSCostEstimator):
                 x = data.iloc[-1, :-1]
                 self.data.drop(self.data.shape[0] - 1, axis=0, inplace=True)
                 try:
-                    return self.predictor.predict(x.reshape(1, -1)) - 1
+                    return self.predictor.predict(x.values.reshape(1, -1)) - 1
                 except ValueError as e:
                     # self.warning('prediction failed! %s' % e.__str__())
                     return -1
@@ -184,7 +184,8 @@ class CETime(RSCostEstimator):
             return False
         t = Thread(target=self._thread_train)
         t.start()
-        t.join(time_out)
+        # t.setDaemon(True)
+        # t.join(time_out)
         return not t.isAlive()
 
     def _get_processed_data(self):
@@ -196,7 +197,7 @@ class CETime(RSCostEstimator):
         # 编码factors
         fact = data.columns[data.dtypes == 'object']
         if len(fact) > 0:
-            encoded = pd.get_dummies(data[fact])
+            encoded = pd.get_dummies(data[fact].astype('str'))
             data = data.drop(columns=fact)
             data = pd.concat([encoded, data], axis=1)
         if data.shape[1] < 2:
