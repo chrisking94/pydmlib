@@ -306,6 +306,7 @@ class TCCheckPoint(TesterController):
         self.copy_count = 0
 
     def fit_transform(self, data):
+        self.starttimer()
         msg = self.colorstr('⚪check-point', 0, 6, 8)
         if data is not None:
             self.data = data

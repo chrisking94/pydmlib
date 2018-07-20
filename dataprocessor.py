@@ -1,6 +1,7 @@
 ﻿from base import *
 from control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
 from costestimator import CETime
+from data import RSData
 
 
 class RSDataProcessor(RSObject):
@@ -10,6 +11,7 @@ class RSDataProcessor(RSObject):
     progressbar = CTimeProgressBar(visible=False, width=0)
     involatile_msg = [''] * 10  # 0~9
     b_multi_line_msg = False  # output each message in a new line
+    s_msg_mode = 'brief'  # brief detail
 
     def __init__(self, features2process=None, name='', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
@@ -66,6 +68,11 @@ class RSDataProcessor(RSObject):
         if RSDataProcessor.b_multi_line_msg:
             RSObject._submsg(self, title, title_color, msg)
         else:
+            if isinstance(msg, pd.core.indexes.base.Index):
+                if self.s_msg_mode == 'brief':
+                    msg = '%d column(s)' % len(msg)
+                else:
+                    msg = msg.__str__()
             title = self.colorstr(title, 0, title_color, 8)
             if title not in self.messages.keys():
                 self.messages[title] = []
@@ -95,6 +102,8 @@ class RSDataProcessor(RSObject):
         if self.state == 'on':
             if isinstance(data, pd.DataFrame):
                 self.starttimer()
+                if not isinstance(data, RSData):
+                    data = RSData(data)
                 RSDataProcessor.label.visible = True
                 RSDataProcessor.timer.reset()
                 self.msg('running...')
@@ -111,12 +120,12 @@ class RSDataProcessor(RSObject):
                     elif self.features2process[0] == '@':
                         features = features[self.features2process]
                         if len(self.features2process) > 1 and self.features2process[1] != '@':
-                            self.msg(features.__str__(), self.features2process)
+                            self.msg(features, self.features2process)
                     else:
                         features = features[[self.features2process]]
                 elif isinstance(self.features2process, tuple):
                     features = features[self.features2process]
-                    self.msg(features.__str__(), self.features2process[0])
+                    self.msg(features, self.features2process[0])
                 else:
                     features = features[self.features2process]
                 label = data.columns[-1]

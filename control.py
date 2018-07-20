@@ -6,7 +6,7 @@ class RSControl(RSObject):
     controls = {}
     thread = None
     buffer = []
-    interval = 20  # ms
+    interval = 5  # ms
     iTimer = 0  # ms
     s_out = ''
 
@@ -53,7 +53,7 @@ class RSControl(RSObject):
                 elif self.state == 'pause':
                     n = len(last_s)
                     if n > 0:
-                        print(' ' * n, end='\r')
+                        print(' ' * n, end='\r')  # 清行
                         last_s = ''
                     self.state = 'paused'
                 elif self.state == 'paused':
@@ -109,21 +109,9 @@ class RSControl(RSObject):
             RSControl.thread = RSControl.RSControlThread()
             RSControl.thread.start()
 
-    @staticmethod
-    def print(s, **kwargs):
-        RSControl.thread.pause()
-        print(s, **kwargs)
-        RSControl.thread.resume()
-
-    @staticmethod
-    def show(*args, **kwargs):
-        RSControl.thread.pause()
-        plt.show(*args, **kwargs)
-        RSControl.thread.resume()
-
 
 class CStandbyCursor(RSControl):
-    _chars = '-\\|/'
+    chars = '-\\|/'
     
     def __init__(self, **kwargs):
         RSControl.__init__(self, **kwargs)
@@ -131,11 +119,11 @@ class CStandbyCursor(RSControl):
 
     def __str__(self):
         if self.wait(400):
-            if self._i < len(self._chars)-1:
+            if self._i < len(self.chars)-1:
                 self._i += 1
             else:
                 self._i = 0
-        return self._chars[self._i]
+        return self.chars[self._i]
 
 
 class CTimer(RSControl):

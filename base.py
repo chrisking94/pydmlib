@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import matplotlib
-import matplotlib.pyplot as plt
+from utils import plt, printf
 import random
 import gc
 import os
@@ -42,14 +42,12 @@ class RSObject(object):
     def _submsg(self, title, title_color, msg):
         csubtitle = self.colorstr(title, 0, title_color, 48)
         msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
-        import control
-        control.RSControl.print(msg)
+        printf(msg)
 
     def msg(self, msg, title=''):
         if title == '':
             msg = '%s: %s' % (self.coloredname, msg)
-            import control
-            control.RSControl.print(msg)
+            printf(msg)
         else:
             self._submsg(title, 'blue', msg)
 
@@ -205,25 +203,6 @@ class RSTable(pt.PrettyTable, RSObject):
 
 
 last_len = -1
-
-
-def printf(s, *args, **kwargs):
-    global last_len
-    if last_len > 0:
-        print(' ' * last_len, end='\r')  # 清行
-    if isinstance(s, str):
-        print(s % args, **kwargs)
-    else:
-        print(str(s), **kwargs)
-    if 'end' in kwargs.keys() and kwargs['end'] == '\r':
-        last_len = len(s)
-    else:
-        last_len = -1
-
-
-def show(*args, **kwargs):
-    import control
-    control.RSControl.show(*args, **kwargs)
 
 
 def test():

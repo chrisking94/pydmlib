@@ -8,16 +8,21 @@ from control import RSControl
 
 
 class FeatureSelector(RSDataProcessor):
-    def __init__(self, features2process, feature_count=0.02, name=''):
+    def __init__(self, features2process, feature_count=0.02, plot=None, name=''):
         """"
         选择最佳特征
         :param feature_count: 2 types
                         1. float, 0~1,  feature_count = X.shape[1]*feature_count
                         2. int, 1~X.shape[0]
+        :param plot: str
+                        1.'pie'
+                        2.'bar'
+                        3.None (default)
         """
         RSDataProcessor.__init__(self, features2process, name, 'pink', 'white', 'highlight')
         self.feature_count = feature_count
         self.scores = None
+        self.plot = plot
 
     def _process(self, data, features, label):
         feat_count0 = data.shape[1] - 1
@@ -33,7 +38,10 @@ class FeatureSelector(RSDataProcessor):
             feature_count = int(self.feature_count * features.__len__())
         else:
             feature_count = self.feature_count
-        self.bar(top=feature_count)
+        if self.plot == 'bar':
+            self.bar(top=feature_count)
+        elif self.plot == 'pie':
+            self.pie(top=feature_count)
         fdata = data.drop(columns=scores.nsmallest(features.__len__()-feature_count).index)
         self.msg('%d ==> %d' % (feat_count0, fdata.shape[1] - 1), 'feature count')
         return fdata
@@ -58,7 +66,7 @@ class FeatureSelector(RSDataProcessor):
         plt.figure(figsize=(figsize, figsize))
         plt.subplot()
         plt.pie(fracs, labels=labels, autopct='%1.1f%%', pctdistance=0.9, shadow=False, rotatelabels=True)
-        RSControl.show()
+        plt.show()
 
     def bar(self, top=10):
         part = self._get_score_part(top)
@@ -70,7 +78,7 @@ class FeatureSelector(RSDataProcessor):
         plt.barh(y_pos, fracs, alpha=.8)
         plt.yticks(y_pos, labels)
         plt.title('Feature importance percentage.')
-        RSControl.show()
+        plt.show()
 
     def __str__(self):
         return '%s: \n%s' % (self.coloredname, RSTable(self.scores).__str__())

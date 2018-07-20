@@ -26,6 +26,24 @@ import costestimator
 RSControl.init()
 RSCostEstimator.init()  # initialize statically
 
+
+def set_option(*args, **kwargs):
+    for i in range(int(len(args)/2)):
+        k, v = args[i], args[i+1]
+        if k == 'dp.msg_mode':
+            RSDataProcessor.s_msg_mode = v
+        elif k == 'dp.progressbar0':
+            RSDataProcessor.progressbar.null_char = v
+        elif k == 'dp.progressbar1':
+            RSDataProcessor.progressbar.fill_char = v
+        elif k == 'dp.cursor':
+            RSDataProcessor.cursor.chars = v
+        elif k == 'plot.enable':
+            RSPlot.b_enable = v
+        else:
+            pd.set_option(k, v, **kwargs)
+
+
 base.test()
 integration.test()
 misc.test()

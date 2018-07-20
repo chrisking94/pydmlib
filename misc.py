@@ -4,10 +4,14 @@ from sklearn.metrics import fbeta_score
 
 
 class RSPlot(RSObject):
+    b_enable = True
+
     def __init__(self, name=''):
         RSObject.__init__(self, name=name)
 
     def plot(self, ax=None, **kwargs):
+        if not self.b_enable:
+            return
         if ax is None:
             ax = plt.gca()
         ax.set_title(self.name)

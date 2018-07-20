@@ -4,8 +4,6 @@ from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, Regres
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection import BaseCrossValidator
 from misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
-from control import RSControl
-from threading import Thread
 
 
 class Wrapper(RSDataProcessor):
@@ -198,7 +196,7 @@ class WrpClassifier(Wrapper):
         fig = plt.figure(figsize=(5.5*ncols, 5*nrows))
         for i, axe in enumerate(self.plots):
             axe.plot(fig.add_subplot(nrows, ncols, i+1))
-        RSControl.show()
+        plt.show()
 
     def get_report_title(self, *args):
         return ['训练集得分', '测试集得分']
@@ -362,6 +360,8 @@ def wrap(features2process, processor, *args, **kwargs):
         return WrpSearchCV(features2process, processor)
     elif isinstance(processor, BaseCrossValidator):
         return WrpCrossValidator(features2process, processor, None, *args, **kwargs)
+    elif isinstance(processor, RegressorMixin):
+        pass
     else:
         return WrpUnknown(features2process, processor)
 
