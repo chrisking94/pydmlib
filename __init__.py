@@ -23,12 +23,17 @@ import control
 import integration
 import costestimator
 
-RSControl.init()
-RSCostEstimator.init()  # initialize statically
+
+############################
+#   module initialization  #
+############################
+from utils import PydmConfig, GlobalOption
+
+cfg = GlobalOption('./pydmlib.cfg')
 
 
 def set_option(*args, **kwargs):
-    for i in range(int(len(args)/2)):
+    for i in range(0, len(args), 2):
         k, v = args[i], args[i+1]
         if k == 'dp.msg_mode':
             RSDataProcessor.s_msg_mode = v
@@ -42,13 +47,29 @@ def set_option(*args, **kwargs):
             RSPlot.b_enable = v
         else:
             pd.set_option(k, v, **kwargs)
+        cfg.set('Config', k, v)
+    cfg.write()
 
 
-base.test()
-integration.test()
-misc.test()
-wrapper.test()
-data.test()
-control.test()
-costestimator.test()
+if cfg.has_section('Config'):
+    for option in cfg.items('Config'):
+        set_option(*option)
+else:
+    cfg.add_section('Config')
+
+RSControl.init()
+RSCostEstimator.init()  # initialize statically
+
+
+############################
+#          debug           #
+############################
+if __name__ == '__main__':
+    base.test()
+    integration.test()
+    misc.test()
+    wrapper.test()
+    data.test()
+    control.test()
+    costestimator.test()
 

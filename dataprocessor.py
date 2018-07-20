@@ -65,7 +65,9 @@ class RSDataProcessor(RSObject):
             RSObject.msg(self, msg, title)
 
     def _submsg(self, title, title_color, msg):
-        if RSDataProcessor.b_multi_line_msg:
+        if self.s_msg_mode == 'disable':
+            return
+        elif RSDataProcessor.b_multi_line_msg:
             RSObject._submsg(self, title, title_color, msg)
         else:
             if isinstance(msg, pd.core.indexes.base.Index):

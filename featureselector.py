@@ -85,8 +85,8 @@ class FeatureSelector(RSDataProcessor):
 
 
 class FSChi2(FeatureSelector):
-    def __init__(self, features2process, feature_count=0.2):
-        FeatureSelector.__init__(self, features2process, feature_count, name='χ²特征选择')
+    def __init__(self, *args, **kwargs):
+        FeatureSelector.__init__(self, *args, **kwargs)
 
     def score(self, data, target):
         skb = SelectKBest(chi2, k='all')
@@ -95,8 +95,8 @@ class FSChi2(FeatureSelector):
 
 
 class FSRFC(FeatureSelector):
-    def __init__(self, features2process, feature_count=0.2):
-        FeatureSelector.__init__(self, features2process, feature_count, name='rfc特征选择')
+    def __init__(self, *args, **kwargs):
+        FeatureSelector.__init__(self, *args, **kwargs)
 
     def score(self, data, target):
         clf = RandomForestClassifier()
@@ -105,8 +105,8 @@ class FSRFC(FeatureSelector):
 
 
 class FSmRMR(FeatureSelector):
-    def __init__(self, features2process, feature_count=0.2):
-        FeatureSelector.__init__(self, features2process, feature_count, name='mRMR特征选择')
+    def __init__(self, *args, **kwargs):
+        FeatureSelector.__init__(self, *args, **kwargs)
 
     def score(self, data, target):
         scores = mrmr(data.values, target)  # scores[0] is the most important feature
@@ -134,16 +134,17 @@ class FSManual(FeatureSelector):
 
 
 class FSL1Regularization(FeatureSelector):
-    def __init__(self, features2process, C):
+    def __init__(self, *args, **kwargs):
         """
         去掉L1正则化后w为0的特征
         :param features2process:
         :param C:
         """
-        FeatureSelector.__init__(self, features2process, feature_count=0.001, name='L1正则化特征选择')
-        self.C = C
+        FeatureSelector.__init__(self, *args, **kwargs)
+        self.C = 1
+        self.__dict__.update(kwargs)
 
-    def _score(self, data, target):
+    def score(self, data, target):
         clf = LogisticRegression(C=self.C)
         clf.fit(data, target)
         return clf.coef_.sum(axis=0)
