@@ -1,20 +1,20 @@
-from outlierhandler import *
-from factorencoder import *
-from discretor import *
-from featureclassifier import *
-from featurecombiner import *
-from featureselector import *
-from misc import *
-from integration import *
-from nanhandler import *
-from normalizer import *
-from sampler import *
-from transformer import *
-from reporter import *
-from formatconverter import *
-from wrapper import *
-from data import *
-from costestimator import RSCostEstimator
+from .outlierhandler import *
+from .factorencoder import *
+from .discretor import *
+from .featureclassifier import *
+from .featurecombiner import *
+from .featureselector import *
+from .misc import *
+from .integration import *
+from .nanhandler import *
+from .normalizer import *
+from .sampler import *
+from .transformer import *
+from .reporter import *
+from .formatconverter import *
+from .wrapper import *
+from .data import *
+from .costestimator import RSCostEstimator
 import base
 import misc
 import wrapper
@@ -27,9 +27,9 @@ import costestimator
 ############################
 #   module initialization  #
 ############################
-from utils import PydmConfig, GlobalOption
+from utils import get_option_configurator
 
-cfg = GlobalOption('./pydmlib.cfg')
+cfg = get_option_configurator('./pydmlib.cfg')
 
 
 def set_option(*args, **kwargs):

@@ -1,5 +1,5 @@
-from dataprocessor import *
-#from sklearn.ensemble import IsolationForest
+from .dataprocessor import *
+from sklearn.ensemble import IsolationForest
 from sklearn.ensemble.iforest import IsolationForest
 
 

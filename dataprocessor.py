@@ -1,7 +1,7 @@
-﻿from base import *
-from control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
-from costestimator import CETime
-from data import RSData
+﻿from .base import *
+from .control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
+from .costestimator import CETime
+from .data import RSData
 
 
 class RSDataProcessor(RSObject):
@@ -12,6 +12,7 @@ class RSDataProcessor(RSObject):
     involatile_msg = [''] * 10  # 0~9
     b_multi_line_msg = False  # output each message in a new line
     s_msg_mode = 'brief'  # brief detail
+    n_msg_max_len = 25  # unit: char
 
     def __init__(self, features2process=None, name='', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
@@ -67,14 +68,12 @@ class RSDataProcessor(RSObject):
     def _submsg(self, title, title_color, msg):
         if self.s_msg_mode == 'disable':
             return
-        elif RSDataProcessor.b_multi_line_msg:
+        if self.s_msg_mode == 'brief':
+            if len(msg) > self.n_msg_max_len:
+                msg = '%s...' % msg[:self.n_msg_max_len]
+        if RSDataProcessor.b_multi_line_msg:
             RSObject._submsg(self, title, title_color, msg)
         else:
-            if isinstance(msg, pd.core.indexes.base.Index):
-                if self.s_msg_mode == 'brief':
-                    msg = '%d column(s)' % len(msg)
-                else:
-                    msg = msg.__str__()
             title = self.colorstr(title, 0, title_color, 8)
             if title not in self.messages.keys():
                 self.messages[title] = []
@@ -87,6 +86,13 @@ class RSDataProcessor(RSObject):
             sl = ['[%s] %s' % (x[0], ', '.join(x[1])) for x in self.messages.items()]
             RSObject.msg(self, '  '.join(sl))
             self.messages = {}
+
+    def _msg_features(self, features, title):
+        if self.s_msg_mode == 'brief':
+            msg = '%d column(s)' % len(features)
+        else:
+            msg = features.__str__()
+        self.msg(msg, title)
 
     def _process(self, data, features, label):
         self.error('Not implemented!')
@@ -122,12 +128,12 @@ class RSDataProcessor(RSObject):
                     elif self.features2process[0] == '@':
                         features = features[self.features2process]
                         if len(self.features2process) > 1 and self.features2process[1] != '@':
-                            self.msg(features, self.features2process)
+                            self._msg_features(features, self.features2process)
                     else:
                         features = features[[self.features2process]]
                 elif isinstance(self.features2process, tuple):
                     features = features[self.features2process]
-                    self.msg(features, self.features2process[0])
+                    self._msg_features(features, self.features2process[0])
                 else:
                     features = features[self.features2process]
                 label = data.columns[-1]

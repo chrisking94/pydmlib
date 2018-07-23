@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import matplotlib
-from utils import plt, printf
+from .utils import plt, printf
 import random
 import gc
 import os
@@ -40,16 +40,15 @@ class RSObject(object):
         RSObject.id_count += 1
 
     def _submsg(self, title, title_color, msg):
-        csubtitle = self.colorstr(title, 0, title_color, 48)
-        msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
+        if title == '':
+            msg = '%s: %s' % (self.coloredname, msg)
+        else:
+            csubtitle = self.colorstr(title, 0, title_color, 48)
+            msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
         printf(msg)
 
     def msg(self, msg, title=''):
-        if title == '':
-            msg = '%s: %s' % (self.coloredname, msg)
-            printf(msg)
-        else:
-            self._submsg(title, 'blue', msg)
+        self._submsg(title, 'blue', msg)
 
     def warning(self, msg):
         self._submsg('warning', 3, msg)

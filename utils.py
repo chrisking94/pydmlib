@@ -1,6 +1,5 @@
 import matplotlib.pyplot as ppt
 from configparser import ConfigParser
-from pandas.core.config import _global_config
 import os
 
 
@@ -44,27 +43,39 @@ class PydmConfig(ConfigParser):
             ConfigParser.write(self, fp, space_around_delimiters)
 
 
-class MetaGlobalOption(type):
-    def __new__(mcs, name, bases, attrs):
-        new_attrs = MetaGlobalOption._wrap_pandas_set_option(attrs)
-        new_attrs.update(attrs)
-        return type(name, bases, attrs)
+def get_option_configurator(file_path, *args, **kwargs):
+    """
+    a pydmlib configurator factory
+    :param file_path:
+    :param args:
+    :param kwargs:
+    :return: Configurator object
+    """
+    from typing import GenericMeta
+    from pandas.core.config import _global_config
 
-    @staticmethod
-    def _wrap_pandas_set_option(option_dict):
-        ret_dict = {}
-        for k in option_dict.keys():
-            def fset(self, value):
-                _global_config[k] = value
+    class MetaGlobalOption(GenericMeta):
+        def __new__(cls, name, bases, attrs):
+            new_attrs = MetaGlobalOption._wrap_pandas_set_option()
+            new_attrs.update(attrs)
+            return GenericMeta.__new__(cls, name, bases, attrs)
 
-            def fget(self):
-                return _global_config[k]
-            ret_dict[k] = property(fget, fset)
-        return ret_dict
+        @staticmethod
+        def _wrap_pandas_set_option():
+            ret_dict = {}
+            for k in _global_config.keys():
+                def fset(self, value):
+                    _global_config[k] = value
 
+                def fget(self):
+                    return _global_config[k]
+                ret_dict[k] = property(fget, fset)
+            return ret_dict
 
-class GlobalOption(PydmConfig, metaclass=MetaGlobalOption):
-    def __init__(self, *args, **kwargs):
-        PydmConfig.__init__(*args, **kwargs)
+    class GlobalOption(PydmConfig, metaclass=MetaGlobalOption):
+        def __init__(self):
+            PydmConfig.__init__(self, file_path, *args, **kwargs)
+
+    return GlobalOption()
 
 

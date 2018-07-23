@@ -1,4 +1,4 @@
-from dataprocessor import *
+from .dataprocessor import *
 import sklearn.model_selection as ms
 
 
