@@ -1,4 +1,4 @@
-﻿from .base import *
+﻿from  base import *
 from sklearn.tree import DecisionTreeRegressor
 from threading import Thread
 import hashlib
@@ -10,7 +10,7 @@ class RSCostEstimator(RSObject):
     if not os.path.exists(save_folder):
         try:
             os.makedirs(save_folder)
-        except:
+        except Exception as e:
             save_folder = './pydm/estimator/'
             os.makedirs(save_folder)
     max_rows_saved = 1000

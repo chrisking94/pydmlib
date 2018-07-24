@@ -1,7 +1,7 @@
-﻿from .base import *
-from .control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
-from .costestimator import CETime
-from .data import RSData
+﻿from  base import *
+from  control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
+from  costestimator import CETime
+from  data import RSData
 
 
 class RSDataProcessor(RSObject):
@@ -12,7 +12,7 @@ class RSDataProcessor(RSObject):
     involatile_msg = [''] * 10  # 0~9
     b_multi_line_msg = False  # output each message in a new line
     s_msg_mode = 'brief'  # brief detail
-    n_msg_max_len = 25  # unit: char
+    n_msg_max_len = 50  # unit: char
 
     def __init__(self, features2process=None, name='', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
@@ -84,7 +84,7 @@ class RSDataProcessor(RSObject):
         if not RSDataProcessor.b_multi_line_msg:
             # out put messages
             sl = ['[%s] %s' % (x[0], ', '.join(x[1])) for x in self.messages.items()]
-            RSObject.msg(self, '  '.join(sl))
+            RSObject._submsg(self, '', 0, '  '.join(sl))
             self.messages = {}
 
     def _msg_features(self, features, title):

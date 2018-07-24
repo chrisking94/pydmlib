@@ -1,35 +1,29 @@
-from .outlierhandler import *
-from .factorencoder import *
-from .discretor import *
-from .featureclassifier import *
-from .featurecombiner import *
-from .featureselector import *
-from .misc import *
-from .integration import *
-from .nanhandler import *
-from .normalizer import *
-from .sampler import *
-from .transformer import *
-from .reporter import *
-from .formatconverter import *
-from .wrapper import *
-from .data import *
-from .costestimator import RSCostEstimator
-import base
-import misc
-import wrapper
-import data
-import control
-import integration
-import costestimator
+from  outlierhandler import *
+from  factorencoder import *
+from  discretor import *
+from  featureclassifier import *
+from  featurecombiner import *
+from  featureselector import *
+from  misc import *
+from  integration import *
+from  nanhandler import *
+from  normalizer import *
+from  sampler import *
+from  transformer import *
+from  reporter import *
+from  formatconverter import *
+from  wrapper import *
+from  data import *
 
 
 ############################
 #   module initialization  #
 ############################
-from utils import get_option_configurator
+from  utils import GlobalOption
+from  control import RSControl
+from  costestimator import RSCostEstimator
 
-cfg = get_option_configurator('./pydmlib.cfg')
+cfg = GlobalOption('./pydmlib.cfg')
 
 
 def set_option(*args, **kwargs):
@@ -65,11 +59,20 @@ RSCostEstimator.init()  # initialize statically
 #          debug           #
 ############################
 if __name__ == '__main__':
-    base.test()
-    integration.test()
-    misc.test()
-    wrapper.test()
-    data.test()
-    control.test()
-    costestimator.test()
+    from  base import test as base_test
+    from  misc import test as misc_test
+    from  wrapper import test as wrapper_test
+    from  data import test as data_test
+    from  control import test as control_test
+    from  integration import test as integration_test
+    from  costestimator import test as costestimator_test
+    from  utils import test as utils_test
+    base_test()
+    integration_test()
+    misc_test()
+    wrapper_test()
+    data_test()
+    control_test()
+    costestimator_test()
+    utils_test()
 

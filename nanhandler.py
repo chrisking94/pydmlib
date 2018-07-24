@@ -1,5 +1,5 @@
-from .dataprocessor import *
-from .factorencoder import FEOneHot
+from  dataprocessor import *
+from  factorencoder import FEOneHot
 
 
 class NanHandler(RSDataProcessor):

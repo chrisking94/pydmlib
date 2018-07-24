@@ -1,4 +1,4 @@
-from .base import pd, time, RSObject, re, np
+from  base import pd, time, RSObject, re, np
 import pymssql
 from collections import Iterable
 

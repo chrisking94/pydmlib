@@ -1,5 +1,5 @@
-from .dataprocessor import *
-from .transformer import TsfmFunction
+from  dataprocessor import *
+from  transformer import TsfmFunction
 
 
 class Normalizer(RSDataProcessor):
@@ -18,7 +18,7 @@ class FeatureNormalizer(Normalizer, TsfmFunction):
 
 class FNMinMax(FeatureNormalizer):
     def __init__(self, features2process):
-        FeatureNormalizer.__init__(self, features2process)
+        FeatureNormalizer.__init__(self, features2process, 'minmax')
 
     def _transform(self, X):
         return (X - X.min()) / (X.max() - X.min())
@@ -26,7 +26,7 @@ class FNMinMax(FeatureNormalizer):
 
 class FNAtan(FeatureNormalizer):
     def __init__(self, features2process):
-        FeatureNormalizer.__init__(self, features2process)
+        FeatureNormalizer.__init__(self, features2process, 'atan')
 
     def _transform(self, X):
         return np.emath.arctanh(X) * 2 / np.pi
@@ -34,7 +34,7 @@ class FNAtan(FeatureNormalizer):
 
 class FNZScore(FeatureNormalizer):
     def __init__(self, features2process):
-        FeatureNormalizer.__init__(self, features2process)
+        FeatureNormalizer.__init__(self, features2process, 'zscore')
 
     def _transform(self, X):
         return (X - X.mean()) / X.std()

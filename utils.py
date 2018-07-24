@@ -1,6 +1,8 @@
 import matplotlib.pyplot as ppt
 from configparser import ConfigParser
 import os
+import pandas as pd
+import numpy as np
 
 
 class RSPlotManager(object):
@@ -43,39 +45,20 @@ class PydmConfig(ConfigParser):
             ConfigParser.write(self, fp, space_around_delimiters)
 
 
-def get_option_configurator(file_path, *args, **kwargs):
-    """
-    a pydmlib configurator factory
-    :param file_path:
-    :param args:
-    :param kwargs:
-    :return: Configurator object
-    """
-    from typing import GenericMeta
-    from pandas.core.config import _global_config
+class GlobalOption(PydmConfig):
+    def __init__(self, file_path, *args, **kwargs):
+        PydmConfig.__init__(self, file_path, *args, **kwargs)
+        self.pd_config = pd.core.config._global_config
 
-    class MetaGlobalOption(GenericMeta):
-        def __new__(cls, name, bases, attrs):
-            new_attrs = MetaGlobalOption._wrap_pandas_set_option()
-            new_attrs.update(attrs)
-            return GenericMeta.__new__(cls, name, bases, attrs)
+    def __getattr__(self, item):
+        if item in self.__dict__.keys():
+            return self.__dict__[item]
+        else:
+            pd_config = self.pd_config
+            return pd_config[item]
 
-        @staticmethod
-        def _wrap_pandas_set_option():
-            ret_dict = {}
-            for k in _global_config.keys():
-                def fset(self, value):
-                    _global_config[k] = value
 
-                def fget(self):
-                    return _global_config[k]
-                ret_dict[k] = property(fget, fset)
-            return ret_dict
-
-    class GlobalOption(PydmConfig, metaclass=MetaGlobalOption):
-        def __init__(self):
-            PydmConfig.__init__(self, file_path, *args, **kwargs)
-
-    return GlobalOption()
+def test():
+    pass
 
 

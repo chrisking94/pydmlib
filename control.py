@@ -1,4 +1,4 @@
-﻿from .base import *
+﻿from  base import RSObject, time
 from threading import Thread
 
 

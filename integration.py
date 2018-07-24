@@ -1,6 +1,6 @@
-from .misc import *
-from .wrapper import wrap
-from .dataprocessor import RSDataProcessor
+from  misc import *
+from  wrapper import wrap
+from  dataprocessor import RSDataProcessor
 
 
 class Integrator(RSObject):

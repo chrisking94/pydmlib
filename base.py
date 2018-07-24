@@ -1,10 +1,8 @@
 # coding=utf-8
 import time
 import datetime
-import pandas as pd
-import numpy as np
 import matplotlib
-from .utils import plt, printf
+from  utils import plt, printf, pd, np
 import random
 import gc
 import os

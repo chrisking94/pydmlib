@@ -1,4 +1,4 @@
-from .dataprocessor import *
+from  dataprocessor import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.ensemble import RandomForestClassifier

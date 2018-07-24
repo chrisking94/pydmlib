@@ -1,4 +1,4 @@
-from .dataprocessor import *
+from  dataprocessor import *
 from sklearn.ensemble import IsolationForest
 from sklearn.ensemble.iforest import IsolationForest
 
