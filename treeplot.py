@@ -1,5 +1,6 @@
-from misc import RSPlot, RSObject
+from misc import RSPlot, RSObject, np
 import matplotlib.pyplot as plt
+from random import random
 
 
 class TPObject(RSObject):
@@ -21,13 +22,23 @@ class TPArc(TPObject):
         RSObject.__init__(self, name, color)
 
     def draw(self, ax):
-        if self.start is not None and self.end is not None:
-            y_offset = self.start.text_height / 2
-            ax.arrow(self.start.left + self.start.width/2, self.start.top+y_offset,
-                     self.end.left + self.end.width/2-self.start.left-self.start.width/2,
-                     self.end.top-self.start.top-y_offset,
-                     length_includes_head=True, head_width=.05, head_length=.25,
-                     fc=self.msgforecolor, ec=self.msgforecolor)
+        ex_kwargs = None
+        if self.start is None:
+            ex_kwargs = dict(xy=(self.end.left+self.end.width/2, self.end.top))
+        elif self.end is not None:
+            ex_kwargs = dict(arrowprops=dict(arrowstyle="<|-",
+                                             connectionstyle="arc3,rad=%f" % (random()*0.4 - 0.2),
+                                             fc="black"),
+                             xy=(self.start.left + self.start.width / 2, self.start.top),
+                             xytext=(self.end.left + self.end.width / 2, self.end.top))
+        if ex_kwargs is not None:
+            ax.annotate(self.end.name,
+                        size=20, va="top", ha="center",
+                        xycoords='data',
+                        textcoords='data',
+                        bbox=dict(boxstyle="round4", fc='black', alpha=.25),
+                        color=self.end.msgforecolor,
+                        **ex_kwargs)
 
 
 class TPNode(TPObject):
@@ -59,10 +70,6 @@ class TPNode(TPObject):
             self.width -= 1
 
     def draw(self, ax):
-        self.text = ax.text(self.left + self.width/2, self.top, self.name,
-                            fontsize=15, verticalalignment='bottom', horizontalalignment='center',
-                            color=self.msgforecolor,
-                            bbox=dict(boxstyle='round,pad=0.3', fc='black', alpha=0.3))
         self.arc.draw(ax)
         for child in self.children:
             child.draw(ax)
@@ -96,6 +103,8 @@ class TreePlot(RSPlot):
     def plot(self, ax=None, **kwargs):
         fig = plt.figure(figsize=(self.width, self.height))
         ax = fig.add_subplot(111)
+        ax.axis('off')
+        self.tree.top = 0.1
         self.tree.calc_rect()
         ax.set_xlim(-0.1, self.tree.width + 0.1)
         ax.set_ylim(-0.1, self.tree.height + 0.1)
