@@ -11,6 +11,10 @@ import re
 import copy
 import prettytable as pt
 from collections import Iterable
+from threading import Thread
+import inspect
+import ctypes
+from abc import abstractmethod
 
 warnings.filterwarnings("ignore")
 matplotlib.rcParams['font.sans-serif'] = ['simhei'] # 用来正常显示中文标签
@@ -199,7 +203,35 @@ class RSTable(pt.PrettyTable, RSObject):
         RSObject.__init__(self)
 
 
-last_len = -1
+class RSThread(Thread, RSObject):
+    def __init__(self, **kwargs):
+        Thread.__init__(self, **kwargs)
+        RSObject.__init__(self)
+        self.state = 'pause'
+
+    def stop(self):
+        self._async_raise(self.ident, SystemExit)
+
+    def pause(self):
+        self.state = 'pause'
+
+    def resume(self):
+        self.state = 'running'
+
+    @staticmethod
+    def _async_raise(tid, exctype):
+        """raises the exception, performs cleanup if needed"""
+        tid = ctypes.c_long(tid)
+        if not inspect.isclass(exctype):
+            exctype = type(exctype)
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, ctypes.py_object(exctype))
+        if res == 0:
+            raise ValueError('invalid thread id')
+        elif res != 1:
+            # """ if it returns a number greater than 1, you're in trouble. """
+            # and you should call it again with exec=NULL to revert the effect
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, None)
+            raise SystemError('PyThreadState_SetAsyncExc failed')
 
 
 def test():

@@ -53,6 +53,7 @@ else:
 
 RSControl.init()
 RSCostEstimator.init()  # initialize statically
+RSDataProcessor.init()
 
 
 ############################

@@ -1,4 +1,4 @@
-﻿from  base import RSObject, time
+﻿from  base import RSObject, time, RSThread
 from threading import Thread
 
 
@@ -10,7 +10,7 @@ class RSControl(RSObject):
     iTimer = 0  # ms
     s_out = ''
 
-    class RSControlThread(Thread):
+    class RSControlThread(RSThread):
         def __init__(self, *args, **kwargs):
             Thread.__init__(self, *args, **kwargs)
             self.state = 'running'  # running
@@ -18,17 +18,19 @@ class RSControl(RSObject):
         def pause(self):
             self.state = 'pause'
             while self.state != 'paused':
-                pass
+                time.sleep(0.01)
 
         def resume(self):
             self.state = 'running'
 
         def terminate(self):
-            self.state = 'terminated'
+            self.state = 'terminating'
+            while self.state != 'terminated':
+                time.sleep(0.01)
 
         def run(self):
             last_s = ''
-            while self.state != 'terminated':
+            while self.state != 'terminating':
                 if self.state == 'running':
                     t = time.time()
                     RSControl.buffer = []
@@ -58,6 +60,7 @@ class RSControl(RSObject):
                     self.state = 'paused'
                 elif self.state == 'paused':
                     continue
+            self.state = 'terminated'
 
     def __init__(self, **kwargs):
         RSObject.__init__(self)
@@ -105,9 +108,10 @@ class RSControl(RSObject):
 
     @staticmethod
     def init():
-        if RSControl.thread is None:
-            RSControl.thread = RSControl.RSControlThread()
-            RSControl.thread.start()
+        if RSControl.thread is not None:
+            RSControl.thread.stop()
+        RSControl.thread = RSControl.RSControlThread()
+        RSControl.thread.start()
 
 
 class CStandbyCursor(RSControl):

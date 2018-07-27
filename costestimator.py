@@ -128,7 +128,6 @@ class CETime(RSCostEstimator):
         :param kwargs:
         """
         RSCostEstimator.__init__(self, project_name, **kwargs)
-        self.start_time = 0
         self.factors = CETime.Factors(immutable_factors)
         self.predictor = None
         self.train(1)
@@ -144,7 +143,6 @@ class CETime(RSCostEstimator):
         return machine_info
 
     def predict(self):
-        self.start_time = time.time()
         self.factors.extend(self._get_machine_info())
         if self.predictor is not None:
             x = self.factors + [-1]
@@ -165,7 +163,7 @@ class CETime(RSCostEstimator):
         memorize时才会清空factors
         :return:
         """
-        cost = time.time() - self.start_time
+        cost = time.time() - self.timestart
         if cost > 1:
             self.new_experience = self.factors + [cost]
             self.save_new_exp()

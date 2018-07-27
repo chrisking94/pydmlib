@@ -84,9 +84,6 @@ class FeatureSelector(RSDataProcessor):
 
 
 class FSChi2(FeatureSelector):
-    def __init__(self, *args, **kwargs):
-        FeatureSelector.__init__(self, *args, **kwargs)
-
     def score(self, data, target):
         skb = SelectKBest(chi2, k='all')
         skb.fit_transform(data, target)
@@ -94,9 +91,6 @@ class FSChi2(FeatureSelector):
 
 
 class FSRFC(FeatureSelector):
-    def __init__(self, *args, **kwargs):
-        FeatureSelector.__init__(self, *args, **kwargs)
-
     def score(self, data, target):
         clf = RandomForestClassifier()
         clf.fit(data, target)
@@ -104,9 +98,6 @@ class FSRFC(FeatureSelector):
 
 
 class FSmRMR(FeatureSelector):
-    def __init__(self, *args, **kwargs):
-        FeatureSelector.__init__(self, *args, **kwargs)
-
     def score(self, data, target):
         scores = mrmr(data.values, target)  # scores[0] is the most important feature
         scores = scores.max() - scores

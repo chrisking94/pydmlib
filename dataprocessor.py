@@ -1,5 +1,5 @@
 ﻿from  base import *
-from  control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar
+from  control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar, RSControl
 from  costestimator import CETime
 from  data import RSData
 
@@ -13,6 +13,37 @@ class RSDataProcessor(RSObject):
     b_multi_line_msg = False  # output each message in a new line
     s_msg_mode = 'brief'  # brief detail
     n_msg_max_len = 50  # unit: char
+    time_estimation_thread = None
+
+    class TimeEstimationThread(RSThread):
+        def __init__(self, **kwargs):
+            RSThread.__init__(self, **kwargs)
+            self._estimator = None
+            self.task_commit_time = 0
+
+        def run(self):
+            while True:
+                if self.estimator is not None:
+                    estimator = self.estimator
+                    tcp = estimator.predict()
+                    tcp -= time.time() - self.task_commit_time
+                    if estimator == self.estimator:
+                        self.estimator = None
+                        if tcp > 1:
+                            RSDataProcessor.progressbar.width = 40
+                            RSDataProcessor.progressbar.reset(tcp)
+                    else:
+                        RSDataProcessor.progressbar.width = 0
+                time.sleep(0.2)
+
+        @property
+        def estimator(self):
+            return self._estimator
+
+        @estimator.setter
+        def estimator(self, e):
+            self._estimator = e
+            self.task_commit_time = time.time()
 
     def __init__(self, features2process=None, name='', msgforecolor='default',
                  msgbackcolor='default', msgmode='default'):
@@ -141,18 +172,15 @@ class RSDataProcessor(RSObject):
                     self.warning('No feature to process.')
                 else:
                     self.cost_estimator.factors.extend([len(features), data.shape[0]])
-                    tcp = self.cost_estimator.predict()
-                    if tcp > 1:
-                        self.progressbar.width = 40
-                        self.progressbar.reset(tcp)
-                    else:
-                        self.progressbar.width = 0
+                    self.time_estimation_thread.estimator = self.cost_estimator
                     try:
+                        self.cost_estimator.starttimer()
                         data = self._process(data, features, label)
                         self.cost_estimator.memorize_experience()
                     except Exception as e:
                         raise e
                     else:
+                        self.time_estimation_thread.estimator = None
                         RSDataProcessor.label.visible = False
                         self.progressbar.width = 0
             else:
@@ -200,5 +228,12 @@ class RSDataProcessor(RSObject):
     def __add__(self, other):
         from integration import ProcessorSequence
         return ProcessorSequence([self, other])
+
+    @staticmethod
+    def init():
+        if RSDataProcessor.time_estimation_thread is not None:
+            RSDataProcessor.time_estimation_thread.stop()
+        RSDataProcessor.time_estimation_thread = RSDataProcessor.TimeEstimationThread()
+        RSDataProcessor.time_estimation_thread.start()
 
 
