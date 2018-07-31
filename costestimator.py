@@ -170,6 +170,9 @@ class CETime(RSCostEstimator):
             self.factors.clear()  # 重置factors
             self.train()
 
+    def abandon_experience(self):
+        self.factors.clear()
+
     def train(self, time_out=0):
         """
         train predictor in new thread, wait while time out ,thread termination or exception occurs

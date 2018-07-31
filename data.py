@@ -82,26 +82,30 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
         # 没有显式声明__init__函数时，调用__init__构造对象时会出现两种情况
         # 1.__init__的实参单一且为基类对象，会返回一个实参的拷贝，其类型为当前类的类型
         # 2.其他情况的实参，则直接调用基类__init__并传入实参
+        rgx_col_label = re.compile(r'<([^>]+)>')  # 列名label捕获
+        rgx_multi_label = re.compile(r'([\|\&-])')  # 多label捕获
+        rgx_none_bracket = re.compile(r'[^\(\)]+')  # 非括号捕获
+        rgx_multi_expr = re.compile(r'( \| | \& | - )')  # 多表达式捕获
+
         def __getitem__(self, item):
             if isinstance(item, str):
-                if item[0] == '@':
+                list_exprs = self.rgx_multi_expr.split(item)
+                if len(list_exprs) > 1:
+                    # multi expressions
+                    # e.g. item='@@l | @abc & bv,dc,zx'
+                    # then list_exprs=['@@l', ' | ', '@abc', ' & ', 'bv,dc,zx']
+                    item = self._gen_cols_from_expr_chips(list_exprs, self._get_cols_by_expr)
+                elif item[0] == '@':
                     if len(item) > 2 and item[1] == '@':  # @@xc 使用标签匹配，返回带x,c标签的列
-                        item = set(item[2:])
-                        rgx_label = re.compile(r'<([^>]+)>')
-                        cols = []
-                        for col in self:
-                            labels = rgx_label.findall(col)
-                            if labels.__len__() > 0:
-                                labels = labels[0]
-                                if 'x' not in labels:
-                                    if 'y' not in labels and 'r' not in labels:
-                                        labels = 'x%s' % labels
-                                elif 'x' == labels:
-                                    labels = 'cx'
-                            else:
-                                labels = 'cx'  # 默认为cx标签
-                            if item.issubset(set(labels)):
-                                cols.append(col)
+                        item = item[2:]
+                        list_lbls = self.rgx_multi_label.split(item)
+                        if len(list_lbls) > 1:
+                            # multi label
+                            # e.g. item='@@a|b&c-d'
+                            # then list_lbls = ['a', '|', 'b', '&', 'c', '-', 'd']
+                            cols = self._gen_cols_from_expr_chips(list_lbls, self._get_cols_by_label)
+                        else:
+                            cols = self._get_cols_by_label(item)
                     else:  # @使用正则表达式
                         regx = re.compile(item[1:])
                         cols = [x for x in self if regx.search(x) is not None]
@@ -138,6 +142,51 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                 raise Exception('Expression [%s] is invalid!Please check expression and parameters.'
                                 % tp[0])
             return ret[0]
+
+        def _get_cols_by_label(self, s_label):
+            item = set(s_label)
+            cols = []
+            for col in self:
+                labels = self.rgx_col_label.findall(col)
+                if labels.__len__() > 0:
+                    labels = labels[0]
+                    if 'x' not in labels:
+                        if 'y' not in labels and 'r' not in labels:
+                            labels = 'x%s' % labels
+                    elif 'x' == labels:
+                        labels = 'cx'
+                else:
+                    labels = 'cx'  # 默认为cx标签
+                if item.issubset(set(labels)):
+                    cols.append(col)
+            return cols
+
+        def _get_cols_by_expr(self, s_expr):
+            if len(s_expr) > 1:
+                if s_expr[0] == '@':
+                    return list(self.__getitem__(s_expr))
+                else:
+                    # 'a,b,c,d...'
+                    return s_expr.split(',')
+            else:
+                return []
+
+        def _gen_cols_from_expr_chips(self, chips, func_get_cols):
+            l_exp = []  # expression builder
+            cols = ['']
+            for i, chip in enumerate(chips):
+                if i % 2:
+                    # operator
+                    l_exp.append(chip)
+                else:
+                    # label
+                    var_name = chr(65 + int(i / 2))
+                    expr = self.rgx_none_bracket.findall(chip)[0]
+                    l_exp.append(self.rgx_none_bracket.sub(var_name, chip))
+                    cols.append(func_get_cols(expr))
+            cols[0] = ''.join(l_exp)
+            cols = self.__getitem__(tuple(cols))
+            return cols
 
     def __init__(self, data=None, index=None, columns=None, dtype=None,
                  copy=False, name='RSData'):
@@ -277,12 +326,11 @@ class MSSqlData(RSData):
             self.conn.close()
 
 
-def test():
-    return
+if __name__ == '__main__':
     data = [[1, 2, 5, 7], [3, 4, 6, 10], [5, 6, 7, 22]]
     data = RSData(data, columns=['<c>A', '<y>B', '<r>C', 'D'], name='R')
+    print(data['@@x|r | @@y'])
     print(data[('S-A-B', '@x', ['<c>A'])])
-    return
     print(type(data.columns))
     print(data.columns['@d'])
     data.pop('<c>A')

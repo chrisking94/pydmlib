@@ -175,7 +175,8 @@ class RSList(RSObject, list):
     def __str__(self):
         return '%s：\n%s' % (self.coloredname, RSTable(self.info()).__str__())
 
-    __repr__ = __str__
+    def __repr__(self):
+        return self.__str__()
 
 
 class RSTable(pt.PrettyTable, RSObject):

@@ -99,9 +99,6 @@ class RSDataProcessor(RSObject):
     def _submsg(self, title, title_color, msg):
         if self.s_msg_mode == 'disable':
             return
-        if self.s_msg_mode == 'brief':
-            if len(msg) > self.n_msg_max_len:
-                msg = '%s...' % msg[:self.n_msg_max_len]
         if RSDataProcessor.b_multi_line_msg:
             RSObject._submsg(self, title, title_color, msg)
         else:
@@ -179,7 +176,8 @@ class RSDataProcessor(RSObject):
                         self.cost_estimator.memorize_experience()
                     except Exception as e:
                         raise e
-                    else:
+                    finally:
+                        self.cost_estimator.abandon_experience()
                         self.time_estimation_thread.estimator = None
                         RSDataProcessor.label.visible = False
                         self.progressbar.width = 0

@@ -11,11 +11,14 @@ class OutlierHandler(RSDataProcessor):
         data = data.copy()
         X = data[features]
         todrop = self._detect(X)
+        infs = np.isinf(X)
+        self.msg(str(infs.sum().sum()), 'inf count')  # infinite items count
+        todrop |= infs
         # 用data[todrop] = np.nan会很慢
         # 优化
         X[todrop] = np.nan
         data[features] = X
-        self.msg(str(todrop.sum().sum()), 'dropped item quantity')
+        self.msg(str(todrop.sum().sum()), 'dropped items')
         return data
 
     def _detect(self, X):

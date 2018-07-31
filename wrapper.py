@@ -27,15 +27,11 @@ class Wrapper(RSDataProcessor):
 
     def fit_transform(self, data):
         if self.b_fit:
-            self.data = None
             return RSDataProcessor.fit_transform(self, data)
         else:
             self.b_fit = True
-            if self.data is None:
-                self.data = data
-                return self
-            else:
-                self.error('inflict occurred in delay fitting multi thread.')
+            self.data = data
+            return self
 
     def __rshift__(self, other):
         """
@@ -49,6 +45,7 @@ class Wrapper(RSDataProcessor):
 params %s are None whereas they are not allowed to be None.You may use << to fill they up.' % none_attrs.__str__())
         else:
             data = self.fit_transform(self.data)
+            self.data = None
             if not isinstance(other, int):
                 data = data >> other
             else:
@@ -64,7 +61,6 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
                         2.dict, self.__dict___.update(other)
         :return:
         """
-        self.delay_start = time.time()
         if isinstance(other, dict):
             self.__dict__.update(other)
         else:
@@ -76,8 +72,6 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
 
     def __str__(self):
         return self.processor.__str__()
-
-    __repr__ = __str__
 
 
 class WrpDataProcessor(Wrapper):
@@ -359,7 +353,11 @@ def wrap(features2process, processor, *args, **kwargs):
     elif isinstance(processor, BaseSearchCV):
         return WrpSearchCV(features2process, processor)
     elif isinstance(processor, BaseCrossValidator):
-        return WrpCrossValidator(features2process, processor, None, *args, **kwargs)
+        cv = processor
+        predictor = None
+        if len(args) > 0:
+            predictor = args[0]
+        return WrpCrossValidator(features2process, cv, predictor, **kwargs)
     elif isinstance(processor, RegressorMixin):
         pass
     else:
