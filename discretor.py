@@ -130,7 +130,7 @@ class DsctMonospace(Discretor):
         等宽离散
         :param bin_amount:默认分10桶
         """
-        Discretor.__init__(self, features2process, '等宽离散')
+        Discretor.__init__(self, features2process)
         self.bin_amount = bin_amount
 
     def _process(self, data, features, label):

@@ -4,6 +4,7 @@ from sklearn.feature_selection import chi2
 from sklearn.ensemble import RandomForestClassifier
 from skfeature.function.information_theoretical_based.MRMR import mrmr
 from sklearn.linear_model import LogisticRegression
+from data import RSSeries
 
 
 class FeatureSelector(RSDataProcessor):
@@ -31,6 +32,7 @@ class FeatureSelector(RSDataProcessor):
         # normalization
         scores /= scores.sum()
         self.scores = scores.sort_values(0, ascending=False)
+        self.scores = RSSeries(self.scores)
         if scores.isnull().sum() != 0:
             self.error('scores contains null.')
         if self.feature_count < 1:

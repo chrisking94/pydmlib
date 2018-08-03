@@ -12,9 +12,12 @@ class RSPlotManager(object):
 
     def show(*args, **kwargs):
         from control import RSControl
-        RSControl.thread.pause()
-        ppt.show(*args, **kwargs)
-        RSControl.thread.resume()
+        if RSControl.thread is None:
+            ppt.show(*args, **kwargs)
+        else:
+            RSControl.thread.pause()
+            ppt.show(*args, **kwargs)
+            RSControl.thread.resume()
 
 
 plt = RSPlotManager()
@@ -22,7 +25,8 @@ plt = RSPlotManager()
 
 def printf(s, *args, **kwargs):
     from control import RSControl
-    RSControl.thread.pause()
+    if RSControl.thread is not None:
+        RSControl.thread.pause()
     if isinstance(s, str):
         try:
             print(s % args, **kwargs)
@@ -30,7 +34,8 @@ def printf(s, *args, **kwargs):
             print(s, *args, **kwargs)
     else:
         print(str(s), **kwargs)
-    RSControl.thread.resume()
+    if RSControl.thread is not None:
+        RSControl.thread.resume()
 
 
 class PydmConfig(ConfigParser):

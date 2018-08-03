@@ -148,22 +148,11 @@ class RSDataProcessor(RSObject):
                 # 如果self.features2process为None则设置成data.columns
                 # 否则为features2process∩data.columns
                 features = data.columns[:-1]
-                if self.features2process is None:
-                    pass
-                elif isinstance(self.features2process, str):
-                    if self.features2process == '':
-                        pass
-                    elif self.features2process[0] == '@':
-                        features = features[self.features2process]
-                        if len(self.features2process) > 1 and self.features2process[1] != '@':
-                            self._msg_features(features, self.features2process)
-                    else:
-                        features = features[[self.features2process]]
+                features = features[self.features2process]
+                if isinstance(self.features2process, str):
+                    self._msg_features(features, self.features2process)
                 elif isinstance(self.features2process, tuple):
-                    features = features[self.features2process]
                     self._msg_features(features, self.features2process[0])
-                else:
-                    features = features[self.features2process]
                 label = data.columns[-1]
                 if features.__len__() == 0:
                     self.warning('No feature to process.')
