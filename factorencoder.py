@@ -17,7 +17,7 @@ class FactorEncoder(RSDataProcessor):
 
 class FEOneHot(FactorEncoder):
     def __init__(self, features2process):
-        FactorEncoder.__init__(self, features2process, 'OneHot编码')
+        FactorEncoder.__init__(self, features2process)
 
     def _encode(self, data, features, label):
         """

@@ -14,6 +14,7 @@ from  reporter import *
 from  formatconverter import *
 from  wrapper import *
 from  data import *
+from  utils import cfg
 
 
 ############################
@@ -22,8 +23,6 @@ from  data import *
 from  utils import GlobalOption
 from  control import RSControl
 from  costestimator import RSCostEstimator
-
-cfg = GlobalOption('./pydmlib.cfg')
 
 
 def set_option(*args, **kwargs):

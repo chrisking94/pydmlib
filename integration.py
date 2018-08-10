@@ -22,7 +22,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
         self.report_table = None
 
     def fit_transform(self, data=None):
-        self.starttimer()
+        self.start_timer()
         self.report_line = []
         self.report_title = []
         #  从后往前找到第一个可用检查点
@@ -54,7 +54,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
                 self.report_line.extend(procr.get_report())
                 self.report_title.extend(procr.get_report_title())
                 procr.msg('skipped.')
-        self.msgtimecost()
+        self.msg_time_cost()
         self.report_table = pd.DataFrame(self.report_line, index=self.report_title)
         return data
 
@@ -220,12 +220,12 @@ class MTAutoGrid(Integrator, RSList):
         :param data:输入数据集
         :return:
         """
-        self.starttimer()
+        self.start_timer()
         b_head_done = False
         self.report_table = None
         cdata = data
         for i, sequence in enumerate(self):
-            self.msgtime(msg='开始执行第%d/%d个测试序列。' % ((i+1), self.__len__()))
+            self.msg_current_time(msg='开始执行第%d/%d个测试序列。' % ((i + 1), self.__len__()))
             cdata = sequence.fit_transform(data)
             # 生成表头
             if not sequence.contains_continue() and not b_head_done:
@@ -238,9 +238,9 @@ class MTAutoGrid(Integrator, RSList):
                 self.report_table.loc[self.report_table.shape[0], :] = sequence.get_report()
             # 输出报告
             sequence.log()
-            sequence.msgtimecost(msg='第%d/%d个测试完成。' % ((i+1), self.__len__()))
-        self.msgtimecost(msg='总耗时。')
-        self.msgtime(msg='测试完成！调用log()可获取测试日志。')
+            sequence.msg_time_cost(msg='第%d/%d个测试完成。' % ((i + 1), self.__len__()))
+        self.msg_time_cost(msg='总耗时。')
+        self.msg_current_time(msg='测试完成！调用log()可获取测试日志。')
         self.log()
         return cdata
 
@@ -271,10 +271,10 @@ class MTAutoGrid(Integrator, RSList):
         :return:
         """
         if filepath == '':
-            filepath = '%s_%s.csv' % (self.name, self.strtime())
+            filepath = '%s_%s.csv' % (self.name, self.str_current_time())
         else:
             if btimesuffix:
-                filepath = '%s_%s.csv' % (filepath, self.strtime())
+                filepath = '%s_%s.csv' % (filepath, self.str_current_time())
         self.report_table.to_csv(filepath, sep='\t')
 
     def info(self):
@@ -304,8 +304,8 @@ class TCCheckPoint(TesterController):
         self.copy_count = 0
 
     def fit_transform(self, data):
-        self.starttimer()
-        msg = self.colorstr('⚪check-point', 0, 6, 8)
+        self.start_timer()
+        msg = self.color_str('⚪check-point', 0, 6, 8)
         if data is not None:
             self.data = data
             msg = '%s%s' % (msg, '👈input data saved.')
@@ -313,8 +313,8 @@ class TCCheckPoint(TesterController):
             msg = '%s%s' % (msg, '👉data exported.')
         else:
             self.warning('No data held in by this check point.')
-        self.msgtime(msg)
-        self.msgtimecost()
+        self.msg_current_time(msg)
+        self.msg_time_cost()
         return self.data
 
     def is_me(self, id_name):
@@ -354,7 +354,7 @@ class TCBreak(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self.colorstr('**break*point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        self.msg_current_time(self.color_str('**break*point' * 8, 0, self._fore_color, self._back_color))
         return data
 
 
@@ -391,7 +391,7 @@ class TCStart(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self.colorstr('--start-point' * 8, 0, self.msgforecolor, self.msgbackcolor))
+        self.msg_current_time(self.color_str('--start-point' * 8, 0, self._fore_color, self._back_color))
         return data
 
 
@@ -401,7 +401,7 @@ class TCEnd(TCCheckPoint):
 
     def fit_transform(self, data):
         data = TCCheckPoint.fit_transform(self, data)
-        self.msgtime(self.colorstr('--end-point' * 9, 0, self.msgforecolor, self.msgbackcolor))
+        self.msg_current_time(self.color_str('--end-point' * 9, 0, self._fore_color, self._back_color))
         return data
 
 

@@ -1,28 +1,29 @@
-import matplotlib.pyplot as ppt
+import matplotlib.pyplot as plt
 from configparser import ConfigParser
 import os
 import pandas as pd
 import numpy as np
 
-
-class RSPlotManager(object):
-    def __init__(self):
-        self.__dict__.update(ppt.__dict__)
-        self.__dict__.update(RSPlotManager.__dict__)
-
-    def show(*args, **kwargs):
-        from control import RSControl
-        if RSControl.thread is None:
-            ppt.show(*args, **kwargs)
-        else:
-            RSControl.thread.pause()
-            ppt.show(*args, **kwargs)
-            RSControl.thread.resume()
+###############################################################
+# rewrite some methods of plt
+plt_show = plt.show
 
 
-plt = RSPlotManager()
+def show(*args, **kwargs):
+    from control import RSControl
+    if RSControl.thread is None:
+        plt_show(*args, **kwargs)
+    else:
+        RSControl.thread.pause()
+        plt_show(*args, **kwargs)
+        RSControl.thread.resume()
 
 
+plt.show = plt_show
+
+
+###############################################################
+# create internal functions
 def printf(s, *args, **kwargs):
     from control import RSControl
     if RSControl.thread is not None:
@@ -38,6 +39,8 @@ def printf(s, *args, **kwargs):
         RSControl.thread.resume()
 
 
+###############################################################
+# configs
 class PydmConfig(ConfigParser):
     def __init__(self, file_path, *args, **kwargs):
         ConfigParser.__init__(self, *args, **kwargs)
@@ -61,6 +64,23 @@ class GlobalOption(PydmConfig):
         else:
             pd_config = self.pd_config
             return pd_config[item]
+
+    def translate_object_name(self, name):
+        """
+        if exists section [Object] then name will be translated refers to config in [Object]
+        :param name:
+        :return: translated name
+        """
+        if self.has_option('Object', name):
+            t_name = self.get('Object', name)
+        else:
+            t_name = ''
+        if t_name == '':
+            t_name = name
+        return t_name
+
+
+cfg = GlobalOption('./pydmlib.cfg')
 
 
 def test():

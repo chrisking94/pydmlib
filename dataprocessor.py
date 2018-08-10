@@ -28,7 +28,7 @@ class RSDataProcessor(RSObject):
                     tcp = estimator.predict()
                     tcp -= time.time() - self.task_commit_time
                     if estimator == self.estimator:
-                        self.estimator = None
+                        self._estimator = None
                         if tcp > 1:
                             RSDataProcessor.progressbar.width = 40
                             RSDataProcessor.progressbar.reset(tcp)
@@ -59,7 +59,8 @@ class RSDataProcessor(RSObject):
         self.features2process = features2process
         self.state = 'on'  # turn off this processor by set state to 'off'
         self.messages = {}
-        self.cost_estimator = CETime.get_estimator(self.__class__.__name__)
+        self._factors = None
+        self.factors = []
 
     def turn(self, state):
         """
@@ -87,37 +88,37 @@ class RSDataProcessor(RSObject):
                 RSDataProcessor.involatile_msg[int(msg[1])] = msg[2:]
             s_involatile = ''.join(RSDataProcessor.involatile_msg)
             RSDataProcessor.label.text = lambda: '%s<%s%s>: %s %s%s' % \
-                                                 (self.coloredname,
-                                                  self.colorstr(RSDataProcessor.cursor.__str__(), 0, 6, 8),
-                                                  self.colorstr(RSDataProcessor.timer.__str__(), 0, 2, 8),
+                                                 (self.colored_name,
+                                                  self.color_str(RSDataProcessor.cursor.__str__(), 0, 6, 8),
+                                                  self.color_str(RSDataProcessor.timer.__str__(), 0, 2, 8),
                                                   self.progressbar.__str__(),
                                                   s_involatile,
                                                   msg)
         else:
             RSObject.msg(self, msg, title)
 
-    def _submsg(self, title, title_color, msg):
+    def _print_msg(self, title, title_color, msg):
         if self.s_msg_mode == 'disable':
             return
         if RSDataProcessor.b_multi_line_msg:
-            RSObject._submsg(self, title, title_color, msg)
+            RSObject._print_msg(self, title, title_color, msg)
         else:
-            title = self.colorstr(title, 0, title_color, 8)
+            title = self.color_str(title, 0, title_color, 8)
             if title not in self.messages.keys():
                 self.messages[title] = []
             self.messages[title].append(msg)
 
-    def msgtimecost(self, start=None, msg=''):
-        RSObject.msgtimecost(self, start, msg)
+    def msg_time_cost(self, start=None, msg=''):
+        RSObject.msg_time_cost(self, start, msg)
         if not RSDataProcessor.b_multi_line_msg:
             # out put messages
             sl = ['[%s] %s' % (x[0], ', '.join(x[1])) for x in self.messages.items()]
-            RSObject._submsg(self, '', 0, '  '.join(sl))
+            RSObject._print_msg(self, '', 0, '  '.join(sl))
             self.messages = {}
 
-    def _msg_features(self, features, title):
+    def _msg_features(self, features, columns, title):
         if self.s_msg_mode == 'brief':
-            msg = '%d column(s)' % len(features)
+            msg = '%d/%d column(s)' % (len(features), len(columns))
         else:
             msg = features.__str__()
         self.msg(msg, title)
@@ -137,7 +138,8 @@ class RSDataProcessor(RSObject):
         """
         if self.state == 'on':
             if isinstance(data, pd.DataFrame):
-                self.starttimer()
+                self.start_timer()
+                self.factors.clear()
                 if not isinstance(data, RSData):
                     data = RSData(data)
                 RSDataProcessor.label.visible = True
@@ -150,17 +152,17 @@ class RSDataProcessor(RSObject):
                 features = data.columns[:-1]
                 features = features[self.features2process]
                 if isinstance(self.features2process, str):
-                    self._msg_features(features, self.features2process)
+                    self._msg_features(features, data.columns, self.features2process)
                 elif isinstance(self.features2process, tuple):
-                    self._msg_features(features, self.features2process[0])
+                    self._msg_features(features, data.columns, self.features2process[0])
                 label = data.columns[-1]
                 if features.__len__() == 0:
                     self.warning('No feature to process.')
                 else:
-                    self.cost_estimator.factors.extend([len(features), data.shape[0]])
+                    self.factors.extend(data.shape)
                     self.time_estimation_thread.estimator = self.cost_estimator
                     try:
-                        self.cost_estimator.starttimer()
+                        self.cost_estimator.start_timer()
                         data = self._process(data, features, label)
                         self.cost_estimator.memorize_experience()
                     except Exception as e:
@@ -174,7 +176,7 @@ class RSDataProcessor(RSObject):
                 data = self._process(data, None, None)
             RSDataProcessor.label.visible = False
             self.progressbar.width = 0
-            self.msgtimecost()
+            self.msg_time_cost()
         else:
             self.msg(self.state, 'state')
         return data
@@ -208,6 +210,28 @@ class RSDataProcessor(RSObject):
         if self.state == 'on':
             return [self.name]
         return []
+
+    #################
+    #   Properties  #
+    #################
+    @property
+    def cost_estimator(self):
+        ce = CETime.get_estimator(self.__class__.__name__)
+        ce.factors = self.factors
+        return ce
+
+    @property
+    def factors(self):
+        return self._factors
+
+    @factors.setter
+    def factors(self, lst):
+        if lst is None:
+            self._factors = None
+        elif isinstance(lst, Iterable):
+            self._factors = CETime.Factors(lst)
+        else:
+            raise ValueError('factors should be Iterable!')
 
     def __call__(self, *args, **kwargs):
         return self.fit_transform(*args, **kwargs)

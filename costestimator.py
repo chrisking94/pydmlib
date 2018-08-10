@@ -48,7 +48,7 @@ class RSCostEstimator(RSObject):
                 self.data.loc[self.data.shape[0], :] = self.new_experience
                 # append
                 s_out = ','.join([str(x) for x in self.new_experience])
-                s_out = '%s\r\n' % s_out
+                s_out = '%s\n' % s_out
                 with open(self.file_path, 'a') as f:
                     f.write(s_out)
 
@@ -128,7 +128,7 @@ class CETime(RSCostEstimator):
         :param kwargs:
         """
         RSCostEstimator.__init__(self, project_name, **kwargs)
-        self.factors = CETime.Factors(immutable_factors)
+        self.factors = None
         self.predictor = None
         self.train(1)
         self.end_data = None
@@ -136,26 +136,31 @@ class CETime(RSCostEstimator):
     def _get_machine_info(self):
         try:
             import psutil
-            machine_info = [psutil.virtual_memory().percent, psutil.cpu_percent(1)]
+            machine_info = [psutil.virtual_memory().percent, psutil.cpu_percent()]
         except ImportError:
             psutil = None
             machine_info = [0, 0]
         return machine_info
 
     def predict(self):
-        self.factors.extend(self._get_machine_info())
-        if self.predictor is not None:
-            x = self.factors + [-1]
-            if len(x) == self.data.shape[1]:
-                self.data.loc[self.data.shape[0], :] = x
-                data = self._get_processed_data()
-                x = data.iloc[-1, :-1]
-                self.data.drop(self.data.shape[0] - 1, axis=0, inplace=True)
-                try:
-                    return self.predictor.predict(x.values.reshape(1, -1)) - 1
-                except ValueError as e:
-                    # self.warning('prediction failed! %s' % e.__str__())
-                    return -1
+        try:
+            self.factors.extend(self._get_machine_info())
+            if self.predictor is not None:
+                x = self.factors + [-1]
+                if len(x) == self.data.shape[1]:
+                    self.data.loc[self.data.shape[0], :] = x
+                    data = self._get_processed_data()
+                    x = data.iloc[-1, :-1]
+                    self.data.drop(self.data.shape[0] - 1, axis=0, inplace=True)
+                    try:
+                        return self.predictor.predict(x.values.reshape(1, -1)) - 1
+                    except ValueError as e:
+                        # self.warning('prediction failed! %s' % e.__str__())
+                        return -1
+        except TypeError as e:
+            return -1
+        except Exception as e:
+            raise e
         return -1
 
     def memorize_experience(self):
@@ -163,15 +168,15 @@ class CETime(RSCostEstimator):
         memorize时才会清空factors
         :return:
         """
-        cost = time.time() - self.timestart
-        if cost > 1:
+        cost = time.time() - self._time_start
+        if cost > 1 and self.factors is not None:
             self.new_experience = self.factors + [cost]
             self.save_new_exp()
-            self.factors.clear()  # 重置factors
+            self.factors = None  # 重置factors
             self.train()
 
     def abandon_experience(self):
-        self.factors.clear()
+        self.factors = None
 
     def train(self, time_out=0):
         """
@@ -215,7 +220,7 @@ class CETime(RSCostEstimator):
             self.save()
 
     @staticmethod
-    def get_estimator(character, immutable_factors=()):
+    def get_estimator(character):
         if isinstance(character, CETime.get_estimator.__class__):
             s = inspect.getsource(character)
             rgx = re.compile(r'\s')
@@ -224,10 +229,9 @@ class CETime(RSCostEstimator):
             character = '#%s' % character
         if character in CETime.estimators.keys():
             # 各个estimator的immutable_factors一般不同
-            estimator = CETime(character, immutable_factors, load_file=False,
-                               data=CETime.estimators[character].data)  # share data
+            estimator = CETime.estimators[character]
         else:
-            estimator = CETime(character, immutable_factors)
+            estimator = CETime(character)
             CETime.estimators[character] = estimator
         return estimator
 

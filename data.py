@@ -1,94 +1,57 @@
 ﻿from  base import pd, time, RSObject, re, np, RSTable
-import pymssql
+from sqlalchemy.types import NVARCHAR, Float, Integer, SmallInteger
+from sqlalchemy import create_engine
 from collections import Iterable
+from sqlalchemy.exc import ProgrammingError
 
 
-class RSDataMetaclass(type):
-    def __new__(mcs, name, bases, attrs):
-        func_dict = {}
-        mcs._rfaf([pd.DataFrame], func_dict)
-        func_dict = [(k, mcs._wrap_return(v)) for (k, v) in func_dict.items() if k not in set(attrs.keys())]
-        attrs.update(func_dict)
-        return type(name, bases, attrs)
-
-    @staticmethod
-    def _wrap_return(func):
-        def wrappedfunc(self, *arg, **kwargs):
-            ret = func(self, *arg, **kwargs)
-            if isinstance(self, RSData):
-                if isinstance(ret, pd.DataFrame):
-                    try:
-                        ret = self.__class__(data=ret)
-                        ret.name = self.name
-                    except:
-                        self.warning('derived classes of RSData should have a __init__ function like \
-                                     \n     def __init__(data=None, ...)\n')
-                        ret = RSData(name=self.name, data=ret)
-                    if not isinstance(ret.columns, RSData.Index):
-                        ret.columns = RSData.Index(ret.columns)
-                elif ret is None:
-                    if not isinstance(self.columns, RSData.Index):
-                        self.columns = RSData.Index(self.columns)
-            return ret
-        return wrappedfunc
-
-    @staticmethod
-    def _rfaf(classes_, dict_ret):  # recursively find all functions
-        bases = []
-        for c in classes_:
-            funcs = [(k, v) for (k, v) in c.__dict__.items()
-                     if v.__class__.__name__ == 'function'
-                     and k not in dict_ret.keys()]
-            dict_ret.update(funcs)
-            bases.extend(c.__bases__)
-        if bases.__len__() > 0:
-            RSDataMetaclass._rfaf(bases, dict_ret)
-
-
-class RSDataIndexMetaclass(type):
-    def __new__(cls, name, bases, attrs):
-        func_dict = {}
-        cls._rfaf([pd.core.indexes.base.Index], func_dict)
-        exclude_funcs = {'_reset_identity'}
-        exclude_funcs.update(attrs.keys())
-        func_dict = [(k, cls._wrap_return(v)) for (k, v) in func_dict.items() if k not in exclude_funcs]
-        attrs.update(func_dict)
-        return type(name, bases, attrs)
-
-    @staticmethod
-    def _wrap_return(func):
-        def wrappedfunc(self, *arg, **kwargs):
-            ret = func(self, *arg, **kwargs)
-            if isinstance(self, RSData.Index) and isinstance(ret, pd.core.indexes.base.Index):
-                ret = self.__class__(ret)
-            return ret
-        return wrappedfunc
-
-    @staticmethod
-    def _rfaf(classes_, dict_ret):  # recursively find all functions
-        bases = []
-        for c in classes_:
-            funcs = [(k, v) for (k, v) in c.__dict__.items()
-                     if v.__class__.__name__ == 'function'
-                     and k not in dict_ret.keys()]
-            dict_ret.update(funcs)
-            bases.extend(c.__bases__)
-        if bases.__len__() > 0:
-            RSDataIndexMetaclass._rfaf(bases, dict_ret)
-
-
-class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
+class RSData(pd.DataFrame, RSObject):
     class Index(pd.core.indexes.base.Index):  # rewrite Index
         # 没有显式声明__init__函数时，调用__init__构造对象时会出现两种情况
         # 1.__init__的实参单一且为基类对象，会返回一个实参的拷贝，其类型为当前类的类型
-        # 2.其他情况的实参，则直接调用基类__init__并传入实参
+        # 2.其他情况的实参则直接调用基类__init__并传入实参
         rgx_col_label = re.compile(r'<([^>]+)>')  # 列名label捕获
         rgx_multi_label = re.compile(r'([\|\&-])')  # label集合运算捕获
         rgx_none_bracket = re.compile(r'[^\(\)]+')  # 非括号捕获
         rgx_multi_expr = re.compile(r'( \| | \& | - )')  # 多表达式捕获
         rgx_white_char = re.compile(r'\s')  # 白字符捕获
 
+        class Item(str):
+            built_in_function_labels = set('xyr')
+            built_in_type_labels = set('dcl')
+
+            def __new__(cls, o):
+                return str.__new__(cls, o)
+
+            def __init__(self, o):
+                """
+                <*>name
+                :param o:
+                """
+                str.__init__(self)
+                self._name = RSData.Index.rgx_col_label.sub('', self)
+                self._labels = RSData.Index.rgx_col_label.findall(o)
+                if len(self._labels) > 0:
+                    self._labels = set(self._labels[0])
+                else:
+                    self._labels = set()
+                if len(self.built_in_function_labels & self._labels) == 0:
+                    self._labels.add('x')
+                if len(self.built_in_type_labels & self._labels) == 0:
+                    self._labels.add('c')
+
+            @property
+            def name(self):
+                return self._name
+
+            @property
+            def labels(self):
+                return self._labels
+
+        built_in_labels = Item.built_in_type_labels | Item.built_in_function_labels
+
         def __getitem__(self, item):
+            item_ = item
             if item is None:
                 return self
             elif isinstance(item, str):
@@ -119,20 +82,39 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                     # universal set
                     item = self
                 else:
-                    item_dict = self._get_item_mapping_dict()
-                    if item in item_dict.keys():
-                        return item_dict[item]
+                    item = self.Item(item)
+                    for x in self:
+                        x = self.Item(x)
+                        if x.name == item.name:
+                            return x
+                    if item in self.built_in_labels:
+                        itm = self._get_cols_by_label(item)
+                        if len(itm) == 0:
+                            item = None
+                        elif len(itm) == 1:
+                            item = itm[0]
+                        else:
+                            item = itm
+                    else:
+                        item = None
+                    if item is None:
+                        raise KeyError('[%s] not found!' % item_)
                     else:
                         return item
             elif isinstance(item, tuple):
                 # 可以进行集合运算
                 # 例：('A|(B&C)', expA, expB, expC)
-                item = self._gen_set(item)
+                item = self._gen_set_by_tuple(item)
             elif isinstance(item, list):
                 # 返回交集，忽略标签
-                item_dict = self._get_item_mapping_dict()
-                item = [self.rgx_col_label.sub('', x) for x in item]
-                item = [item_dict[x] for x in item if x in item_dict.keys()]
+                if len(item) > 0:
+                    if isinstance(item[0], str):
+                        names = set([self.Item(x).name for x in item])
+                        item = [x for x in self if self.Item(x).name in names]
+                    else:
+                        item = pd.core.indexes.base.Index.__getitem__(self, item)
+                else:
+                    item = []
             else:
                 item = pd.core.indexes.base.Index.__getitem__(self, item)
             if (not isinstance(item, str)) and isinstance(item, Iterable):
@@ -141,14 +123,24 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
             else:
                 return item
 
-        def _get_item_mapping_dict(self):
-            """
-            dict(none_label = labeled)
-            :return:
-            """
-            return dict(zip([self.rgx_col_label.sub('', x) for x in self], self))
+        def __contains__(self, item):
+            if isinstance(item, tuple):
+                return True
+            elif isinstance(item, str):
+                if len(item) > 1 and item[0] == '@':
+                    return True
+                elif item in self.built_in_labels:
+                    return True
+                else:
+                    try:
+                        item = self[item]
+                    except KeyError:
+                        return False
+                    return super(RSData.Index, self).__contains__(item)
+            else:
+                return False
 
-        def _gen_set(self, tp):
+        def _gen_set_by_tuple(self, tp):
             sl = []
             set_list = []
             ret = ([1])
@@ -168,20 +160,7 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
 
         def _get_cols_by_label(self, s_label):
             item = set(s_label)
-            cols = []
-            for col in self:
-                labels = self.rgx_col_label.findall(col)
-                if labels.__len__() > 0:
-                    labels = labels[0]
-                    if 'x' not in labels:
-                        if 'y' not in labels and 'r' not in labels:
-                            labels = 'x%s' % labels
-                    elif 'x' == labels:
-                        labels = 'cx'
-                else:
-                    labels = 'cx'  # 默认为cx标签
-                if item.issubset(set(labels)):
-                    cols.append(col)
+            cols = [x for x in self if item.issubset(self.Item(x).labels)]
             return cols
 
         def _get_cols_by_expr(self, s_expr):
@@ -190,7 +169,8 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                     return list(self.__getitem__(s_expr))
                 else:
                     # 'a, b, c, d...'
-                    return [self.rgx_white_char.sub('', x) for x in s_expr.split(',')]
+                    cols = [self.rgx_white_char.sub('', x) for x in s_expr.split(',')]
+                    return list(self[cols])
             elif s_expr == 'S':
                 return list(self)
             else:
@@ -217,10 +197,8 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                  copy=False, name='RSData'):
         pd.DataFrame.__init__(self, data, index, columns, dtype, copy)
         RSObject.__init__(self, name, 'random', 'default', 'underline')
-        if not isinstance(self.columns, RSData.Index):
-            self.columns = RSData.Index(self.columns)
 
-    def toDataFrame(self):
+    def to_data_frame(self):
         return pd.DataFrame.copy(self)
 
     def decompose_column(self, col, sep, inplace=False):
@@ -239,7 +217,7 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
         :return:
         """
         # 拆分 sNoGestationReason
-        self.starttimer()
+        self.start_timer()
         if inplace:
             data = self
         else:
@@ -254,10 +232,10 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
         for reason in reasons:
             try:
                 data['%s_%s' % (col, reason)] = org.str.contains(reason)
-            except:
+            except Exception:
                 self.warning('bad item "%s" ,ignored.' % reason)
         data.pop(col)
-        self.msgtimecost()
+        self.msg_time_cost()
         return data
 
     def data(self, label):
@@ -273,15 +251,34 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
             ret = None
         else:
             ret = pd.concat([self['@@x'], self[y]], axis=1)
-            ret.rename({y: 'label'}, axis=1, inplace=True)
         return ret
 
-    def __getitem__(self, item):
-        if not (isinstance(item, str)) and not isinstance(item, tuple) and not isinstance(item, list):
-            item = pd.DataFrame.__getitem__(self, item)
-            return item
+    def _getitem_column(self, key):
+        key = self.columns[key]
+        if isinstance(key, str):
+            return pd.DataFrame._getitem_column(self, key)
         else:
-            return pd.DataFrame.__getitem__(self, self.columns[item])
+            return self._getitem_array(key)
+
+    def _getitem_array(self, key):
+        """
+        <labels> will be ignored
+        :param key:
+        :return:
+        """
+        if isinstance(key, list):
+            key = self.columns[key]
+        return pd.DataFrame._getitem_array(self, key)
+
+    def _set_item(self, key, value):
+        try:
+            key = self.columns[key]
+            if not isinstance(key, str):
+                self._setitem_array(key, value)
+                return
+        except KeyError:
+            pass
+        pd.DataFrame._set_item(self, key, value)
 
     def __rshift__(self, other):
         if isinstance(other, int):
@@ -299,6 +296,42 @@ class RSData(pd.DataFrame, RSObject, metaclass=RSDataMetaclass):
                     wrp.b_fit = False  # step delay for wrapper
                 return wrp(self)
 
+    def __setattr__(self, name, value):
+        if name[0] == '_':
+            RSObject.__setattr__(self, name, value)
+        else:
+            if name in self.columns:
+                ns = self.columns[name]
+                if isinstance(ns, str):
+                    name = ns
+                else:
+                    self.warning('multi column[%s]: %s found, set %s as a new column/attribute.'
+                                 % (name, ns.__str__(), name))
+            pd.DataFrame.__setattr__(self, name, value)
+
+    #################
+    #   Properties  #
+    #################
+    @property
+    def columns(self):
+        cols = RSData.Index(self._data.axes[0])
+        return cols
+
+    @columns.setter
+    def columns(self, v):
+        if len(v) == len(self._data.axes[0]):
+            self._data.axes[0] = pd.core.indexes.base.Index(v)
+        else:
+            raise ValueError('length of new column must be same with old one\'s.')
+
+    @property
+    def _constructor(self):
+        def constructor(*args, **kwargs):
+            data = RSData(*args, **kwargs)
+            data.name = self.name
+            return data
+        return constructor
+
 
 class MSSqlData(RSData):
     def __init__(self, data=None, host='', user='', password='', database='',
@@ -306,32 +339,46 @@ class MSSqlData(RSData):
         start = time.time()
         b_read_sql = False
         msg = ''
+        column_types = {}
+        if host == '':
+            engine = None
+        else:
+            engine = create_engine("mssql+pymssql://%s:%s@%s/%s" % (user, password, host, database))
         if data is None:
             b_read_sql = True
             sql = '''SELECT * 
                     FROM %s
                 ''' % table
             try:
-                conn = pymssql.connect(host=host, user=user,
-                                       password=password, database=database)
-                data = pd.read_sql(sql, con=conn)
+                con = engine.connect()
+                data = pd.read_sql(sql, con=con)
+                #  dtype mapping
+                sql = '''
+                            SELECT COLUMN_NAME, DATA_TYPE 
+                            FROM INFORMATION_SCHEMA.columns 
+                            WHERE TABLE_NAME=\'%s\' and TABLE_CATALOG=\'%s\'
+                            ''' % (table, database)
+                ct = pd.read_sql(sql, con)
+                column_types = dict(zip(ct['COLUMN_NAME'], ct['DATA_TYPE']))
+                con.close()
+            except ProgrammingError as e:
+                if e.code == 'f405':
+                    pass  # no such table
+                else:
+                    raise e
             except Exception as e:
-                data = None
-                msg = 'No data read from [%s], %s' % (table, e.__str__())
-            else:
-                conn.close()
+                raise e
         if name == '':
             name = '%s.%s' % (database, table)
-        RSData.__init__(self, name=name, data=data)
+        RSData.__init__(self, data=data, name=name)
+        self.engine = engine
         self.table = table
-        self.host = host
-        self.user = user
-        self.password = password
-        self.database = database
+        self.column_types = column_types
         if b_read_sql:
-            self.msgtimecost(start)
-        if msg != '':
-            self.warning(msg)
+            if msg == '':  # no exception occurred
+                self.msg_time_cost(start)
+            else:
+                self.warning(msg)
 
     def save(self, table='', **kwargs):
         """
@@ -339,21 +386,18 @@ class MSSqlData(RSData):
         :if_exists: {‘fail’, ‘replace’, ‘append’}, default ‘fail’
         :return:
         """
-        self.connect()
+        con = self.engine.connect()
         if table == '':
             table = self.table
             if table == '':
                 self.error('Please specify param table.')
-        self.to_sql(self.table, self.conn, **kwargs)
-        self.close()
+        self.to_sql(self.table, con, **kwargs)
+        con.close()
 
-    def connect(self):
-        self.conn = pymssql.connect(host=self.host, user=self.user,
-                                    password=self.password, database=self.database)
-
-    def close(self):
-        if self.conn is not None:
-            self.conn.close()
+    #################
+    #   Properties  #
+    #################
+    pass
 
 
 class RSSeries(pd.Series, RSObject):
@@ -362,9 +406,9 @@ class RSSeries(pd.Series, RSObject):
 
 
 if __name__ == '__main__':
-    data = [[1, 2, 5, 7], [3, 4, 6, 10], [5, 6, 7, 22]]
-    data = RSData(data, columns=['<c>A', '<y>B', '<r>C', 'D'], name='R')
-    print(data['(S - @@y)'])
+    dt = [[1, 2, 5, 7], [3, 4, 6, 10], [5, 6, 7, 22]]
+    dt = RSData(dt, columns=['<c>A', '<y>B', '<r>C', 'D'], name='R')
+    print(dt['(S - @@y)'])
     # print(data[('S-A-B', '@x', ['<c>A'])])
     # print(type(data.columns))
     # print(data.columns['@d'])

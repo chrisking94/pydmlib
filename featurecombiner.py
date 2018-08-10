@@ -13,7 +13,7 @@ class FeatureCombiner(RSDataProcessor):
 
 
 class FCbArithmetical(FeatureCombiner):
-    def __init__(self, features2process, operations, name='算术特征组合'):
+    def __init__(self, features2process, operations, name=''):
         """
         对特征进行算术组合
         :param features2process: None，其他值不起作用

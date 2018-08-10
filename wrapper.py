@@ -15,8 +15,8 @@ class Wrapper(RSDataProcessor):
         :param features2process:
         :param name:
         """
-        RSDataProcessor.__init__(self, features2process, name, 'random', 'random', 'blink')
         self.processor = processor
+        RSDataProcessor.__init__(self, features2process, name, 'random', 'random', 'blink')
         # set(str)，在进行_process之前会对这里面的参数进行非None检查
         # 如果任一其中的参数值为None，则抛出异常
         # 可以通过 << 运算符依次传入参数
@@ -24,6 +24,8 @@ class Wrapper(RSDataProcessor):
         self.data = None
         # delay one step of fit_transform
         self.b_fit = True
+        self._factors = None
+        self.factors = [processor]
 
     def fit_transform(self, data):
         if self.b_fit:
@@ -73,6 +75,15 @@ params %s are None whereas they are not allowed to be None.You may use << to fil
     def __str__(self):
         return self.processor.__str__()
 
+    #################
+    #   Properties  #
+    #################
+    @property
+    def cost_estimator(self):
+        ce = CETime.get_estimator(self.processor.__class__.__name__)
+        ce.factors = self.factors
+        return ce
+
 
 class WrpDataProcessor(Wrapper):
     def __init__(self, features2process, processor, name=''):
@@ -93,7 +104,6 @@ class WrpDataProcessor(Wrapper):
             name = 'WrpDP-%s'
             name = name % processor.__class__.__name__
         Wrapper.__init__(self, features2process, processor, name)
-        self.cost_estimator = CETime.get_estimator(self.name, [processor])
 
     def _process(self, data, features, label):
         """
@@ -131,8 +141,7 @@ class WrpClassifier(Wrapper):
         self.test_size = test_size
         self.b_train = b_train
         self.plots = None
-        if self.processor is not None:
-            self.cost_estimator = CETime.get_estimator(self.name, [self.processor])
+        self.label = ''
 
     def _process(self, data, features, label):
         """
@@ -140,6 +149,7 @@ class WrpClassifier(Wrapper):
         :param data:  可以为[X y]，或者(trainset, testset)
         :return:  ClfResult
         """
+        self.label = label
         if isinstance(data, tuple):
             self.train_set, self.test_set = data[0], data[1]
         else:
@@ -177,8 +187,9 @@ class WrpClassifier(Wrapper):
             self.pr = None
 
     def show_result(self):
-        self.msg('%f' % (self.trainscore * 100), '训练集得分')
-        self.msg('%f' % (self.testscore * 100), '测试集得分')
+        self.msg(self.label, 'target')
+        self.msg('%.1f' % (self.trainscore * 100), 'train score')
+        self.msg('%.1f' % (self.testscore * 100), 'test score')
         # plots
         naxes = self.plots.__len__()
         apr = 3  # axes per row
@@ -211,7 +222,6 @@ class WrpFunction(Wrapper):
             name = func.__name__
         name = 'WrpFunc-%s' % name
         Wrapper.__init__(self, features2process, func, name)
-        self.cost_estimator = CETime.get_estimator(func)
 
     def _process(self, data, features, label):
         param_names = self.processor.__code__.co_varnames
@@ -228,6 +238,23 @@ class WrpFunction(Wrapper):
         param_dict = dict(zip(param_names, params))
         return self.processor(**param_dict)
 
+    #################
+    #   Properties  #
+    #################
+    @property
+    def cost_estimator(self):
+        ce = CETime.get_estimator(self.processor)
+        ce.factors = self.factors
+        return ce
+
+    @property
+    def factors(self):
+        return self._factors
+
+    @factors.setter
+    def factors(self, lst):
+        self._factors = CETime.Factors()
+
 
 class WrpSearchCV(Wrapper):
     def __init__(self, features2process, validator, name=''):
@@ -235,7 +262,6 @@ class WrpSearchCV(Wrapper):
             name = validator.__class__.__name__
         name = 'WrpSCV-%s' % name
         Wrapper.__init__(self, features2process, validator, name)
-        self.cost_estimator = CETime.get_estimator(self.name, [validator])
 
     def _process(self, data, features, label):
         self.processor.fit(data[features].values, data[label].values)
@@ -262,7 +288,7 @@ class WrpCluster(Wrapper):
 
 
 class WrpCrossValidator(WrpClassifier, pd.DataFrame):
-    def __init__(self, features2process, validator, estimator, name=''):
+    def __init__(self, features2process, validator, estimator):
         """
         Wrapper for Cross Validator
         :param features2process:
@@ -271,21 +297,17 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         :param name:
         """
         pd.DataFrame.__init__(self)
-        WrpClassifier.__init__(self, features2process, estimator, name=name)
+        WrpClassifier.__init__(self, features2process, estimator)
         self.not_none_attrs = {'processor'}
-        self.cv = validator
-        self._get_estimator()
+        self.validator = validator
+        self._reload_immutable_factors()
 
-    def _get_estimator(self):
-        if self.processor is not None and self.cv is not None:
-            name = self.name
-            if name == '':
-                name = '%s-%s' % (self.cv.__class__.__name__,
-                                  self.processor.__class__.__name__)
-            name = 'WrpCV-%s' % name
+    def _reload_immutable_factors(self):
+        if self.processor is not None and self.validator is not None:
+            name = 'Wrp%s-%s' % (self.validator.__class__.__name__,
+                                 self.processor.__class__.__name__)
             self.name = name
-            self.cost_estimator = CETime.get_estimator(self.name, [self.processor, self.cv])
-            self.coloredname = self.colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
+            self.factors = 'see property factor'
         else:
             self.name = ''
 
@@ -300,9 +322,9 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         X, y = data[features].values, data[label].values
         train_scores, test_scores, roc_aucs = [], [], []
         good_samples, bad_samples = np.array([]), np.array([])
-        n = self.cv.get_n_splits()
+        n = self.validator.get_n_splits()
         self.msg(self.processor.__class__.__name__, 'estimator')
-        for i, (train_i, test_i) in enumerate(self.cv.split(X, y)):
+        for i, (train_i, test_i) in enumerate(self.validator.split(X, y)):
             self.msg('@1%d/%d ' % (i+1, n))
             train_X, train_y, test_X, test_y = X[train_i], y[train_i], X[test_i], y[test_i]
             self._run(train_X, train_y, test_X, test_y)
@@ -321,9 +343,29 @@ class WrpCrossValidator(WrpClassifier, pd.DataFrame):
         self.msg('\n%s' % RSTable(self.mean()), 'mean')
         return data
 
+    #################
+    #   Properties  #
+    #################
+    @property
+    def cost_estimator(self):
+        ce = CETime.get_estimator('%s-%s' % (self.validator.__class__.__name__, self.processor.__class__.__name__))
+        ce.factors = self.factors
+        return ce
+
+    @property
+    def factors(self):
+        return self._factors
+
+    @factors.setter
+    def factors(self, lst):
+        if self.processor is not None and self.validator is not None:
+            self._factors = CETime.Factors([self.processor, self.validator])
+        else:
+            self._factors = None
+
     def __lshift__(self, other):
         ret = Wrapper.__lshift__(self, other)
-        self._get_estimator()
+        self._reload_immutable_factors()
         return ret
 
 

@@ -100,7 +100,7 @@ class TPArc(TPObject):
                                         xy=self._(self.left+self.width/2.0,
                                                   self.top+self.height/2.0),
                                         xycoords='data',
-                                        color=self.msgforecolor,
+                                        color=self._fore_color,
                                         ha='center')
         self.ax = ax
 

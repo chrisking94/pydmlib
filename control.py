@@ -211,7 +211,7 @@ class CProgressBar(RSControl):
             i = int(self._width * self._percentage / 100.0)
             null_block = self.null_char * (self._width - i)
             if self.fill_char == self.null_char:
-                null_block = self.colorstr(null_block, 0, 7, 8)
+                null_block = self.color_str(null_block, 0, 7, 8)
             self._s = '[%s%s%d%%]' % (self.fill_char * i,
                                       null_block,
                                       self.percentage)

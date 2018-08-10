@@ -2,7 +2,7 @@
 import time
 import datetime
 import matplotlib
-from  utils import plt, printf, pd, np
+from  utils import plt, printf, pd, np, cfg
 import random
 import gc
 import os
@@ -23,48 +23,47 @@ matplotlib.rcParams['axes.unicode_minus'] = False # 用来正常显示负号
 
 
 class RSObject(object):
-    modedict = {'default': 0, 'highlight': 1, 'bold': 2, 'nobold': 22, 'underline': 4, 'nounderline': 24,
-                'blink': 5, 'noblink': 25, 'inverse': 7, 'noinverse': 27}
-    colordict = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'pink': 5, 'cyan': 6, 'white': 7,
-                 'default': 8, 'random': -1}
-    id_count = 9999
+    mode_dict = {'default': 0, 'highlight': 1, 'bold': 2, 'nobold': 22, 'underline': 4, 'nounderline': 24,
+                 'blink': 5, 'noblink': 25, 'inverse': 7, 'noinverse': 27}
+    color_dict = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'pink': 5, 'cyan': 6, 'white': 7,
+                  'default': 8, 'random': -1}
+    id_count = 1
 
     def __init__(self, name='', msgforecolor='default', msgbackcolor='default', msgmode='default'):
-        self.id = RSObject.id_count
-        if name == '':
-            name = '%s%d' % (self.__class__.__name__, self.id)
+        self._name = ''
+        self._fore_color = msgforecolor
+        self._back_color = msgbackcolor
+        self._msg_mode = RSObject.mode_dict[msgmode]
+        self._time_start = time.time()
+        self._id = RSObject.id_count
+        self._colored_name = ''
         self.name = name
-        self.msgforecolor = msgforecolor
-        self.msgbackcolor = msgbackcolor
-        self.msgmode = RSObject.modedict[msgmode]
-        self.timestart = time.time()
-        self.coloredname = self.colorstr(self.name, self.msgmode, self.msgforecolor, self.msgbackcolor)
         RSObject.id_count += 1
 
-    def _submsg(self, title, title_color, msg):
+    def _print_msg(self, title, title_color, msg):
         if title == '':
-            msg = '%s: %s' % (self.coloredname, msg)
+            msg = '%s: %s' % (self.colored_name, msg)
         else:
-            csubtitle = self.colorstr(title, 0, title_color, 48)
-            msg = '%s[%s]: %s' % (self.coloredname, csubtitle, msg)
+            csubtitle = self.color_str(title, 0, title_color, 48)
+            msg = '%s[%s]: %s' % (self.colored_name, csubtitle, msg)
         printf(msg)
 
     def msg(self, msg, title=''):
-        self._submsg(title, 'blue', msg)
+        self._print_msg(title, 'blue', msg)
 
     def warning(self, msg):
-        self._submsg('warning', 3, msg)
+        self._print_msg('warning', 3, msg)
 
     def error(self, msg):
-        self._submsg('error', 1, msg)
+        self._print_msg('error', 1, msg)
         raise Exception(msg)
 
-    def starttimer(self):
-        self.timestart = time.time()
+    def start_timer(self):
+        self._time_start = time.time()
 
-    def msgtimecost(self, start=None, msg=''):
+    def msg_time_cost(self, start=None, msg=''):
         if start is None:
-            start = self.timestart
+            start = self._time_start
         timecost = time.time() - start
         if timecost < 1:
             timecost = '%.2fs' % round(timecost, 2)
@@ -72,10 +71,10 @@ class RSObject(object):
             m, s = divmod(timecost, 60)
             h, m = divmod(m, 60)
             timecost = '%02d:%02d:%02d' % (h, m, s)
-        self._submsg('timecost', 5, '%s %s' % (timecost, msg))
+        self._print_msg('timecost', 5, '%s %s' % (timecost, msg))
 
-    def msgtime(self, msg=''):
-        self._submsg(self.strtime(), 6, msg)
+    def msg_current_time(self, msg=''):
+        self._print_msg(self.str_current_time(), 6, msg)
 
     def is_me(self, id_name):
         if isinstance(id_name, str):
@@ -95,36 +94,70 @@ class RSObject(object):
         else:
             return copy.copy(self)
 
+    #################
+    #   built-ins   #
+    #################
     def __str__(self):
-        return self.coloredname
+        return self.colored_name
 
-    __repr__ = __str__
+    def __repr__(self):
+        return self.__str__()
 
+    #################
+    #   Properties  #
+    #################
+    # Read Write
+    @property
+    def name(self):
+        name = self._name
+        if name == '':
+            name = self.__class__.__name__
+            name = cfg.translate_object_name(name)
+            name = '%s#%d' % (name, self.id)
+        return name
+
+    @name.setter
+    def name(self, s):
+        self._name = s
+        self._colored_name = self.color_str(self.name, self._msg_mode, self._fore_color, self._back_color)
+
+    # Read Only
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def colored_name(self):
+        return self._colored_name
+
+    ##############
+    #   Statics  #
+    ##############
     @staticmethod
-    def getcolor(colorname):
+    def get_color(str_color):
         """
         transfer color name into color num
-        :param colorname: str or int
+        :param str_color: str or int
         :return:color num
         """
-        if isinstance(colorname, str):
-            color = RSObject.colordict[colorname]
+        if isinstance(str_color, str):
+            color = RSObject.color_dict[str_color]
         else:
-            color = colorname
+            color = str_color
         if color == -1:
             color = random.randint(0, 8)
         return color
 
     @staticmethod
-    def colorstr(s, mode, fcolor, bcolor):
-        fcolor = RSObject.getcolor(fcolor)
-        bcolor = RSObject.getcolor(bcolor)
-        s = '\033[%d;%d;%dm%s\033[0m' % (mode, fcolor + 30, bcolor + 40, s)
+    def color_str(s, mode, f_color, b_color):
+        f_color = RSObject.get_color(f_color)
+        b_color = RSObject.get_color(b_color)
+        s = '\033[%d;%d;%dm%s\033[0m' % (mode, f_color + 30, b_color + 40, s)
         return s
 
     @staticmethod
-    def strtime(format_='%Y-%m-%d %H:%M:%S', houroffset=0):
-        t = datetime.datetime.now() + datetime.timedelta(hours=houroffset)
+    def str_current_time(format_='%Y-%m-%d %H:%M:%S', hour_offset=0):
+        t = datetime.datetime.now() + datetime.timedelta(hours=hour_offset)
         t = t.strftime(format_)
         return t
 
@@ -135,7 +168,7 @@ class RSList(RSObject, list):
         RS-List
         :param copyfrom:
         """
-        RSObject.__init__(self, 'RS-List', 'random', 'random')
+        RSObject.__init__(self, 'RS-List')
         list.__init__(self, copyfrom)
 
     def __getitem__(self, item):
@@ -158,12 +191,12 @@ class RSList(RSObject, list):
         list.__setitem__(self, key, value)
 
     def get_index(self, id_index):
-        if (isinstance(id_index, int) and id_index > 9999) or isinstance(id_index, str):  # by id
+        if isinstance(id_index, str):  # by name
             for i, x in enumerate(self):
                 if isinstance(x, RSObject) and x.is_me(id_index):
                     return i
             return None
-        else:
+        else:  # by index
             return id_index
 
     def copy(self, deep=False):
@@ -173,7 +206,7 @@ class RSList(RSObject, list):
         return pd.Series(self)
 
     def __str__(self):
-        return '%s：\n%s' % (self.coloredname, RSTable(self.info()).__str__())
+        return '%s：\n%s' % (self.colored_name, RSTable(self.info()).__str__())
 
     def __repr__(self):
         return self.__str__()

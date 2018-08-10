@@ -8,7 +8,7 @@ from data import RSSeries
 
 
 class FeatureSelector(RSDataProcessor):
-    def __init__(self, features2process, feature_count=0.02, plot=None, name=''):
+    def __init__(self, features2process, feature_count=0.8, plot=None, name=''):
         """"
         选择最佳特征
         :param feature_count: 2 types
@@ -82,7 +82,7 @@ class FeatureSelector(RSDataProcessor):
         plt.show()
 
     def __str__(self):
-        return '%s: \n%s' % (self.coloredname, RSTable(self.scores).__str__())
+        return '%s: \n%s' % (self.colored_name, RSTable(self.scores).__str__())
 
 
 class FSChi2(FeatureSelector):
