@@ -10,7 +10,7 @@ plt_show = plt.show
 
 
 def show(*args, **kwargs):
-    from control import RSControl
+    from .control import RSControl
     if RSControl.thread is None:
         plt_show(*args, **kwargs)
     else:
@@ -19,13 +19,13 @@ def show(*args, **kwargs):
         RSControl.thread.resume()
 
 
-plt.show = plt_show
+plt.show = show
 
 
 ###############################################################
 # create internal functions
 def printf(s, *args, **kwargs):
-    from control import RSControl
+    from .control import RSControl
     if RSControl.thread is not None:
         RSControl.thread.pause()
     if isinstance(s, str):

@@ -1,5 +1,5 @@
 # coding=utf-8
-from  dataprocessor import *
+from .dataprocessor import *
 
 
 class Transformer(RSDataProcessor):

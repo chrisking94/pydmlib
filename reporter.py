@@ -1,5 +1,5 @@
-from  dataprocessor import RSDataProcessor
-from  base import np
+from .dataprocessor import RSDataProcessor
+from .base import np
 
 
 class Reporter(RSDataProcessor):

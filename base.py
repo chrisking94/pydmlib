@@ -2,7 +2,7 @@
 import time
 import datetime
 import matplotlib
-from  utils import plt, printf, pd, np, cfg
+from .utils import plt, printf, pd, np, cfg
 import random
 import gc
 import os
@@ -244,7 +244,10 @@ class RSThread(Thread, RSObject):
         self.state = 'pause'
 
     def stop(self):
-        self._async_raise(self.ident, SystemExit)
+        try:
+            self._async_raise(self.ident, SystemExit)
+        except SystemError:
+            self.warning('cannot stop thread!')
 
     def pause(self):
         self.state = 'pause'

@@ -1,7 +1,7 @@
-﻿from  base import *
-from  control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar, RSControl
-from  costestimator import CETime
-from  data import RSData
+﻿from .base import *
+from .control import CStandbyCursor, CTimer, CLabel, CTimeProgressBar, RSControl
+from .costestimator import CETime
+from .data import RSData
 
 
 class RSDataProcessor(RSObject):
@@ -118,7 +118,7 @@ class RSDataProcessor(RSObject):
 
     def _msg_features(self, features, columns, title):
         if self.s_msg_mode == 'brief':
-            msg = '%d/%d column(s)' % (len(features), len(columns))
+            msg = '%d/%d column(s)' % (len(features), len(columns)-1)
         else:
             msg = features.__str__()
         self.msg(msg, title)
@@ -151,6 +151,8 @@ class RSDataProcessor(RSObject):
                 # 否则为features2process∩data.columns
                 features = data.columns[:-1]
                 features = features[self.features2process]
+                if isinstance(features, str):
+                    features = RSData.Index([features])
                 if isinstance(self.features2process, str):
                     self._msg_features(features, data.columns, self.features2process)
                 elif isinstance(self.features2process, tuple):

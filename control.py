@@ -1,4 +1,4 @@
-﻿from  base import RSObject, time, RSThread
+﻿from .base import RSObject, time, RSThread
 from threading import Thread
 
 

@@ -1,4 +1,4 @@
-from  dataprocessor import *
+from .dataprocessor import *
 import re
 
 

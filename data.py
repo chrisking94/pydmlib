@@ -1,4 +1,4 @@
-﻿from  base import pd, time, RSObject, re, np, RSTable
+﻿from .base import pd, time, RSObject, re, np, RSTable
 from sqlalchemy.types import NVARCHAR, Float, Integer, SmallInteger
 from sqlalchemy import create_engine
 from collections import Iterable
@@ -81,6 +81,9 @@ class RSData(pd.DataFrame, RSObject):
                 elif item == 'S':
                     # universal set
                     item = self
+                elif ',' in item:
+                    # 'a, b, c' represent columns [a] [b] [c]
+                    item = self._get_cols_by_expr(item)
                 else:
                     item = self.Item(item)
                     for x in self:
@@ -284,8 +287,11 @@ class RSData(pd.DataFrame, RSObject):
         if isinstance(other, int):
             if other == 0:
                 return None
-            else:
-                return self
+            elif other == 1:
+                self.msg(str(self.shape), 'shape')
+            elif other == 2:
+                self.msg(str(self.columns), 'columns')
+            return self
         else:
             from wrapper import wrap, WrpUnknown
             wrp = wrap(None, other)
@@ -354,8 +360,8 @@ class MSSqlData(RSData):
                 data = pd.read_sql(sql, con=con)
                 #  dtype mapping
                 sql = '''
-                            SELECT COLUMN_NAME, DATA_TYPE 
-                            FROM INFORMATION_SCHEMA.columns 
+                            SELECT COLUMN_NAME, DATA_TYPE
+                            FROM INFORMATION_SCHEMA.columns
                             WHERE TABLE_NAME=\'%s\' and TABLE_CATALOG=\'%s\'
                             ''' % (table, database)
                 ct = pd.read_sql(sql, con)

@@ -1,9 +1,9 @@
-from  dataprocessor import *
+from .dataprocessor import *
 import sklearn.model_selection as cv
 from sklearn.base import TransformerMixin, ClassifierMixin, ClusterMixin, RegressorMixin
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection import BaseCrossValidator
-from  misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
+from .misc import ConfusionMatrix, ROCCurve, PRCurve, FBetaScore
 
 
 class Wrapper(RSDataProcessor):

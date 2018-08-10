@@ -1,10 +1,10 @@
-from  dataprocessor import *
+from .dataprocessor import *
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.ensemble import RandomForestClassifier
 from skfeature.function.information_theoretical_based.MRMR import mrmr
 from sklearn.linear_model import LogisticRegression
-from data import RSSeries
+from .data import RSSeries
 
 
 class FeatureSelector(RSDataProcessor):

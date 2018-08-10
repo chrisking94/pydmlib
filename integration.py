@@ -1,6 +1,6 @@
-from  misc import *
-from  wrapper import wrap
-from  dataprocessor import RSDataProcessor
+from .misc import *
+from .wrapper import wrap
+from .dataprocessor import RSDataProcessor
 
 
 class Integrator(RSObject):
@@ -137,7 +137,7 @@ class ProcessorSequence(RSDataProcessor, RSList):
         RSList.extend(self, [self._wrap_procr(x) for x in iterable])
 
     def __str__(self):
-        return self.info()
+        return RSTable(self.info()).__str__()
 
     def __add__(self, other):
         ret = self.copy()
@@ -153,8 +153,8 @@ class CheckPointList(RSList):
         RSList.__init__(self, copyfrom)
 
     def __str__(self):
-        return pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self],
-                            columns=['id', 'strid', 'name', 'info'])
+        return RSTable(pd.DataFrame(data=[(x.id, x.strid, x.name, x.info()) for x in self],
+                                    columns=['id', 'strid', 'name', 'info'])).__str__()
 
 
 class MTAutoGrid(Integrator, RSList):
@@ -282,7 +282,7 @@ class MTAutoGrid(Integrator, RSList):
                             columns=('id', 'name', 'procr_count'))
 
     def __str__(self):
-        return self.info()
+        return RSTable(self.info()).__str__()
 
 
 class TesterController(RSDataProcessor):

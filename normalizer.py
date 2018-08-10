@@ -1,5 +1,5 @@
-from  dataprocessor import *
-from  transformer import TsfmFunction
+from .dataprocessor import *
+from .transformer import TsfmFunction
 
 
 class Normalizer(RSDataProcessor):

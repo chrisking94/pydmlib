@@ -1,28 +1,28 @@
-from  outlierhandler import *
-from  factorencoder import *
-from  discretor import *
-from  featureclassifier import *
-from  featurecombiner import *
-from  featureselector import *
-from  misc import *
-from  integration import *
-from  nanhandler import *
-from  normalizer import *
-from  sampler import *
-from  transformer import *
-from  reporter import *
-from  formatconverter import *
-from  wrapper import *
-from  data import *
-from  utils import cfg
+from .outlierhandler import *
+from .factorencoder import *
+from .discretor import *
+from .featureclassifier import *
+from .featurecombiner import *
+from .featureselector import *
+from .misc import *
+from .integration import *
+from .nanhandler import *
+from .normalizer import *
+from .sampler import *
+from .transformer import *
+from .reporter import *
+from .formatconverter import *
+from .wrapper import *
+from .data import *
+from .utils import cfg
 
 
 ############################
 #   module initialization  #
 ############################
-from  utils import GlobalOption
-from  control import RSControl
-from  costestimator import RSCostEstimator
+from .utils import GlobalOption
+from .control import RSControl
+from .costestimator import RSCostEstimator
 
 
 def set_option(*args, **kwargs):
@@ -59,14 +59,14 @@ RSDataProcessor.init()
 #          debug           #
 ############################
 if __name__ == '__main__':
-    from  base import test as base_test
-    from  misc import test as misc_test
-    from  wrapper import test as wrapper_test
-    from  data import test as data_test
-    from  control import test as control_test
-    from  integration import test as integration_test
-    from  costestimator import test as costestimator_test
-    from  utils import test as utils_test
+    from .base import test as base_test
+    from .misc import test as misc_test
+    from .wrapper import test as wrapper_test
+    from .data import test as data_test
+    from .control import test as control_test
+    from .integration import test as integration_test
+    from .costestimator import test as costestimator_test
+    from .utils import test as utils_test
     base_test()
     integration_test()
     misc_test()
