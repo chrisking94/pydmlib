@@ -1,8 +1,8 @@
-from treeplot import TreePlot
-from base import RSObject
+from .treeplot import TreePlot
+from .base import RSObject
 from abc import abstractmethod
 import matplotlib.animation as ani
-from misc import RSPlot
+from .misc import RSPlot
 
 
 class Animation(RSPlot):

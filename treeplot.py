@@ -1,4 +1,4 @@
-from misc import RSPlot, RSObject, np
+from .misc import RSPlot, RSObject, np
 from random import random
 import matplotlib.animation as ani
 

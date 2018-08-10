@@ -293,7 +293,7 @@ class RSData(pd.DataFrame, RSObject):
                 self.msg(str(self.columns), 'columns')
             return self
         else:
-            from wrapper import wrap, WrpUnknown
+            from .wrapper import wrap, WrpUnknown
             wrp = wrap(None, other)
             if isinstance(wrp, WrpUnknown):
                 pd.DataFrame.__rshift__(self, other)

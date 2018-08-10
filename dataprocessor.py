@@ -239,7 +239,7 @@ class RSDataProcessor(RSObject):
         return self.fit_transform(*args, **kwargs)
 
     def __add__(self, other):
-        from integration import ProcessorSequence
+        from .integration import ProcessorSequence
         return ProcessorSequence([self, other])
 
     @staticmethod
