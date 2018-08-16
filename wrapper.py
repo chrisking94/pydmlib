@@ -406,6 +406,3 @@ def wrap(features2process, processor, *args, **kwargs):
         return WrpUnknown(features2process, processor)
 
 
-def test():
-    return
-    pro = wrap(None, lambda self, data, features: data * 2)(123)

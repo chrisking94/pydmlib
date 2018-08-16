@@ -236,6 +236,9 @@ class RSTable(pt.PrettyTable, RSObject):
             n = len(copy_from)
         RSObject.__init__(self)
 
+    def _reshape_1d(self, data: Iterable) -> pd.DataFrame:
+        pass
+
 
 class RSThread(Thread, RSObject):
     def __init__(self, **kwargs):
@@ -270,9 +273,5 @@ class RSThread(Thread, RSObject):
             ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, None)
             raise SystemError('PyThreadState_SetAsyncExc failed')
 
-
-def test():
-    return
-    pass
 
 

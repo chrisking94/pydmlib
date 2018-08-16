@@ -140,7 +140,7 @@ class FBetaScore(RSPlot, pd.DataFrame):
         return self['scores'].iloc[-1]
 
 
-def test():
+if __name__ == '__main__':
     # cm = ConfusionMatrix([1, 2, 3, 2, 1, 2], [1, 2, 3, 2, 5, 6], [1, 2, 5])
     # print(cm)
     # print(cm[1, 1])

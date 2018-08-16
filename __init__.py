@@ -58,21 +58,5 @@ RSDataProcessor.init()
 ############################
 #          debug           #
 ############################
-if __name__ == '__main__':
-    from .base import test as base_test
-    from .misc import test as misc_test
-    from .wrapper import test as wrapper_test
-    from .data import test as data_test
-    from .control import test as control_test
-    from .integration import test as integration_test
-    from .costestimator import test as costestimator_test
-    from .utils import test as utils_test
-    base_test()
-    integration_test()
-    misc_test()
-    wrapper_test()
-    data_test()
-    control_test()
-    costestimator_test()
-    utils_test()
+
 

@@ -262,12 +262,4 @@ class CTimeProgressBar(CProgressBar):
         return CProgressBar.__str__(self)
 
 
-def test():
-    return
-    RSControl.init()
-    t = CTimer(visible=True)
-    p = CProgressBar(percentage=50, visible=True)
-    while 1:
-        pass
-    pass
 

@@ -98,7 +98,12 @@ class CETime(RSCostEstimator):
         def _append(self, obj, depth):
             if isinstance(obj, bool):
                 list.append(self, int(obj))
-            elif isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
+            elif isinstance(obj, int) or isinstance(obj, float):
+                if np.isnan(obj):
+                    list.append(self, -1)
+                else:
+                    list.append(self, obj)
+            elif isinstance(obj, str):
                 list.append(self, obj)
             elif isinstance(obj, pd.DataFrame):
                 list.extend(self, obj.shape)
@@ -236,12 +241,4 @@ class CETime(RSCostEstimator):
         return estimator
 
 
-def test():
-    return
-    e = CETime('test')
-    for i in range(1, 10):
-        print(e.predict(i))
-        time.sleep(i)
-        e.memorize_experience()
-    return
 

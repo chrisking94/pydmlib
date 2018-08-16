@@ -403,16 +403,3 @@ class TCEnd(TCCheckPoint):
         data = TCCheckPoint.fit_transform(self, data)
         self.msg_current_time(self.color_str('--end-point' * 9, 0, self._fore_color, self._back_color))
         return data
-
-
-def test():
-    return
-    grid = [
-        [TCCheckPoint(), TCCheckPoint()],
-        TCContinue(),
-        [TCCheckPoint(), TCCheckPoint()]
-    ]
-    mt = MTAutoGrid(grid)
-    for s in mt:
-        print(s.copy().__class__.__name__)
-    pass

@@ -120,9 +120,12 @@ class RSData(pd.DataFrame, RSObject):
                     item = []
             else:
                 item = pd.core.indexes.base.Index.__getitem__(self, item)
-            if (not isinstance(item, str)) and isinstance(item, Iterable):
-                item = pd.core.indexes.base.Index(item)
-                return RSData.Index(item)
+            if isinstance(item, Iterable):
+                if isinstance(item, str):
+                    return item
+                else:
+                    item = pd.core.indexes.base.Index(item)
+                    return RSData.Index(item)
             else:
                 return item
 
@@ -257,11 +260,14 @@ class RSData(pd.DataFrame, RSObject):
         return ret
 
     def _getitem_column(self, key):
-        key = self.columns[key]
-        if isinstance(key, str):
+        try:
             return pd.DataFrame._getitem_column(self, key)
-        else:
-            return self._getitem_array(key)
+        except KeyError:
+            key = self.columns[key]
+            if isinstance(key, self.Index):
+                return self._getitem_array(key)
+            else:
+                return pd.DataFrame._getitem_column(self, key)
 
     def _getitem_array(self, key):
         """
@@ -269,19 +275,20 @@ class RSData(pd.DataFrame, RSObject):
         :param key:
         :return:
         """
-        if isinstance(key, list):
-            key = self.columns[key]
-        return pd.DataFrame._getitem_array(self, key)
+        try:
+            return pd.DataFrame._getitem_array(self, key)
+        except KeyError:
+            return pd.DataFrame._getitem_array(self, self.columns[key])
 
     def _set_item(self, key, value):
         try:
+            pd.DataFrame._set_item(self, key, value)
+        except KeyError:
             key = self.columns[key]
             if not isinstance(key, str):
                 self._setitem_array(key, value)
-                return
-        except KeyError:
-            pass
-        pd.DataFrame._set_item(self, key, value)
+            else:
+                self._set_item(key, value)
 
     def __rshift__(self, other):
         if isinstance(other, int):

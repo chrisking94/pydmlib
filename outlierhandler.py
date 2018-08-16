@@ -81,3 +81,14 @@ class OHIForest(OutlierHandler):
         todrop = pd.DataFrame(np.array([todrop for i in range(X.shape[1])]).T, columns=X.columns)
         return todrop
 
+
+class OHInfToNan(OutlierHandler):
+    def __init__(self, features2process):
+        OutlierHandler.__init__(self, features2process)
+
+    def _process(self, data, features, label):
+        data = data.copy()
+        X = data[features]
+        X[np.isinf(X)] = np.nan
+        return data
+
