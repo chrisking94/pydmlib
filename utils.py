@@ -1,11 +1,11 @@
-import matplotlib.pyplot as plt
+﻿import matplotlib.pyplot as plt
 from configparser import ConfigParser
 import os
 import pandas as pd
 import numpy as np
 from xml.dom.minidom import parse
 import xml.dom.minidom as minidom
-from error import *
+from .error import *
 
 ###############################################################
 # rewrite some methods of plt

@@ -1,4 +1,4 @@
-﻿from .base import pd, time, RSObject, re, np, RSTable
+﻿﻿from .base import pd, time, RSObject, re, np, RSTable
 from sqlalchemy.types import NVARCHAR, Float, Integer, SmallInteger
 from sqlalchemy import create_engine
 from collections import Iterable
@@ -310,18 +310,21 @@ class RSData(pd.DataFrame, RSObject):
                 return wrp(self)
 
     def __setattr__(self, name, value):
-        if name[0] == '_':
+        if name[0] == '_' and name in self._internal_attrs:
             RSObject.__setattr__(self, name, value)
         else:
-            if name in self.columns:
-                ns = self.columns[name]
-                if isinstance(ns, str):
-                    name = ns
-                else:
-                    self.warning('multi column[%s]: %s found, set %s as a new column/attribute.'
-                                 % (name, ns.__str__(), name))
-            pd.DataFrame.__setattr__(self, name, value)
-
+            try:
+                pd.DataFrame.__setattr__(self, name, value)
+            except:
+                if name in self.columns:
+                    ns = self.columns[name]
+                    if isinstance(ns, str):
+                        name = ns
+                    else:
+                        self.warning('multi column[%s]: %s found, set %s as a new column/attribute.'
+                                     % (name, ns.__str__(), name))
+                pd.DataFrame.__setattr__(self, name, value)
+            
     #################
     #   Properties  #
     #################

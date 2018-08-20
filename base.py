@@ -1,4 +1,4 @@
-# coding=utf-8
+﻿# coding=utf-8
 import time
 import datetime
 import matplotlib
@@ -28,6 +28,7 @@ class RSObject(object):
     color_dict = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'pink': 5, 'cyan': 6, 'white': 7,
                   'default': 8, 'random': -1}
     id_count = 1
+    _internal_attrs = {'name'}
 
     def __init__(self, name='', msgforecolor='default', msgbackcolor='default', msgmode='default'):
         self._name = ''
