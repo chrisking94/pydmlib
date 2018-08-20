@@ -1,4 +1,4 @@
-﻿﻿from .base import pd, time, RSObject, re, np, RSTable
+from .base import pd, time, RSObject, re, np, RSTable
 from sqlalchemy.types import NVARCHAR, Float, Integer, SmallInteger
 from sqlalchemy import create_engine
 from collections import Iterable
